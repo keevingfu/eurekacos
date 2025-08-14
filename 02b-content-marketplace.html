@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内容市场中心 - Content Marketplace</title>
+    <!-- 引入 ECharts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <style>
+        /* Global Design System - Creating a vibrant marketplace atmosphere */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Marketplace Color Palette - Energetic and Collaborative */
+            --market-primary: #6366F1;     /* Indigo - Trust and professionalism */
+            --market-secondary: #8B5CF6;   /* Purple - Creativity */
+            --market-accent: #EC4899;      /* Pink - Energy and engagement */
+            --market-success: #10B981;     /* Green - Growth and success */
+            --market-warning: #F59E0B;     /* Amber - Attention */
+            --market-info: #06B6D4;        /* Cyan - Information */
+            
+            /* Neutral Palette */
+            --gray-900: #111827;
+            --gray-800: #1F2937;
+            --gray-700: #374151;
+            --gray-600: #4B5563;
+            --gray-500: #6B7280;
+            --gray-400: #9CA3AF;
+            --gray-300: #D1D5DB;
+            --gray-200: #E5E7EB;
+            --gray-100: #F3F4F6;
+            --gray-50: #F9FAFB;
+            --white: #FFFFFF;
+            
+            /* Gradient Definitions for Visual Appeal */
+            --gradient-premium: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            --gradient-gold: linear-gradient(135deg, #F6D365 0%, #FDA085 100%);
+            --gradient-silver: linear-gradient(135deg, #E0E0E0 0%, #B4B4B4 100%);
+            --gradient-bronze: linear-gradient(135deg, #CD7F32 0%, #A0522D 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+        }
+
+        /* Main Application Container */
+        .marketplace-container {
+            display: flex;
+            height: 100vh;
+            background: var(--gray-50);
+        }
+
+        /* Left Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            background: var(--gradient-premium);
+            color: white;
+        }
+
+        .marketplace-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .user-credits {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .credits-value {
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            flex: 1;
+            padding: 20px 16px;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            padding: 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: var(--gray-50);
+            color: var(--market-primary);
+        }
+
+        .nav-item.active {
+            background: var(--market-primary);
+            color: white;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            padding: 2px 8px;
+            background: var(--market-accent);
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Content Frame */
+        .content-frame-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #contentFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: var(--gray-50);
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-300);
+            border-radius: 50%;
+            border-top-color: var(--market-primary);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Top Header Bar */
+        .header-bar {
+            background: white;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            background: var(--gray-50);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            background: white;
+            border-color: var(--market-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--gray-700);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .header-btn:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
+        }
+
+        .header-btn.primary {
+            background: var(--market-primary);
+            color: white;
+            border-color: var(--market-primary);
+        }
+
+        .header-btn.primary:hover {
+            background: var(--market-secondary);
+            border-color: var(--market-secondary);
+        }
+
+        /* Content Scrollable Area */
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: var(--gray-50);
+        }
+
+        /* Featured Section - Hero Banner */
+        .featured-section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .featured-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: var(--gradient-premium);
+            opacity: 0.1;
+            border-radius: 50%;
+            transform: translate(100px, -100px);
+        }
+
+        .featured-content {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .featured-text {
+            flex: 1;
+        }
+
+        .featured-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+        }
+
+        .featured-desc {
+            font-size: 16px;
+            color: var(--gray-600);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .featured-stats {
+            display: flex;
+            gap: 24px;
+        }
+
+        .featured-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--market-primary);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray-500);
+        }
+
+        /* Content Categories Tabs */
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .category-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-tab:hover {
+            background: var(--gray-50);
+        }
+
+        .category-tab.active {
+            background: var(--market-primary);
+            color: white;
+        }
+
+        /* Content Grid - Marketplace Items */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid var(--gray-200);
+        }
+
+        .content-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-thumbnail {
+            height: 160px;
+            background: var(--gradient-premium);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            background: var(--market-accent);
+            color: white;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .author-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gray-300);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .author-name {
+            font-size: 13px;
+            color: var(--gray-600);
+        }
+
+        .card-metrics {
+            display: flex;
+            gap: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .metric {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+
+        /* Leaderboard Section */
+        .leaderboard-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .leaderboard-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px;
+            background: var(--gray-50);
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .leaderboard-item:hover {
+            background: var(--gray-100);
+        }
+
+        .rank-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+        }
+
+        .rank-1 { background: var(--gradient-gold); }
+        .rank-2 { background: var(--gradient-silver); }
+        .rank-3 { background: var(--gradient-bronze); }
+        .rank-other { background: var(--gray-400); }
+
+        .contributor-info {
+            flex: 1;
+        }
+
+        .contributor-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .contributor-team {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .contribution-score {
+            text-align: right;
+        }
+
+        .score-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--market-primary);
+        }
+
+        .score-label {
+            font-size: 11px;
+            color: var(--gray-500);
+        }
+
+        /* Template Library Section */
+        .template-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .template-card {
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-card:hover {
+            border-color: var(--market-primary);
+            transform: translateY(-2px);
+        }
+
+        .template-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 12px;
+            background: var(--gradient-premium);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+
+        .template-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .template-count {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        /* Analytics Dashboard */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .analytics-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .analytics-title {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .analytics-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .analytics-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .analytics-change {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .change-positive {
+            color: var(--market-success);
+        }
+
+        .change-negative {
+            color: var(--market-warning);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-wrapper {
+            height: 300px;
+        }
+
+        /* Collaboration Workflow Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.2s;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: slideUp 0.3s;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--gray-100);
+            border-radius: 8px;
+            color: var(--gray-500);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--gray-200);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* Workflow Steps */
+        .workflow-steps {
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .workflow-steps::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gray-200);
+        }
+
+        .workflow-step {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .step-marker {
+            position: absolute;
+            left: -20px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid var(--market-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--market-primary);
+        }
+
+        .step-completed .step-marker {
+            background: var(--market-success);
+            border-color: var(--market-success);
+            color: white;
+        }
+
+        .step-content {
+            background: var(--gray-50);
+            padding: 16px;
+            border-radius: 10px;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .step-desc {
+            font-size: 13px;
+            color: var(--gray-600);
+        }
+
+        /* Right Panel - Asset Details */
+        .detail-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            bottom: 0;
+            width: 400px;
+            background: white;
+            box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-panel.show {
+            right: 0;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* Rating Component */
+        .rating-stars {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .star {
+            color: var(--gray-300);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star.filled {
+            color: var(--market-warning);
+        }
+
+        /* Action Buttons */
+        .action-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--market-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--market-secondary);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-premium);
+            border-radius: 50%;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            transition: transform 0.3s;
+            z-index: 998;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                z-index: 1001;
+                height: 100vh;
+                transition: left 0.3s;
+            }
+            
+            .sidebar.open {
+                left: 0;
+            }
+            
+            .content-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .featured-content {
+                flex-direction: column;
+            }
+            
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="marketplace-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="marketplace-logo">
+                    <div class="logo-icon">🏪</div>
+                    <div class="logo-text">内容市场中心</div>
+                </div>
+                <div class="user-credits">
+                    <span>💎</span>
+                    <span class="credits-value">2,450</span>
+                    <span>积分</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-title">市场浏览</div>
+                    <div class="nav-item active" onclick="switchSection('marketplace-home.html')">
+                        <span class="nav-icon">🛍️</span>
+                        <span class="nav-label">内容市场</span>
+                        <span class="nav-badge">新</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('marketplace-template-library.html')">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-label">模板库</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('marketplace-best-practices.html')">
+                        <span class="nav-icon">⭐</span>
+                        <span class="nav-label">最佳实践</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-title">协作中心</div>
+                    <div class="nav-item" onclick="switchSection('marketplace-workflow.html')">
+                        <span class="nav-icon">🔄</span>
+                        <span class="nav-label">工作流程</span>
+                        <span class="nav-badge">3</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('marketplace-team-collaboration.html')">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-label">团队协作</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('marketplace-review-center.html')">
+                        <span class="nav-icon">✅</span>
+                        <span class="nav-label">审核中心</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-title">数据分析</div>
+                    <div class="nav-item" onclick="switchSection('marketplace-usage-statistics.html')">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">使用统计</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('marketplace-contribution-ranking.html')">
+                        <span class="nav-icon">🏆</span>
+                        <span class="nav-label">贡献排行</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('marketplace-insights-report.html')">
+                        <span class="nav-icon">💡</span>
+                        <span class="nav-label">洞察报告</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-title">我的空间</div>
+                    <div class="nav-item" onclick="switchSection('marketplace-my-content.html')">
+                        <span class="nav-icon">📁</span>
+                        <span class="nav-label">我的内容</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('marketplace-favorites.html')">
+                        <span class="nav-icon">❤️</span>
+                        <span class="nav-label">收藏夹</span>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header Bar -->
+            <header class="header-bar">
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="搜索内容、模板或团队成员..." oninput="searchMarketplace(this.value)">
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="openFilterModal()">
+                        <span>🎯</span>
+                        <span>筛选</span>
+                    </button>
+                    <button class="header-btn" onclick="openNotifications()">
+                        <span>🔔</span>
+                        <span>通知</span>
+                    </button>
+                    <button class="header-btn primary" onclick="openContributeModal()">
+                        <span>➕</span>
+                        <span>贡献内容</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Frame Container -->
+            <div class="content-frame-container">
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="loading-spinner"></div>
+                </div>
+                <iframe id="contentFrame" src="marketplace-home.html"></iframe>
+            </div>
+
+            <!-- Original Content (hidden by default) -->
+            <div class="content-wrapper" id="originalContent" style="display: none;">
+                <!-- Featured Section -->
+                <section class="featured-section">
+                    <div class="featured-content">
+                        <div class="featured-text">
+                            <h1 class="featured-title">🚀 本月精选：AI优化内容包</h1>
+                            <p class="featured-desc">
+                                由产品营销团队贡献的完整AI优化内容包，包含50+个高质量FAQ资产，
+                                已帮助3个团队提升45%的AI引用率。立即获取，加速您的内容优化进程！
+                            </p>
+                            <div class="featured-stats">
+                                <div class="featured-stat">
+                                    <span class="stat-value">156</span>
+                                    <span class="stat-label">下载次数</span>
+                                </div>
+                                <div class="featured-stat">
+                                    <span class="stat-value">4.8</span>
+                                    <span class="stat-label">用户评分</span>
+                                </div>
+                                <div class="featured-stat">
+                                    <span class="stat-value">12</span>
+                                    <span class="stat-label">团队使用</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="featured-visual">
+                            <!-- This could be an illustration or chart -->
+                            <div style="width: 200px; height: 200px; background: var(--gradient-premium); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 64px;">
+                                📦
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Category Tabs -->
+                <div class="category-tabs">
+                    <button class="category-tab active" onclick="filterCategory('all')">全部内容</button>
+                    <button class="category-tab" onclick="filterCategory('hot')">🔥 热门</button>
+                    <button class="category-tab" onclick="filterCategory('new')">✨ 最新</button>
+                    <button class="category-tab" onclick="filterCategory('recommended')">👍 推荐</button>
+                    <button class="category-tab" onclick="filterCategory('trending')">📈 趋势</button>
+                    <button class="category-tab" onclick="filterCategory('premium')">💎 精品</button>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="content-grid" id="contentGrid">
+                    <!-- Content Card 1 -->
+                    <div class="content-card" onclick="showContentDetail(1)">
+                        <div class="card-thumbnail" style="background: linear-gradient(135deg, #667EEA, #764BA2);">
+                            <span>📚</span>
+                            <span class="card-badge">HOT</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">B2B SaaS 完整FAQ模板库</h3>
+                            <div class="card-author">
+                                <div class="author-avatar">JL</div>
+                                <span class="author-name">产品营销团队 • Jane Liu</span>
+                            </div>
+                            <div class="card-metrics">
+                                <span class="metric">⬇️ 234</span>
+                                <span class="metric">⭐ 4.9</span>
+                                <span class="metric">💬 45</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Card 2 -->
+                    <div class="content-card" onclick="showContentDetail(2)">
+                        <div class="card-thumbnail" style="background: linear-gradient(135deg, #F093FB, #F5576C);">
+                            <span>🎯</span>
+                            <span class="card-badge">NEW</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">Reddit高转化内容策略包</h3>
+                            <div class="card-author">
+                                <div class="author-avatar">MK</div>
+                                <span class="author-name">增长团队 • Mike Kim</span>
+                            </div>
+                            <div class="card-metrics">
+                                <span class="metric">⬇️ 189</span>
+                                <span class="metric">⭐ 4.7</span>
+                                <span class="metric">💬 28</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Card 3 -->
+                    <div class="content-card" onclick="showContentDetail(3)">
+                        <div class="card-thumbnail" style="background: linear-gradient(135deg, #FA709A, #FEE140);">
+                            <span>📊</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">数据驱动内容优化工作流</h3>
+                            <div class="card-author">
+                                <div class="author-avatar">ST</div>
+                                <span class="author-name">数据分析团队 • Sarah Tang</span>
+                            </div>
+                            <div class="card-metrics">
+                                <span class="metric">⬇️ 156</span>
+                                <span class="metric">⭐ 4.8</span>
+                                <span class="metric">💬 31</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Card 4 -->
+                    <div class="content-card" onclick="showContentDetail(4)">
+                        <div class="card-thumbnail" style="background: linear-gradient(135deg, #4FACFE, #00F2FE);">
+                            <span>🎬</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">视频内容脚本模板集</h3>
+                            <div class="card-author">
+                                <div class="author-avatar">AL</div>
+                                <span class="author-name">创意团队 • Alex Lee</span>
+                            </div>
+                            <div class="card-metrics">
+                                <span class="metric">⬇️ 203</span>
+                                <span class="metric">⭐ 4.6</span>
+                                <span class="metric">💬 52</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Card 5 -->
+                    <div class="content-card" onclick="showContentDetail(5)">
+                        <div class="card-thumbnail" style="background: linear-gradient(135deg, #43E97B, #38F9D7);">
+                            <span>🤖</span>
+                            <span class="card-badge">AI优化</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">ChatGPT优化内容框架</h3>
+                            <div class="card-author">
+                                <div class="author-avatar">DW</div>
+                                <span class="author-name">AI策略团队 • David Wang</span>
+                            </div>
+                            <div class="card-metrics">
+                                <span class="metric">⬇️ 412</span>
+                                <span class="metric">⭐ 4.9</span>
+                                <span class="metric">💬 89</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Card 6 -->
+                    <div class="content-card" onclick="showContentDetail(6)">
+                        <div class="card-thumbnail" style="background: linear-gradient(135deg, #FBD786, #F7797D);">
+                            <span>✍️</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">技术文档写作指南</h3>
+                            <div class="card-author">
+                                <div class="author-avatar">RC</div>
+                                <span class="author-name">技术文档团队 • Rachel Chen</span>
+                            </div>
+                            <div class="card-metrics">
+                                <span class="metric">⬇️ 178</span>
+                                <span class="metric">⭐ 4.7</span>
+                                <span class="metric">💬 34</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Template Library Section -->
+                <section class="leaderboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>📋</span>
+                            <span>热门模板库</span>
+                        </h2>
+                        <button class="header-btn" onclick="viewAllTemplates()">查看全部</button>
+                    </div>
+                    <div class="template-showcase">
+                        <div class="template-card" onclick="useTemplate('faq')">
+                            <div class="template-icon">❓</div>
+                            <div class="template-name">FAQ模板</div>
+                            <div class="template-count">使用 1,234 次</div>
+                        </div>
+                        <div class="template-card" onclick="useTemplate('howto')">
+                            <div class="template-icon">📖</div>
+                            <div class="template-name">教程模板</div>
+                            <div class="template-count">使用 892 次</div>
+                        </div>
+                        <div class="template-card" onclick="useTemplate('comparison')">
+                            <div class="template-icon">⚖️</div>
+                            <div class="template-name">对比模板</div>
+                            <div class="template-count">使用 756 次</div>
+                        </div>
+                        <div class="template-card" onclick="useTemplate('casestudy')">
+                            <div class="template-icon">📈</div>
+                            <div class="template-name">案例模板</div>
+                            <div class="template-count">使用 623 次</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Analytics Dashboard -->
+                <section class="leaderboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>📊</span>
+                            <span>使用统计</span>
+                        </h2>
+                        <button class="header-btn" onclick="exportAnalytics()">导出报告</button>
+                    </div>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <div class="analytics-header">
+                                <div class="analytics-title">总下载量</div>
+                                <div class="analytics-icon" style="background: rgba(99, 102, 241, 0.1); color: var(--market-primary);">📥</div>
+                            </div>
+                            <div class="analytics-value">3,456</div>
+                            <div class="analytics-change change-positive">
+                                <span>↑</span>
+                                <span>比上月增长 23.5%</span>
+                            </div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-header">
+                                <div class="analytics-title">活跃贡献者</div>
+                                <div class="analytics-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--market-success);">👥</div>
+                            </div>
+                            <div class="analytics-value">126</div>
+                            <div class="analytics-change change-positive">
+                                <span>↑</span>
+                                <span>新增 15 位贡献者</span>
+                            </div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-header">
+                                <div class="analytics-title">内容复用率</div>
+                                <div class="analytics-icon" style="background: rgba(236, 72, 153, 0.1); color: var(--market-accent);">🔄</div>
+                            </div>
+                            <div class="analytics-value">67.8%</div>
+                            <div class="analytics-change change-positive">
+                                <span>↑</span>
+                                <span>提升 8.2%</span>
+                            </div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-header">
+                                <div class="analytics-title">平均评分</div>
+                                <div class="analytics-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--market-warning);">⭐</div>
+                            </div>
+                            <div class="analytics-value">4.7</div>
+                            <div class="analytics-change change-negative">
+                                <span>↓</span>
+                                <span>略有下降 0.1</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Usage Trends Chart -->
+                <div class="chart-container">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>📈</span>
+                            <span>使用趋势分析</span>
+                        </h2>
+                    </div>
+                    <div class="chart-wrapper" id="usageTrendsChart"></div>
+                </div>
+
+                <!-- Contributor Leaderboard -->
+                <section class="leaderboard-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>🏆</span>
+                            <span>本月贡献排行榜</span>
+                        </h2>
+                        <button class="header-btn" onclick="viewFullLeaderboard()">完整排行</button>
+                    </div>
+                    <div class="leaderboard-list">
+                        <div class="leaderboard-item">
+                            <div class="rank-badge rank-1">1</div>
+                            <div class="contributor-info">
+                                <div class="contributor-name">Jane Liu</div>
+                                <div class="contributor-team">产品营销团队</div>
+                            </div>
+                            <div class="contribution-score">
+                                <div class="score-value">2,340</div>
+                                <div class="score-label">贡献积分</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank-badge rank-2">2</div>
+                            <div class="contributor-info">
+                                <div class="contributor-name">Mike Kim</div>
+                                <div class="contributor-team">增长团队</div>
+                            </div>
+                            <div class="contribution-score">
+                                <div class="score-value">1,890</div>
+                                <div class="score-label">贡献积分</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank-badge rank-3">3</div>
+                            <div class="contributor-info">
+                                <div class="contributor-name">Sarah Tang</div>
+                                <div class="contributor-team">数据分析团队</div>
+                            </div>
+                            <div class="contribution-score">
+                                <div class="score-value">1,567</div>
+                                <div class="score-label">贡献积分</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank-badge rank-other">4</div>
+                            <div class="contributor-info">
+                                <div class="contributor-name">David Wang</div>
+                                <div class="contributor-team">AI策略团队</div>
+                            </div>
+                            <div class="contribution-score">
+                                <div class="score-value">1,234</div>
+                                <div class="score-label">贡献积分</div>
+                            </div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank-badge rank-other">5</div>
+                            <div class="contributor-info">
+                                <div class="contributor-name">Rachel Chen</div>
+                                <div class="contributor-team">技术文档团队</div>
+                            </div>
+                            <div class="contribution-score">
+                                <div class="score-value">1,098</div>
+                                <div class="score-label">贡献积分</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Collaboration Workflow Modal -->
+    <div class="modal" id="workflowModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">协作工作流程</h2>
+                <button class="modal-close" onclick="closeModal('workflowModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="workflow-steps">
+                    <div class="workflow-step step-completed">
+                        <div class="step-marker">✓</div>
+                        <div class="step-content">
+                            <div class="step-title">内容创建</div>
+                            <div class="step-desc">Jane Liu 创建了初始FAQ内容</div>
+                        </div>
+                    </div>
+                    <div class="workflow-step step-completed">
+                        <div class="step-marker">✓</div>
+                        <div class="step-content">
+                            <div class="step-title">团队审核</div>
+                            <div class="step-desc">产品团队完成内容审核，提出3处修改建议</div>
+                        </div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-marker">3</div>
+                        <div class="step-content">
+                            <div class="step-title">质量优化</div>
+                            <div class="step-desc">AI优化团队正在进行SEO和AI引用优化</div>
+                        </div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-marker">4</div>
+                        <div class="step-content">
+                            <div class="step-title">发布上架</div>
+                            <div class="step-desc">等待最终批准后发布到内容市场</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-group">
+                    <button class="btn btn-secondary" onclick="closeModal('workflowModal')">关闭</button>
+                    <button class="btn btn-primary" onclick="approveWorkflow()">批准发布</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Detail Panel -->
+    <div class="detail-panel" id="detailPanel">
+        <div class="panel-header">
+            <h3 style="font-size: 18px; font-weight: 600;">内容详情</h3>
+            <button class="modal-close" onclick="closeDetailPanel()">×</button>
+        </div>
+        <div class="panel-body">
+            <div style="margin-bottom: 20px;">
+                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">B2B SaaS 完整FAQ模板库</h4>
+                <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 12px;">
+                    由产品营销团队贡献 • 更新于 2天前
+                </div>
+                <div class="rating-stars">
+                    <span class="star filled">⭐</span>
+                    <span class="star filled">⭐</span>
+                    <span class="star filled">⭐</span>
+                    <span class="star filled">⭐</span>
+                    <span class="star filled">⭐</span>
+                    <span style="margin-left: 8px; font-size: 14px; color: var(--gray-600);">4.9 (45 评价)</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">内容描述</h5>
+                <p style="font-size: 14px; line-height: 1.6; color: var(--gray-600);">
+                    这是一套完整的B2B SaaS产品FAQ模板库，包含50+个经过实战验证的FAQ模板，
+                    覆盖产品功能、定价、技术支持、安全合规等各个方面。每个模板都经过AI优化，
+                    确保在搜索引擎和AI助手中获得更好的展现。
+                </p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">包含内容</h5>
+                <ul style="font-size: 14px; color: var(--gray-600); line-height: 1.8; padding-left: 20px;">
+                    <li>产品功能FAQ (15个模板)</li>
+                    <li>定价方案FAQ (8个模板)</li>
+                    <li>技术集成FAQ (12个模板)</li>
+                    <li>安全合规FAQ (10个模板)</li>
+                    <li>客户支持FAQ (8个模板)</li>
+                </ul>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">使用统计</h5>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                        <div style="font-size: 20px; font-weight: 600; color: var(--market-primary);">234</div>
+                        <div style="font-size: 12px; color: var(--gray-500);">下载次数</div>
+                    </div>
+                    <div style="padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                        <div style="font-size: 20px; font-weight: 600; color: var(--market-success);">12</div>
+                        <div style="font-size: 12px; color: var(--gray-500);">团队使用</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-group">
+                <button class="btn btn-secondary" onclick="previewContent()">预览</button>
+                <button class="btn btn-primary" onclick="downloadContent()">获取内容</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" onclick="openContributeModal()">
+        <span>➕</span>
+    </button>
+
+    <script>
+        // Initialize charts and interactions
+        let usageTrendsChart;
+        let currentSection = 'marketplace';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            loadMarketplaceContent();
+        });
+
+        // Initialize usage trends chart
+        function initializeCharts() {
+            const chartDom = document.getElementById('usageTrendsChart');
+            usageTrendsChart = echarts.init(chartDom);
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                legend: {
+                    data: ['内容下载', '模板使用', '团队协作', '贡献数量'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#E5E7EB'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#6B7280'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        color: '#6B7280'
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#E5E7EB'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#F3F4F6'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '内容下载',
+                        type: 'line',
+                        smooth: true,
+                        data: [120, 132, 145, 167, 189, 234, 260, 287, 310, 345, 389, 412],
+                        itemStyle: {
+                            color: '#6366F1'
+                        },
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0, color: 'rgba(99, 102, 241, 0.3)'
+                                }, {
+                                    offset: 1, color: 'rgba(99, 102, 241, 0.05)'
+                                }]
+                            }
+                        }
+                    },
+                    {
+                        name: '模板使用',
+                        type: 'line',
+                        smooth: true,
+                        data: [89, 98, 112, 134, 156, 178, 195, 223, 245, 267, 289, 312],
+                        itemStyle: {
+                            color: '#10B981'
+                        }
+                    },
+                    {
+                        name: '团队协作',
+                        type: 'line',
+                        smooth: true,
+                        data: [45, 52, 58, 67, 78, 89, 95, 108, 123, 134, 145, 156],
+                        itemStyle: {
+                            color: '#EC4899'
+                        }
+                    },
+                    {
+                        name: '贡献数量',
+                        type: 'bar',
+                        data: [23, 28, 34, 41, 45, 52, 58, 64, 72, 78, 85, 92],
+                        itemStyle: {
+                            color: '#F59E0B'
+                        }
+                    }
+                ]
+            };
+
+            usageTrendsChart.setOption(option);
+
+            // Make chart responsive
+            window.addEventListener('resize', function() {
+                usageTrendsChart.resize();
+            });
+        }
+
+        // Load marketplace content
+        function loadMarketplaceContent() {
+            console.log('Loading marketplace content...');
+            // In a real application, this would fetch data from an API
+        }
+
+        // Switch navigation sections
+        function switchSection(page) {
+            // Update navigation active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+            
+            // Get elements
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const contentFrame = document.getElementById('contentFrame');
+            const contentFrameContainer = document.querySelector('.content-frame-container');
+            
+            // Always use iframe for navigation
+            loadingOverlay.classList.add('show');
+            
+            // Load the page
+            contentFrame.src = page;
+            
+            // Hide loading overlay when iframe loads
+            contentFrame.onload = function() {
+                setTimeout(() => {
+                    loadingOverlay.classList.remove('show');
+                }, 300);
+            };
+        }
+        
+        // Make switchSection available from iframe
+        window.switchSection = switchSection;
+
+        // Search marketplace
+        function searchMarketplace(query) {
+            console.log('Searching for:', query);
+            // Implement search functionality
+        }
+
+        // Filter by category
+        function filterCategory(category) {
+            // Update active tab
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            console.log('Filtering by category:', category);
+            // Filter content based on category
+        }
+
+        // Show content detail
+        function showContentDetail(contentId) {
+            document.getElementById('detailPanel').classList.add('show');
+            console.log('Showing details for content:', contentId);
+        }
+
+        // Close detail panel
+        function closeDetailPanel() {
+            document.getElementById('detailPanel').classList.remove('show');
+        }
+
+        // Open contribute modal
+        function openContributeModal() {
+            console.log('Opening contribute modal');
+            showNotification('贡献功能即将开放', 'info');
+        }
+
+        // Open workflow modal
+        function openWorkflowModal() {
+            document.getElementById('workflowModal').classList.add('show');
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        // Download content
+        function downloadContent() {
+            console.log('Downloading content...');
+            showNotification('内容下载中...', 'success');
+            
+            // Update download count
+            setTimeout(() => {
+                showNotification('内容下载成功！已添加到您的资产库', 'success');
+            }, 1500);
+        }
+
+        // Preview content
+        function previewContent() {
+            console.log('Previewing content...');
+            showNotification('正在生成预览...', 'info');
+        }
+
+        // Use template
+        function useTemplate(templateType) {
+            console.log('Using template:', templateType);
+            showNotification(`正在加载${templateType}模板...`, 'info');
+        }
+
+        // View all templates
+        function viewAllTemplates() {
+            switchSection('marketplace-template-library.html');
+        }
+
+        // Export analytics
+        function exportAnalytics() {
+            console.log('Exporting analytics...');
+            showNotification('正在生成分析报告...', 'info');
+        }
+
+        // View full leaderboard
+        function viewFullLeaderboard() {
+            switchSection('marketplace-contribution-ranking.html');
+        }
+
+        // Approve workflow
+        function approveWorkflow() {
+            console.log('Approving workflow...');
+            closeModal('workflowModal');
+            showNotification('工作流已批准，内容即将发布', 'success');
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 10000;
+                animation: slideIn 0.3s;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            `;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            notification.innerHTML = `
+                <span style="font-size: 20px;">${icons[type]}</span>
+                <span style="font-size: 14px; color: #374151;">${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

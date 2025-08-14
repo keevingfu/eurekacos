@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEO私域承接配置台 - 智能转化管理平台</title>
+  <style>
+    /* 设计理念：创建一个直观的配置环境，让运营人员能够轻松设计和管理
+           从公域到私域的转化路径，实现流量价值的最大化 */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* 使用温暖专业的配色方案，体现转化和连接的概念 */
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --secondary: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --pink: #ec4899;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      --border: #e5e7eb;
+      --background: #f9fafb;
+      --surface: #ffffff;
+      --hover: #f3f4f6;
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-success: linear-gradient(135deg, #667eea 0%, #06b6d4 100%);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* 顶部导航栏设计 */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    }
+
+    .header-content {
+      max-width: 1920px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-tab {
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .nav-tab:hover {
+      background: var(--hover);
+      color: var(--text-primary);
+    }
+
+    .nav-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* 主容器三栏布局 */
+    .main-container {
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      height: calc(100vh - 65px);
+      max-width: 1920px;
+      margin: 0 auto;
+    }
+
+    /* 左侧组件面板 */
+    .components-panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .component-item {
+      background: var(--hover);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: move;
+      transition: all 0.3s;
+      border: 2px solid transparent;
+    }
+
+    .component-item:hover {
+      border-color: var(--primary);
+      transform: translateX(4px);
+    }
+
+    .component-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      color: white;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .component-name {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .component-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* 中间设计画布 */
+    .design-canvas {
+      background: #f8fafc;
+      padding: 24px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .canvas-header {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    }
+
+    .scenario-selector {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .scenario-select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      min-width: 200px;
+    }
+
+    .canvas-tools {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tool-btn {
+      padding: 8px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .tool-btn:hover {
+      background: var(--hover);
+      border-color: var(--primary);
+    }
+
+    /* Action Card设计区域 */
+    .action-card-designer {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    }
+
+    .card-preview {
+      background: var(--gradient-primary);
+      border-radius: 12px;
+      padding: 24px;
+      color: white;
+      position: relative;
+      min-height: 180px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .card-description {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 20px;
+    }
+
+    .card-cta-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .cta-button {
+      padding: 10px 20px;
+      background: white;
+      color: var(--primary);
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .cta-button.secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* 转化路径设计器 */
+    .path-designer {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    }
+
+    .path-flow {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      overflow-x: auto;
+      padding: 20px 0;
+    }
+
+    .path-node {
+      background: var(--hover);
+      border-radius: 8px;
+      padding: 16px;
+      min-width: 160px;
+      text-align: center;
+      position: relative;
+      border: 2px solid var(--border);
+      transition: all 0.3s;
+    }
+
+    .path-node.active {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .path-node-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+
+    .path-node-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .path-node-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .path-arrow {
+      color: var(--primary);
+      font-size: 24px;
+    }
+
+    /* 私域渠道配置 */
+    .channel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .channel-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid var(--border);
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .channel-card.active {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .channel-card.active::after {
+      content: '✓';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 24px;
+      height: 24px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .channel-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      font-size: 24px;
+    }
+
+    .channel-whatsapp {
+      background: #25d366;
+      color: white;
+    }
+
+    .channel-wechat {
+      background: #07c160;
+      color: white;
+    }
+
+    .channel-email {
+      background: #ea4335;
+      color: white;
+    }
+
+    .channel-sms {
+      background: #ff9800;
+      color: white;
+    }
+
+    .channel-livechat {
+      background: #5865f2;
+      color: white;
+    }
+
+    .channel-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .channel-status {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* 右侧配置面板 */
+    .config-panel {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .config-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .config-tab {
+      padding: 8px 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .config-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    /* A/B测试配置 */
+    .ab-test-section {
+      background: var(--hover);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .ab-variant {
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .variant-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .variant-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .variant-traffic {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .traffic-slider {
+      width: 100px;
+    }
+
+    /* 转化数据统计 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--hover);
+      padding: 12px;
+      border-radius: 6px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .stat-change {
+      font-size: 12px;
+      color: var(--success);
+      margin-top: 4px;
+    }
+
+    .stat-change.negative {
+      color: var(--danger);
+    }
+
+    /* 按钮系统 */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--hover);
+      border-color: var(--primary);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    /* 开关组件 */
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: var(--primary);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: all 0.3s;
+    }
+
+    .toggle-switch.active::after {
+      left: 22px;
+    }
+
+    /* 标签输入 */
+    .tag-input-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      min-height: 40px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: var(--primary);
+      color: white;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .tag-remove {
+      cursor: pointer;
+      opacity: 0.8;
+    }
+
+    .tag-remove:hover {
+      opacity: 1;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 1024px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+
+      .components-panel,
+      .config-panel {
+        display: none;
+      }
+    }
+
+    /* 加载动画 */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* 提示信息 */
+    .tooltip {
+      position: absolute;
+      background: var(--text-primary);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tooltip.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="logo">
+          <span>🎯</span>
+          <span>私域承接配置台</span>
+        </div>
+        <nav class="nav-tabs">
+          <button class="nav-tab active" onclick="switchTab('action-card')">Action Card</button>
+          <button class="nav-tab" onclick="switchTab('conversion-path')">转化路径</button>
+          <button class="nav-tab" onclick="switchTab('channels')">私域渠道</button>
+          <button class="nav-tab" onclick="switchTab('landing')">落地页</button>
+          <button class="nav-tab" onclick="switchTab('ab-test')">A/B测试</button>
+        </nav>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary">
+          <span>📊</span>
+          <span>查看数据</span>
+        </button>
+        <button class="btn btn-primary" onclick="saveConfiguration()">
+          <span>💾</span>
+          <span>保存配置</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主容器 -->
+  <div class="main-container">
+    <!-- 左侧组件面板 -->
+    <aside class="components-panel">
+      <div class="panel-section">
+        <h3 class="section-title">Action Card组件</h3>
+        <div class="component-item" draggable="true" data-component="trial">
+          <div class="component-icon">🎁</div>
+          <div class="component-name">免费试用</div>
+          <div class="component-desc">30天免费试用入口</div>
+        </div>
+        <div class="component-item" draggable="true" data-component="demo">
+          <div class="component-icon">👁️</div>
+          <div class="component-name">预约演示</div>
+          <div class="component-desc">1对1产品演示预约</div>
+        </div>
+        <div class="component-item" draggable="true" data-component="download">
+          <div class="component-icon">📥</div>
+          <div class="component-name">资料下载</div>
+          <div class="component-desc">白皮书、案例下载</div>
+        </div>
+        <div class="component-item" draggable="true" data-component="consultation">
+          <div class="component-icon">💬</div>
+          <div class="component-name">专家咨询</div>
+          <div class="component-desc">连接专家顾问</div>
+        </div>
+        <div class="component-item" draggable="true" data-component="community">
+          <div class="component-icon">👥</div>
+          <div class="component-name">社群加入</div>
+          <div class="component-desc">加入用户社群</div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3 class="section-title">触发条件</h3>
+        <div class="component-item" draggable="true" data-trigger="scroll">
+          <div class="component-icon">📜</div>
+          <div class="component-name">滚动触发</div>
+          <div class="component-desc">页面滚动到指定位置</div>
+        </div>
+        <div class="component-item" draggable="true" data-trigger="time">
+          <div class="component-icon">⏰</div>
+          <div class="component-name">定时触发</div>
+          <div class="component-desc">停留指定时间后</div>
+        </div>
+        <div class="component-item" draggable="true" data-trigger="exit">
+          <div class="component-icon">🚪</div>
+          <div class="component-name">退出意图</div>
+          <div class="component-desc">检测退出意图时</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 中间设计画布 -->
+    <main class="design-canvas">
+      <div class="canvas-header">
+        <div class="scenario-selector">
+          <label style="font-weight: 500;">应用场景：</label>
+          <select class="scenario-select" id="scenarioSelect">
+            <option value="blog">博客文章</option>
+            <option value="product">产品页面</option>
+            <option value="landing">落地页</option>
+            <option value="social">社交媒体</option>
+            <option value="email">邮件营销</option>
+          </select>
+        </div>
+        <div class="canvas-tools">
+          <button class="tool-btn" onclick="previewCard()">
+            <span>👁️</span>
+            <span>预览</span>
+          </button>
+          <button class="tool-btn" onclick="duplicateCard()">
+            <span>📋</span>
+            <span>复制</span>
+          </button>
+          <button class="tool-btn" onclick="resetCard()">
+            <span>🔄</span>
+            <span>重置</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Card设计区域 -->
+      <div class="action-card-designer" id="cardDesigner">
+        <h3 style="margin-bottom: 20px;">Action Card设计</h3>
+        <div class="card-preview" id="cardPreview">
+          <div class="card-title" contenteditable="true">开始您的30天免费试用</div>
+          <div class="card-description" contenteditable="true">
+            无需信用卡，随时取消。立即体验完整功能。
+          </div>
+          <div class="card-cta-group">
+            <button class="cta-button">立即开始</button>
+            <button class="cta-button secondary">了解更多</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 转化路径设计器 -->
+      <div class="path-designer">
+        <h3 style="margin-bottom: 20px;">转化路径设计</h3>
+        <div class="path-flow">
+          <div class="path-node active">
+            <div class="path-node-icon">👀</div>
+            <div class="path-node-title">曝光</div>
+            <div class="path-node-desc">内容展示</div>
+          </div>
+          <span class="path-arrow">→</span>
+          <div class="path-node active">
+            <div class="path-node-icon">🖱️</div>
+            <div class="path-node-title">点击</div>
+            <div class="path-node-desc">用户交互</div>
+          </div>
+          <span class="path-arrow">→</span>
+          <div class="path-node">
+            <div class="path-node-icon">📝</div>
+            <div class="path-node-title">填写</div>
+            <div class="path-node-desc">信息收集</div>
+          </div>
+          <span class="path-arrow">→</span>
+          <div class="path-node">
+            <div class="path-node-icon">💬</div>
+            <div class="path-node-title">承接</div>
+            <div class="path-node-desc">私域连接</div>
+          </div>
+          <span class="path-arrow">→</span>
+          <div class="path-node">
+            <div class="path-node-icon">🎯</div>
+            <div class="path-node-title">转化</div>
+            <div class="path-node-desc">目标达成</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 私域渠道配置 -->
+      <div class="channel-grid">
+        <div class="channel-card active" onclick="toggleChannel(this, 'whatsapp')">
+          <div class="channel-icon channel-whatsapp">📱</div>
+          <div class="channel-name">WhatsApp Business</div>
+          <div class="channel-status">已配置 • 运行中</div>
+        </div>
+        <div class="channel-card active" onclick="toggleChannel(this, 'wechat')">
+          <div class="channel-icon channel-wechat">💬</div>
+          <div class="channel-name">企业微信</div>
+          <div class="channel-status">已配置 • 运行中</div>
+        </div>
+        <div class="channel-card" onclick="toggleChannel(this, 'email')">
+          <div class="channel-icon channel-email">📧</div>
+          <div class="channel-name">邮件营销</div>
+          <div class="channel-status">待配置</div>
+        </div>
+        <div class="channel-card" onclick="toggleChannel(this, 'sms')">
+          <div class="channel-icon channel-sms">💌</div>
+          <div class="channel-name">短信通道</div>
+          <div class="channel-status">待配置</div>
+        </div>
+        <div class="channel-card active" onclick="toggleChannel(this, 'livechat')">
+          <div class="channel-icon channel-livechat">💭</div>
+          <div class="channel-name">在线客服</div>
+          <div class="channel-status">已配置 • 运行中</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 右侧配置面板 -->
+    <aside class="config-panel">
+      <div class="config-tabs">
+        <button class="config-tab active" onclick="switchConfigTab('basic')">基础设置</button>
+        <button class="config-tab" onclick="switchConfigTab('style')">样式定制</button>
+        <button class="config-tab" onclick="switchConfigTab('tracking')">数据追踪</button>
+      </div>
+
+      <!-- 基础设置标签 -->
+      <div id="basicConfig" class="config-content">
+        <div class="form-group">
+          <label class="form-label">卡片名称</label>
+          <input type="text" class="form-input" value="30天免费试用卡片">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">触发条件</label>
+          <select class="form-select">
+            <option>页面滚动50%</option>
+            <option>停留30秒</option>
+            <option>退出意图</option>
+            <option>立即显示</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">显示频率</label>
+          <select class="form-select">
+            <option>每次访问显示一次</option>
+            <option>每天显示一次</option>
+            <option>每周显示一次</option>
+            <option>仅显示一次</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">目标URL</label>
+          <input type="text" class="form-input" placeholder="https://example.com/trial">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">UTM参数</label>
+          <div class="tag-input-container">
+            <span class="tag">
+              source=action_card
+              <span class="tag-remove">×</span>
+            </span>
+            <span class="tag">
+              medium=popup
+              <span class="tag-remove">×</span>
+            </span>
+            <span class="tag">
+              campaign=trial_q1
+              <span class="tag-remove">×</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- A/B测试配置 -->
+        <div class="ab-test-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h4 style="font-size: 14px; font-weight: 600;">A/B测试</h4>
+            <div class="toggle-switch active" onclick="toggleABTest(this)"></div>
+          </div>
+
+          <div class="ab-variant">
+            <div class="variant-header">
+              <span class="variant-name">版本A（控制组）</span>
+              <div class="variant-traffic">
+                <input type="range" class="traffic-slider" value="50" min="0" max="100">
+                <span>50%</span>
+              </div>
+            </div>
+            <input type="text" class="form-input" value="开始您的30天免费试用" style="margin-top: 8px;">
+          </div>
+
+          <div class="ab-variant">
+            <div class="variant-header">
+              <span class="variant-name">版本B（测试组）</span>
+              <div class="variant-traffic">
+                <input type="range" class="traffic-slider" value="50" min="0" max="100">
+                <span>50%</span>
+              </div>
+            </div>
+            <input type="text" class="form-input" value="立即免费体验完整功能" style="margin-top: 8px;">
+          </div>
+
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 12px;">
+            <span>➕</span>
+            <span>添加版本</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 样式定制标签 -->
+      <div id="styleConfig" class="config-content" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">背景样式</label>
+          <select class="form-select">
+            <option>渐变色</option>
+            <option>纯色</option>
+            <option>图片背景</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">主色调</label>
+          <input type="color" value="#6366f1" style="width: 100%; height: 40px;">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">边角圆度</label>
+          <input type="range" class="form-input" min="0" max="20" value="12">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">阴影强度</label>
+          <input type="range" class="form-input" min="0" max="10" value="5">
+        </div>
+      </div>
+
+      <!-- 数据追踪标签 -->
+      <div id="trackingConfig" class="config-content" style="display: none;">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value">1,234</div>
+            <div class="stat-label">展示次数</div>
+            <div class="stat-change">↑ 12.5%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">156</div>
+            <div class="stat-label">点击次数</div>
+            <div class="stat-change">↑ 8.3%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">12.6%</div>
+            <div class="stat-label">点击率</div>
+            <div class="stat-change negative">↓ 2.1%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">23</div>
+            <div class="stat-label">转化数</div>
+            <div class="stat-change">↑ 15.0%</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">追踪事件</label>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="display: flex; align-items: center;">
+              <input type="checkbox" checked style="margin-right: 8px;">
+              <span style="font-size: 14px;">卡片展示</span>
+            </label>
+            <label style="display: flex; align-items: center;">
+              <input type="checkbox" checked style="margin-right: 8px;">
+              <span style="font-size: 14px;">按钮点击</span>
+            </label>
+            <label style="display: flex; align-items: center;">
+              <input type="checkbox" checked style="margin-right: 8px;">
+              <span style="font-size: 14px;">表单提交</span>
+            </label>
+            <label style="display: flex; align-items: center;">
+              <input type="checkbox" style="margin-right: 8px;">
+              <span style="font-size: 14px;">关闭卡片</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Google Analytics ID</label>
+          <input type="text" class="form-input" placeholder="UA-XXXXXXXXX-X">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Facebook Pixel ID</label>
+          <input type="text" class="form-input" placeholder="XXXXXXXXXXXXXXX">
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // 私域承接配置台的核心JavaScript逻辑
+    // 这个系统负责管理从公域到私域的转化配置
+
+    // 全局状态管理
+    const appState = {
+      currentTab: 'action-card',
+      currentConfigTab: 'basic',
+      selectedChannels: new Set(['whatsapp', 'wechat', 'livechat']),
+      abTestEnabled: true,
+      cardConfig: {
+        title: '开始您的30天免费试用',
+        description: '无需信用卡，随时取消。立即体验完整功能。',
+        trigger: 'scroll-50',
+        frequency: 'once-per-visit',
+        targetUrl: '',
+        utmParams: {},
+        style: {
+          background: 'gradient',
+          primaryColor: '#6366f1',
+          borderRadius: 12,
+          shadow: 5
+        }
+      },
+      conversionPath: [],
+      statistics: {
+        impressions: 1234,
+        clicks: 156,
+        conversions: 23
+      }
+    };
+
+    // 初始化页面
+    function initializePage() {
+      // 设置拖拽功能
+      setupDragAndDrop();
+
+      // 初始化编辑器
+      setupInlineEditing();
+
+      // 加载保存的配置
+      loadSavedConfiguration();
+
+      // 初始化图表和统计
+      updateStatistics();
+    }
+
+    // 设置拖拽功能
+    function setupDragAndDrop() {
+      const components = document.querySelectorAll('.component-item');
+      const designer = document.getElementById('cardDesigner');
+
+      components.forEach(component => {
+        component.addEventListener('dragstart', handleDragStart);
+        component.addEventListener('dragend', handleDragEnd);
+      });
+
+      designer.addEventListener('dragover', handleDragOver);
+      designer.addEventListener('drop', handleDrop);
+      designer.addEventListener('dragleave', handleDragLeave);
+    }
+
+    let draggedElement = null;
+
+    function handleDragStart(e) {
+      draggedElement = e.target;
+      e.target.style.opacity = '0.5';
+      e.dataTransfer.effectAllowed = 'copy';
+    }
+
+    function handleDragEnd(e) {
+      e.target.style.opacity = '';
+    }
+
+    function handleDragOver(e) {
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+      e.dataTransfer.dropEffect = 'copy';
+      return false;
+    }
+
+    function handleDrop(e) {
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
+
+      if (draggedElement) {
+        const componentType = draggedElement.getAttribute('data-component');
+        addComponentToCard(componentType);
+      }
+
+      return false;
+    }
+
+    function handleDragLeave(e) {
+      // 移除拖拽时的视觉效果
+    }
+
+    // 添加组件到卡片
+    function addComponentToCard(componentType) {
+      const cardPreview = document.getElementById('cardPreview');
+
+      // 根据组件类型更新卡片内容
+      switch (componentType) {
+        case 'trial':
+          updateCardContent('开始您的30天免费试用', '无需信用卡，随时取消。立即体验完整功能。');
+          break;
+        case 'demo':
+          updateCardContent('预约产品演示', '与我们的专家进行1对1演示，了解如何满足您的需求。');
+          break;
+        case 'download':
+          updateCardContent('下载完整指南', '获取行业白皮书和最佳实践案例。');
+          break;
+        case 'consultation':
+          updateCardContent('获得专家建议', '与行业专家对话，定制您的解决方案。');
+          break;
+        case 'community':
+          updateCardContent('加入用户社群', '与数千名用户交流经验，获取独家资源。');
+          break;
+      }
+
+      // 显示成功提示
+      showNotification('组件已添加到Action Card');
+    }
+
+    // 更新卡片内容
+    function updateCardContent(title, description) {
+      document.querySelector('.card-title').textContent = title;
+      document.querySelector('.card-description').textContent = description;
+      appState.cardConfig.title = title;
+      appState.cardConfig.description = description;
+    }
+
+    // 设置内联编辑
+    function setupInlineEditing() {
+      const editableElements = document.querySelectorAll('[contenteditable="true"]');
+
+      editableElements.forEach(element => {
+        element.addEventListener('blur', function () {
+          // 保存编辑的内容
+          if (element.classList.contains('card-title')) {
+            appState.cardConfig.title = element.textContent;
+          } else if (element.classList.contains('card-description')) {
+            appState.cardConfig.description = element.textContent;
+          }
+        });
+      });
+    }
+
+    // 切换主标签页
+    function switchTab(tabName) {
+      appState.currentTab = tabName;
+
+      // 更新标签状态
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // 更新显示内容
+      updateCanvasContent(tabName);
+    }
+
+    // 更新画布内容
+    function updateCanvasContent(tabName) {
+      // 根据不同的标签显示不同的配置界面
+      console.log(`切换到 ${tabName} 标签`);
+
+      // 这里可以根据标签类型显示/隐藏不同的配置区域
+      const designer = document.querySelector('.action-card-designer');
+      const pathDesigner = document.querySelector('.path-designer');
+      const channelGrid = document.querySelector('.channel-grid');
+
+      // 重置显示
+      designer.style.display = 'block';
+      pathDesigner.style.display = 'block';
+      channelGrid.style.display = 'grid';
+
+      // 根据标签调整显示
+      switch (tabName) {
+        case 'action-card':
+          // 显示Action Card设计器
+          break;
+        case 'conversion-path':
+          // 突出显示转化路径
+          designer.style.display = 'none';
+          break;
+        case 'channels':
+          // 突出显示渠道配置
+          designer.style.display = 'none';
+          pathDesigner.style.display = 'none';
+          break;
+        case 'landing':
+          // 显示落地页配置
+          break;
+        case 'ab-test':
+          // 显示A/B测试配置
+          break;
+      }
+    }
+
+    // 切换配置标签
+    function switchConfigTab(tabName) {
+      appState.currentConfigTab = tabName;
+
+      // 更新标签状态
+      document.querySelectorAll('.config-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // 显示对应内容
+      document.getElementById('basicConfig').style.display = tabName === 'basic' ? 'block' : 'none';
+      document.getElementById('styleConfig').style.display = tabName === 'style' ? 'block' : 'none';
+      document.getElementById('trackingConfig').style.display = tabName === 'tracking' ? 'block' : 'none';
+    }
+
+    // 切换渠道状态
+    function toggleChannel(element, channelId) {
+      element.classList.toggle('active');
+
+      if (appState.selectedChannels.has(channelId)) {
+        appState.selectedChannels.delete(channelId);
+      } else {
+        appState.selectedChannels.add(channelId);
+        // 如果是新激活的渠道，可能需要配置
+        if (!element.classList.contains('configured')) {
+          showChannelConfig(channelId);
+        }
+      }
+
+      updateChannelStatus();
+    }
+
+    // 显示渠道配置弹窗
+    function showChannelConfig(channelId) {
+      // 这里可以弹出渠道配置窗口
+      console.log(`配置渠道: ${channelId}`);
+    }
+
+    // 更新渠道状态
+    function updateChannelStatus() {
+      const activeCount = appState.selectedChannels.size;
+      console.log(`已激活 ${activeCount} 个私域渠道`);
+    }
+
+    // 切换A/B测试
+    function toggleABTest(element) {
+      element.classList.toggle('active');
+      appState.abTestEnabled = element.classList.contains('active');
+
+      // 更新A/B测试配置区域的显示状态
+      const abVariants = document.querySelectorAll('.ab-variant');
+      abVariants.forEach(variant => {
+        variant.style.opacity = appState.abTestEnabled ? '1' : '0.5';
+      });
+    }
+
+    // 预览卡片
+    function previewCard() {
+      // 在新窗口或模态框中预览卡片效果
+      const previewWindow = window.open('', 'preview', 'width=400,height=600');
+      const cardHTML = document.getElementById('cardPreview').outerHTML;
+      previewWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Action Card预览</title>
+                    <style>
+                        body { 
+                            margin: 20px; 
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            background: #f0f0f0;
+                        }
+                        ${document.querySelector('style').textContent}
+                    </style>
+                </head>
+                <body>
+                    ${cardHTML}
+                </body>
+                </html>
+            `);
+    }
+
+    // 复制卡片
+    function duplicateCard() {
+      // 复制当前卡片配置
+      const newConfig = JSON.parse(JSON.stringify(appState.cardConfig));
+      newConfig.title += ' (副本)';
+
+      // 创建新的卡片实例
+      console.log('创建卡片副本:', newConfig);
+      showNotification('卡片已复制');
+    }
+
+    // 重置卡片
+    function resetCard() {
+      if (confirm('确定要重置Action Card到默认状态吗？')) {
+        document.querySelector('.card-title').textContent = '开始您的30天免费试用';
+        document.querySelector('.card-description').textContent = '无需信用卡，随时取消。立即体验完整功能。';
+
+        appState.cardConfig = {
+          title: '开始您的30天免费试用',
+          description: '无需信用卡，随时取消。立即体验完整功能。',
+          trigger: 'scroll-50',
+          frequency: 'once-per-visit',
+          targetUrl: '',
+          utmParams: {},
+          style: {
+            background: 'gradient',
+            primaryColor: '#6366f1',
+            borderRadius: 12,
+            shadow: 5
+          }
+        };
+
+        showNotification('卡片已重置');
+      }
+    }
+
+    // 保存配置
+    function saveConfiguration() {
+      // 收集所有配置数据
+      const configuration = {
+        cardConfig: appState.cardConfig,
+        selectedChannels: Array.from(appState.selectedChannels),
+        abTestEnabled: appState.abTestEnabled,
+        scenario: document.getElementById('scenarioSelect').value,
+        timestamp: new Date().toISOString()
+      };
+
+      // 保存到localStorage（实际应用中应该发送到服务器）
+      localStorage.setItem('privatedomainConfig', JSON.stringify(configuration));
+
+      // 显示成功提示
+      showNotification('配置已保存成功', 'success');
+
+      // 模拟发送到服务器
+      console.log('保存配置:', configuration);
+    }
+
+    // 加载保存的配置
+    function loadSavedConfiguration() {
+      const saved = localStorage.getItem('privatedomainConfig');
+      if (saved) {
+        try {
+          const configuration = JSON.parse(saved);
+          appState.cardConfig = configuration.cardConfig;
+          appState.selectedChannels = new Set(configuration.selectedChannels);
+          appState.abTestEnabled = configuration.abTestEnabled;
+
+          // 更新UI显示
+          document.querySelector('.card-title').textContent = appState.cardConfig.title;
+          document.querySelector('.card-description').textContent = appState.cardConfig.description;
+
+          console.log('配置已加载');
+        } catch (e) {
+          console.error('加载配置失败:', e);
+        }
+      }
+    }
+
+    // 更新统计数据
+    function updateStatistics() {
+      // 模拟实时数据更新
+      setInterval(() => {
+        // 随机增加一些数据
+        if (Math.random() > 0.7) {
+          appState.statistics.impressions += Math.floor(Math.random() * 10);
+          appState.statistics.clicks += Math.floor(Math.random() * 2);
+          if (Math.random() > 0.9) {
+            appState.statistics.conversions += 1;
+          }
+
+          // 更新显示
+          updateStatDisplay();
+        }
+      }, 5000);
+    }
+
+    // 更新统计显示
+    function updateStatDisplay() {
+      const stats = appState.statistics;
+      const ctr = ((stats.clicks / stats.impressions) * 100).toFixed(1);
+      const cvr = ((stats.conversions / stats.clicks) * 100).toFixed(1);
+
+      // 更新统计卡片（如果在追踪标签页）
+      if (appState.currentConfigTab === 'tracking') {
+        // 更新显示的数值
+        console.log(`CTR: ${ctr}%, CVR: ${cvr}%`);
+      }
+    }
+
+    // 显示通知消息
+    function showNotification(message, type = 'info') {
+      // 创建通知元素
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 6px;
+                background: ${type === 'success' ? '#10b981' : '#6366f1'};
+                color: white;
+                font-size: 14px;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+      notification.textContent = message;
+
+      document.body.appendChild(notification);
+
+      // 3秒后自动移除
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+          notification.remove();
+        }, 300);
+      }, 3000);
+    }
+
+    // 监听流量分配滑块
+    document.querySelectorAll('.traffic-slider').forEach(slider => {
+      slider.addEventListener('input', function () {
+        const otherSlider = document.querySelector('.traffic-slider:not(:hover)');
+        const value = parseInt(this.value);
+        const otherValue = 100 - value;
+
+        // 更新另一个滑块的值
+        if (otherSlider) {
+          otherSlider.value = otherValue;
+          otherSlider.nextElementSibling.textContent = otherValue + '%';
+        }
+
+        // 更新当前滑块显示
+        this.nextElementSibling.textContent = value + '%';
+      });
+    });
+
+    // 页面加载时初始化
+    window.onload = function () {
+      initializePage();
+
+      // 添加动画样式
+      const style = document.createElement('style');
+      style.textContent = `
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes slideOut {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                }
+            `;
+      document.head.appendChild(style);
+    };
+  </script>
+</body>
+
+</html>

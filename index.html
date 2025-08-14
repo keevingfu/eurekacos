@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEO资产库内容操作系统 - 门户</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1890ff;
+            --primary-dark: #1273d9;
+            --primary-light: #40a9ff;
+            --success: #52c41a;
+            --warning: #faad14;
+            --error: #f5222d;
+            --purple: #722ed1;
+            --cyan: #13c2c2;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --border: #d9d9d9;
+            --background: #f0f2f5;
+            --card-bg: #ffffff;
+            --header-bg: #001529;
+            --menu-hover: #1890ff;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 页面整体布局 */
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            background: var(--header-bg);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 1000;
+            overflow: visible;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            height: 64px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-right: 48px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* 导航菜单 */
+        .nav-menu {
+            display: flex;
+            flex: 1;
+            height: 100%;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-menu::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 一级菜单项 */
+        .nav-group {
+            position: relative;
+            height: 100%;
+        }
+
+        .nav-group-title {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            user-select: none;
+            position: relative;
+        }
+
+        .nav-group-title:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-group.active .nav-group-title {
+            color: white;
+            background-color: rgba(24, 144, 255, 0.15);
+        }
+
+        .nav-group-title::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%) rotate(0deg);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid rgba(255, 255, 255, 0.65);
+            transition: transform 0.3s;
+        }
+
+        .nav-group.open .nav-group-title::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        /* 二级菜单容器 */
+        .nav-dropdown {
+            position: fixed;
+            top: 64px;
+            left: auto;
+            background: white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 9999;
+            border: 1px solid var(--border);
+        }
+
+        .nav-group.open .nav-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            display: block;
+        }
+
+        /* 二级菜单项 */
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid #f0f0f0;
+            text-decoration: none;
+        }
+
+        .nav-item:last-child {
+            border-bottom: none;
+        }
+
+        .nav-item:hover {
+            background-color: #f5f5f5;
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background-color: #e6f7ff;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        /* 确保下拉菜单显示 */
+        .nav-dropdown * {
+            display: block !important;
+        }
+
+        /* 单独的一级菜单项（无子菜单） */
+        .nav-single {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .nav-single:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-single.active {
+            color: white;
+            background-color: rgba(24, 144, 255, 0.15);
+        }
+
+        /* 用户信息区域 */
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-left: 24px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* iframe容器 */
+        .content-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        #contentFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* 加载动画 */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .logo {
+                margin-right: 16px;
+            }
+
+            .nav-group-title,
+            .nav-single {
+                padding: 0 16px;
+                font-size: 13px;
+            }
+
+            .user-area {
+                margin-left: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">G</div>
+                    <span>GEO资产库系统</span>
+                </div>
+                
+                <nav class="nav-menu">
+                    <!-- 诊断模块 -->
+                    <div class="nav-group">
+                        <div class="nav-group-title">诊断</div>
+                        <div class="nav-dropdown">
+                            <div class="nav-item" data-page="00a-eureka-ai-channel-diagnostic.html">AI搜索渠道诊断</div>
+                            <div class="nav-item" data-page="00b-eureka-geo-opportunity.html">GEO市场机会分析</div>
+                            <div class="nav-item" data-page="00c-eureka-geo-strategy.html">GEO优化策略</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 建库模块 -->
+                    <div class="nav-group">
+                        <div class="nav-group-title">建库</div>
+                        <div class="nav-dropdown">
+                            <div class="nav-item active" data-page="01a-question-collector.html">问题采集</div>
+                            <div class="nav-item" data-page="01b-question-map.html">问题地图</div>
+                            <div class="nav-item" data-page="01c-decision-dashboard.html">决策仪表板</div>
+                            <div class="nav-item" data-page="01d-asset-library-management.html">资产库管理</div>
+                            <div class="nav-item" data-page="01e-asset-creation-studio.html">资产创作室</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 编排模块 -->
+                    <div class="nav-group">
+                        <div class="nav-group-title">编排</div>
+                        <div class="nav-dropdown">
+                            <div class="nav-item" data-page="02a-content-orchestration-center.html">内容编排中心</div>
+                            <div class="nav-item" data-page="02b-content-marketplace.html">内容市场</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 分发模块 -->
+                    <div class="nav-group">
+                        <div class="nav-group-title">分发</div>
+                        <div class="nav-dropdown">
+                            <div class="nav-item" data-page="03a-omnichannel-publishing-console.html">全渠道发布</div>
+                            <div class="nav-item" data-page="03b-ab-testing-lab.html">A/B测试实验室</div>
+                            <div class="nav-item" data-page="03c-channel-config-manager.html">渠道配置管理</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 承接模块 -->
+                    <div class="nav-group">
+                        <div class="nav-group-title">承接</div>
+                        <div class="nav-dropdown">
+                            <div class="nav-item" data-page="04a-intelligent-conversion-management.html">智能转化管理</div>
+                            <div class="nav-item" data-page="04b-user-journey-tracker.html">用户旅程追踪</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 回流模块 -->
+                    <div class="nav-group">
+                        <div class="nav-group-title">回流</div>
+                        <div class="nav-dropdown">
+                            <div class="nav-item" data-page="05a-realtime-monitoring.html">实时监控</div>
+                            <div class="nav-item" data-page="05b-ai-optimization-analytics.html">AI优化分析</div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI辅助 -->
+                    <div class="nav-group">
+                        <div class="nav-group-title">AI辅助</div>
+                        <div class="nav-dropdown">
+                            <div class="nav-item" data-page="06a-ai-assistant-interface.html">AI助手</div>
+                            <div class="nav-item" data-page="06b-report-generation-center.html">报告生成</div>
+                            <div class="nav-item" data-page="06c-team-collaboration-workspace.html">团队协作</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 系统设置 -->
+                    <div class="nav-single" data-page="07-system-settings-console.html">系统设置</div>
+                </nav>
+                
+                <div class="user-area">
+                    <div class="user-avatar">U</div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 内容展示区域 -->
+        <div class="content-container">
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loading-spinner"></div>
+            </div>
+            <iframe id="contentFrame" src="01a-question-collector.html"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // 页面导航管理
+        const navGroups = document.querySelectorAll('.nav-group');
+        const navSingles = document.querySelectorAll('.nav-single');
+        const contentFrame = document.getElementById('contentFrame');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        let currentOpenGroup = null;
+        
+        // 处理一级菜单点击
+        navGroups.forEach(group => {
+            const title = group.querySelector('.nav-group-title');
+            const dropdown = group.querySelector('.nav-dropdown');
+            
+            title.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                // 如果点击的是当前打开的菜单，则关闭它
+                if (group === currentOpenGroup) {
+                    group.classList.remove('open');
+                    currentOpenGroup = null;
+                } else {
+                    // 关闭其他所有菜单
+                    navGroups.forEach(g => g.classList.remove('open'));
+                    // 打开当前菜单
+                    group.classList.add('open');
+                    currentOpenGroup = group;
+                    
+                    // 计算下拉菜单的位置
+                    const rect = title.getBoundingClientRect();
+                    dropdown.style.left = rect.left + 'px';
+                    dropdown.style.top = (rect.bottom + 4) + 'px';
+                    
+                    // 如果该组有激活的子菜单，标记组为激活状态
+                    if (group.querySelector('.nav-item.active')) {
+                        group.classList.add('active');
+                    }
+                }
+            });
+        });
+        
+        // 处理二级菜单项点击
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                // 移除所有active类
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.nav-single').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.nav-group').forEach(g => g.classList.remove('active'));
+                
+                // 添加active类到当前项
+                this.classList.add('active');
+                
+                // 标记父级菜单组为激活状态
+                const parentGroup = this.closest('.nav-group');
+                if (parentGroup) {
+                    parentGroup.classList.add('active');
+                    // 关闭下拉菜单
+                    setTimeout(() => {
+                        parentGroup.classList.remove('open');
+                        currentOpenGroup = null;
+                    }, 100);
+                }
+                
+                // 显示加载动画
+                loadingOverlay.classList.add('show');
+                
+                // 切换iframe内容
+                const page = this.getAttribute('data-page');
+                contentFrame.src = page;
+            });
+        });
+        
+        // 处理单独的一级菜单项点击（系统设置）
+        navSingles.forEach(single => {
+            single.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.nav-single').forEach(nav => nav.classList.remove('active'));
+                document.querySelectorAll('.nav-group').forEach(g => g.classList.remove('active'));
+                
+                // 关闭所有下拉菜单
+                navGroups.forEach(g => g.classList.remove('open'));
+                currentOpenGroup = null;
+                
+                // 添加active类到当前项
+                this.classList.add('active');
+                
+                // 显示加载动画
+                loadingOverlay.classList.add('show');
+                
+                // 切换iframe内容
+                const page = this.getAttribute('data-page');
+                contentFrame.src = page;
+            });
+        });
+        
+        // 点击页面其他地方关闭下拉菜单
+        document.addEventListener('click', function() {
+            navGroups.forEach(g => g.classList.remove('open'));
+            currentOpenGroup = null;
+        });
+        
+        // iframe加载完成后隐藏加载动画
+        contentFrame.addEventListener('load', function() {
+            setTimeout(() => {
+                loadingOverlay.classList.remove('show');
+            }, 300);
+        });
+        
+        // 处理iframe内的链接点击（如果需要的话）
+        window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'navigate') {
+                const targetPage = e.data.page;
+                const targetNav = document.querySelector(`[data-page="${targetPage}"]`);
+                if (targetNav) {
+                    targetNav.click();
+                }
+            }
+        });
+        
+        // 初始化：打开包含激活项的菜单
+        const activeItem = document.querySelector('.nav-item.active');
+        if (activeItem) {
+            const parentGroup = activeItem.closest('.nav-group');
+            if (parentGroup) {
+                const title = parentGroup.querySelector('.nav-group-title');
+                const dropdown = parentGroup.querySelector('.nav-dropdown');
+                
+                parentGroup.classList.add('open');
+                parentGroup.classList.add('active');
+                currentOpenGroup = parentGroup;
+                
+                // 设置初始下拉菜单位置
+                if (title && dropdown) {
+                    const rect = title.getBoundingClientRect();
+                    dropdown.style.left = rect.left + 'px';
+                    dropdown.style.top = (rect.bottom + 4) + 'px';
+                }
+            }
+        }
+        
+        // 调试：输出所有下拉菜单状态
+        console.log('下拉菜单元素:', document.querySelectorAll('.nav-dropdown'));
+        console.log('菜单组:', document.querySelectorAll('.nav-group'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模板库 - GEO内容市场</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #5e35b1;
+      --primary-dark: #4527a0;
+      --primary-light: #7e57c2;
+      --secondary: #00897b;
+      --success: #43a047;
+      --warning: #fb8c00;
+      --danger: #e53935;
+      --info: #1e88e5;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --border: #e0e0e0;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --hover: #f5f5f5;
+      --shadow: 0 2px 4px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* 主容器 */
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* 页面头部 */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--text-primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* 搜索和筛选栏 */
+    .filter-bar {
+      background: var(--surface);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .filter-top {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .search-box {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px 12px 48px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(94, 53, 177, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+    }
+
+    .filter-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tag {
+      padding: 6px 16px;
+      background: var(--hover);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .filter-tag:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .filter-tag.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* 模板网格 */
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .template-card {
+      background: var(--surface);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .template-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .template-preview {
+      height: 200px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .template-type-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .template-preview-content {
+      padding: 24px;
+      color: white;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .template-info {
+      padding: 20px;
+    }
+
+    .template-name {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .template-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .template-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .template-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .template-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-icon {
+      padding: 8px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .btn-icon:hover {
+      background: var(--hover);
+      border-color: var(--primary);
+    }
+
+    /* 类别导航 */
+    .category-nav {
+      background: var(--surface);
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .category-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .category-item {
+      padding: 16px;
+      background: var(--hover);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .category-item:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .category-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .category-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .category-count {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    /* 精选模板 */
+    .featured-section {
+      margin-bottom: 48px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--text-primary);
+    }
+
+    .section-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* 模板详情模态框 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      max-width: 900px;
+      margin: 50px auto;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-footer {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--text-secondary);
+    }
+
+    .close-btn:hover {
+      background: var(--hover);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .template-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .filter-top {
+        flex-direction: column;
+      }
+      
+      .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">模板库</h1>
+        <p style="color: var(--text-secondary); margin-top: 8px;">
+          探索和使用经过验证的内容模板，加速您的创作流程
+        </p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary">
+          <span>📤</span>
+          <span>导入模板</span>
+        </button>
+        <button class="btn btn-primary" onclick="createTemplate()">
+          <span>➕</span>
+          <span>创建模板</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 搜索和筛选 -->
+    <div class="filter-bar">
+      <div class="filter-top">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" placeholder="搜索模板名称、描述或标签...">
+        </div>
+        <select class="btn btn-secondary" style="min-width: 150px;">
+          <option>按热度排序</option>
+          <option>按最新排序</option>
+          <option>按评分排序</option>
+          <option>按使用次数</option>
+        </select>
+      </div>
+      <div class="filter-tags">
+        <span class="filter-tag active" onclick="filterByTag(this, 'all')">全部</span>
+        <span class="filter-tag" onclick="filterByTag(this, 'faq')">FAQ</span>
+        <span class="filter-tag" onclick="filterByTag(this, 'howto')">How-to</span>
+        <span class="filter-tag" onclick="filterByTag(this, 'comparison')">对比分析</span>
+        <span class="filter-tag" onclick="filterByTag(this, 'guide')">指南教程</span>
+        <span class="filter-tag" onclick="filterByTag(this, 'review')">评测</span>
+        <span class="filter-tag" onclick="filterByTag(this, 'troubleshooting')">故障排除</span>
+        <span class="filter-tag" onclick="filterByTag(this, 'checklist')">清单</span>
+      </div>
+    </div>
+
+    <!-- 类别导航 -->
+    <div class="category-nav">
+      <h3 class="category-title">按行业浏览</h3>
+      <div class="category-grid">
+        <div class="category-item" onclick="filterByCategory('tech')">
+          <div class="category-icon">💻</div>
+          <div class="category-name">科技产品</div>
+          <div class="category-count">128个模板</div>
+        </div>
+        <div class="category-item" onclick="filterByCategory('health')">
+          <div class="category-icon">🏥</div>
+          <div class="category-name">健康医疗</div>
+          <div class="category-count">96个模板</div>
+        </div>
+        <div class="category-item" onclick="filterByCategory('finance')">
+          <div class="category-icon">💰</div>
+          <div class="category-name">金融理财</div>
+          <div class="category-count">87个模板</div>
+        </div>
+        <div class="category-item" onclick="filterByCategory('education')">
+          <div class="category-icon">📚</div>
+          <div class="category-name">教育培训</div>
+          <div class="category-count">142个模板</div>
+        </div>
+        <div class="category-item" onclick="filterByCategory('lifestyle')">
+          <div class="category-icon">🏠</div>
+          <div class="category-name">生活方式</div>
+          <div class="category-count">203个模板</div>
+        </div>
+        <div class="category-item" onclick="filterByCategory('business')">
+          <div class="category-icon">💼</div>
+          <div class="category-name">商业服务</div>
+          <div class="category-count">165个模板</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 精选模板 -->
+    <div class="featured-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">🌟 精选模板</h2>
+          <p class="section-subtitle">本周最受欢迎的高质量模板</p>
+        </div>
+        <a href="#" style="color: var(--primary); text-decoration: none;">查看全部 →</a>
+      </div>
+      
+      <div class="template-grid">
+        <!-- 模板卡片1 -->
+        <div class="template-card" onclick="showTemplateDetail('1')">
+          <div class="template-preview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <span class="template-type-badge">FAQ模板</span>
+            <div class="template-preview-content">
+              Q: 产品多久需要更换一次？<br>
+              A: 根据使用频率和环境...<br><br>
+              Q: 如何判断是否需要维护？<br>
+              A: 当您发现以下情况时...
+            </div>
+          </div>
+          <div class="template-info">
+            <h3 class="template-name">产品维护FAQ标准模板</h3>
+            <p class="template-description">
+              适用于各类产品的维护保养常见问题解答，包含判断标准、操作步骤、注意事项等完整结构
+            </p>
+            <div class="template-meta">
+              <div class="template-stats">
+                <span class="stat-item">
+                  <span>👁️</span>
+                  <span>2.3k 使用</span>
+                </span>
+                <span class="stat-item">
+                  <span>⭐</span>
+                  <span>4.8 评分</span>
+                </span>
+                <span class="stat-item">
+                  <span>💬</span>
+                  <span>156 评论</span>
+                </span>
+              </div>
+              <div class="template-actions">
+                <button class="btn btn-icon" onclick="event.stopPropagation(); toggleFavorite(this)">
+                  <span>🤍</span>
+                </button>
+                <button class="btn btn-primary" onclick="event.stopPropagation(); useTemplate('1')">
+                  使用模板
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 模板卡片2 -->
+        <div class="template-card" onclick="showTemplateDetail('2')">
+          <div class="template-preview" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <span class="template-type-badge">How-to指南</span>
+            <div class="template-preview-content">
+              步骤1: 准备所需工具和材料<br>
+              步骤2: 检查当前状态<br>
+              步骤3: 执行操作流程<br>
+              步骤4: 验证结果...
+            </div>
+          </div>
+          <div class="template-info">
+            <h3 class="template-name">分步操作指南模板</h3>
+            <p class="template-description">
+              清晰的步骤化操作说明模板，适合创建各类教程和操作指南，包含前置条件、详细步骤和结果验证
+            </p>
+            <div class="template-meta">
+              <div class="template-stats">
+                <span class="stat-item">
+                  <span>👁️</span>
+                  <span>3.1k 使用</span>
+                </span>
+                <span class="stat-item">
+                  <span>⭐</span>
+                  <span>4.9 评分</span>
+                </span>
+                <span class="stat-item">
+                  <span>💬</span>
+                  <span>203 评论</span>
+                </span>
+              </div>
+              <div class="template-actions">
+                <button class="btn btn-icon" onclick="event.stopPropagation(); toggleFavorite(this)">
+                  <span>🤍</span>
+                </button>
+                <button class="btn btn-primary" onclick="event.stopPropagation(); useTemplate('2')">
+                  使用模板
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 模板卡片3 -->
+        <div class="template-card" onclick="showTemplateDetail('3')">
+          <div class="template-preview" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <span class="template-type-badge">对比分析</span>
+            <div class="template-preview-content">
+              产品A vs 产品B<br>
+              ✓ 性能对比<br>
+              ✓ 价格分析<br>
+              ✓ 功能差异<br>
+              ✓ 适用场景
+            </div>
+          </div>
+          <div class="template-info">
+            <h3 class="template-name">竞品对比分析模板</h3>
+            <p class="template-description">
+              全面的产品对比模板，包含多维度分析框架，帮助用户快速了解不同选择的优劣势
+            </p>
+            <div class="template-meta">
+              <div class="template-stats">
+                <span class="stat-item">
+                  <span>👁️</span>
+                  <span>1.8k 使用</span>
+                </span>
+                <span class="stat-item">
+                  <span>⭐</span>
+                  <span>4.7 评分</span>
+                </span>
+                <span class="stat-item">
+                  <span>💬</span>
+                  <span>98 评论</span>
+                </span>
+              </div>
+              <div class="template-actions">
+                <button class="btn btn-icon" onclick="event.stopPropagation(); toggleFavorite(this)">
+                  <span>🤍</span>
+                </button>
+                <button class="btn btn-primary" onclick="event.stopPropagation(); useTemplate('3')">
+                  使用模板
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 所有模板 -->
+    <div class="all-templates-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">所有模板</h2>
+          <p class="section-subtitle">共 825 个模板可供使用</p>
+        </div>
+      </div>
+      
+      <div class="template-grid">
+        <!-- 更多模板卡片... -->
+        <div class="template-card" onclick="showTemplateDetail('4')">
+          <div class="template-preview" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <span class="template-type-badge">故障排除</span>
+            <div class="template-preview-content">
+              问题症状：设备无法启动<br>
+              可能原因：<br>
+              1. 电源问题<br>
+              2. 系统故障<br>
+              解决方案：...
+            </div>
+          </div>
+          <div class="template-info">
+            <h3 class="template-name">故障诊断决策树模板</h3>
+            <p class="template-description">
+              系统化的故障排除模板，通过决策树结构帮助用户快速定位和解决问题
+            </p>
+            <div class="template-meta">
+              <div class="template-stats">
+                <span class="stat-item">
+                  <span>👁️</span>
+                  <span>956 使用</span>
+                </span>
+                <span class="stat-item">
+                  <span>⭐</span>
+                  <span>4.6 评分</span>
+                </span>
+                <span class="stat-item">
+                  <span>💬</span>
+                  <span>67 评论</span>
+                </span>
+              </div>
+              <div class="template-actions">
+                <button class="btn btn-icon" onclick="event.stopPropagation(); toggleFavorite(this)">
+                  <span>🤍</span>
+                </button>
+                <button class="btn btn-primary" onclick="event.stopPropagation(); useTemplate('4')">
+                  使用模板
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模板详情模态框 -->
+  <div id="templateModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>模板详情</h2>
+        <button class="close-btn" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- 模板详情内容 -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">关闭</button>
+        <button class="btn btn-primary">使用此模板</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 创建新模板
+    function createTemplate() {
+      alert('打开模板创建器...');
+    }
+
+    // 按标签筛选
+    function filterByTag(element, tag) {
+      document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+      element.classList.add('active');
+      console.log('筛选标签:', tag);
+    }
+
+    // 按类别筛选
+    function filterByCategory(category) {
+      console.log('筛选类别:', category);
+    }
+
+    // 显示模板详情
+    function showTemplateDetail(templateId) {
+      document.getElementById('templateModal').style.display = 'block';
+      console.log('显示模板详情:', templateId);
+    }
+
+    // 关闭模态框
+    function closeModal() {
+      document.getElementById('templateModal').style.display = 'none';
+    }
+
+    // 使用模板
+    function useTemplate(templateId) {
+      alert(`使用模板 ${templateId}`);
+    }
+
+    // 切换收藏
+    function toggleFavorite(button) {
+      const icon = button.querySelector('span');
+      if (icon.textContent === '🤍') {
+        icon.textContent = '❤️';
+      } else {
+        icon.textContent = '🤍';
+      }
+    }
+
+    // 点击模态框外部关闭
+    window.onclick = function(event) {
+      const modal = document.getElementById('templateModal');
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>

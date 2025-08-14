@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>洞察报告 - GEO内容市场</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #5e35b1;
+      --primary-dark: #4527a0;
+      --primary-light: #7e57c2;
+      --secondary: #00897b;
+      --success: #43a047;
+      --warning: #fb8c00;
+      --danger: #e53935;
+      --info: #1e88e5;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --border: #e0e0e0;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --hover: #f5f5f5;
+      --shadow: 0 2px 4px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* 主容器 */
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* 页面头部 */
+    .page-header {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 300;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* 关键洞察 */
+    .key-insights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .insight-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--primary);
+      transition: all 0.3s;
+    }
+
+    .insight-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .insight-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--primary-light);
+      color: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .insight-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .insight-value {
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .insight-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .insight-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      background: #e8f5e9;
+      color: var(--success);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 12px;
+    }
+
+    /* 报告部分 */
+    .report-section {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 400;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* 趋势分析 */
+    .trend-chart {
+      height: 400px;
+      background: var(--hover);
+      border-radius: 8px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-placeholder {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    .trend-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .summary-item {
+      padding: 16px;
+      background: var(--hover);
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .summary-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .summary-value {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    /* 内容分析 */
+    .content-analysis {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .analysis-card {
+      background: var(--hover);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .analysis-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .analysis-list {
+      list-style: none;
+    }
+
+    .analysis-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .analysis-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-name {
+      font-weight: 500;
+    }
+
+    .item-value {
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+
+    /* 推荐行动 */
+    .recommendations {
+      display: grid;
+      gap: 16px;
+    }
+
+    .recommendation-card {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      background: var(--hover);
+      border-radius: 8px;
+      align-items: flex-start;
+    }
+
+    .rec-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--primary);
+      color: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .rec-content {
+      flex: 1;
+    }
+
+    .rec-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .rec-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .rec-priority {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .priority-high {
+      background: #ffebee;
+      color: var(--danger);
+    }
+
+    .priority-medium {
+      background: #fff3e0;
+      color: var(--warning);
+    }
+
+    .priority-low {
+      background: #e3f2fd;
+      color: var(--info);
+    }
+
+    /* 按钮样式 */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--hover);
+      border-color: var(--primary);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 1024px) {
+      .content-analysis {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .key-insights {
+        grid-template-columns: 1fr;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .header-actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+      
+      .header-actions .btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div class="header-content">
+        <div>
+          <h1 class="page-title">洞察报告</h1>
+          <p class="page-subtitle">2024年11月 - 内容市场数据分析与趋势洞察</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary">
+            <span>📅</span>
+            <span>选择时间</span>
+          </button>
+          <button class="btn btn-primary">
+            <span>📥</span>
+            <span>下载报告</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 关键洞察 -->
+    <div class="key-insights">
+      <div class="insight-card">
+        <div class="insight-icon">🚀</div>
+        <h3 class="insight-title">内容增长率</h3>
+        <div class="insight-value">+42%</div>
+        <p class="insight-description">本月新增内容较上月增长42%，创历史新高</p>
+        <span class="insight-trend">↑ 持续增长中</span>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-icon">👥</div>
+        <h3 class="insight-title">用户参与度</h3>
+        <div class="insight-value">85%</div>
+        <p class="insight-description">活跃用户参与内容创作的比例显著提升</p>
+        <span class="insight-trend">↑ 较上月+15%</span>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-icon">⭐</div>
+        <h3 class="insight-title">内容质量</h3>
+        <div class="insight-value">4.82</div>
+        <p class="insight-description">平均内容评分稳定在高位，质量持续改善</p>
+        <span class="insight-trend">↑ 较上月+0.12</span>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-icon">🔥</div>
+        <h3 class="insight-title">热门话题</h3>
+        <div class="insight-value">AI工具</div>
+        <p class="insight-description">AI相关内容成为本月最受关注的话题类别</p>
+        <span class="insight-trend">🔥 热度上升156%</span>
+      </div>
+    </div>
+
+    <!-- 趋势分析 -->
+    <div class="report-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>📊</span>
+          <span>内容趋势分析</span>
+        </h2>
+        <div class="section-actions">
+          <select class="btn btn-secondary">
+            <option>按月查看</option>
+            <option>按周查看</option>
+            <option>按日查看</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="trend-chart">
+        <div class="chart-placeholder">
+          <div style="font-size: 64px; margin-bottom: 16px;">📈</div>
+          <div style="font-size: 18px;">内容发布趋势图</div>
+          <div style="font-size: 14px; margin-top: 8px;">显示过去12个月的内容发布量变化</div>
+        </div>
+      </div>
+
+      <div class="trend-summary">
+        <div class="summary-item">
+          <div class="summary-label">月度峰值</div>
+          <div class="summary-value">11月15日</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">日均发布</div>
+          <div class="summary-value">287篇</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">周末活跃度</div>
+          <div class="summary-value">+23%</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">高峰时段</div>
+          <div class="summary-value">14:00-16:00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 内容分析 -->
+    <div class="report-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>🎯</span>
+          <span>内容表现分析</span>
+        </h2>
+      </div>
+
+      <div class="content-analysis">
+        <div class="analysis-card">
+          <h3 class="analysis-title">热门内容类型</h3>
+          <ul class="analysis-list">
+            <li class="analysis-item">
+              <span class="item-name">操作指南</span>
+              <span class="item-value">32%</span>
+            </li>
+            <li class="analysis-item">
+              <span class="item-name">FAQ问答</span>
+              <span class="item-value">28%</span>
+            </li>
+            <li class="analysis-item">
+              <span class="item-name">对比分析</span>
+              <span class="item-value">18%</span>
+            </li>
+            <li class="analysis-item">
+              <span class="item-name">最佳实践</span>
+              <span class="item-value">15%</span>
+            </li>
+            <li class="analysis-item">
+              <span class="item-name">故障排除</span>
+              <span class="item-value">7%</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="analysis-card">
+          <h3 class="analysis-title">用户互动率最高</h3>
+          <ul class="analysis-list">
+            <li class="analysis-item">
+              <div style="flex: 1;">
+                <div class="item-name">AI工具使用教程</div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 95%;"></div>
+                </div>
+              </div>
+              <span class="item-value">95%</span>
+            </li>
+            <li class="analysis-item">
+              <div style="flex: 1;">
+                <div class="item-name">智能家居设置</div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 88%;"></div>
+                </div>
+              </div>
+              <span class="item-value">88%</span>
+            </li>
+            <li class="analysis-item">
+              <div style="flex: 1;">
+                <div class="item-name">产品对比评测</div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 82%;"></div>
+                </div>
+              </div>
+              <span class="item-value">82%</span>
+            </li>
+            <li class="analysis-item">
+              <div style="flex: 1;">
+                <div class="item-name">故障诊断指南</div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 76%;"></div>
+                </div>
+              </div>
+              <span class="item-value">76%</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 用户行为洞察 -->
+    <div class="report-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>👁️</span>
+          <span>用户行为洞察</span>
+        </h2>
+      </div>
+
+      <div class="content-analysis">
+        <div class="analysis-card">
+          <h3 class="analysis-title">搜索热词 Top 10</h3>
+          <ul class="analysis-list">
+            <li class="analysis-item">
+              <span class="item-name">1. ChatGPT使用技巧</span>
+              <span class="item-value">+156%</span>
+            </li>
+            <li class="analysis-item">
+              <span class="item-name">2. AI绘画教程</span>
+              <span class="item-value">+142%</span>
+            </li>
+            <li class="analysis-item">
+              <span class="item-name">3. 智能家居配置</span>
+              <span class="item-value">+98%</span>
+            </li>
+            <li class="analysis-item">
+              <span class="item-name">4. 扫地机器人对比</span>
+              <span class="item-value">+76%</span>
+            </li>
+            <li class="analysis-item">
+              <span class="item-name">5. 空气净化器选购</span>
+              <span class="item-value">+65%</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="analysis-card">
+          <h3 class="analysis-title">用户路径分析</h3>
+          <div style="text-align: center; padding: 40px 0;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🔄</div>
+            <p style="color: var(--text-secondary);">
+              首页 → 搜索 → 内容详情 → 相关推荐<br>
+              平均停留时间：4分32秒
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 推荐行动 -->
+    <div class="report-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>💡</span>
+          <span>优化建议</span>
+        </h2>
+      </div>
+
+      <div class="recommendations">
+        <div class="recommendation-card">
+          <div class="rec-icon">🎯</div>
+          <div class="rec-content">
+            <h3 class="rec-title">增加AI相关内容供给</h3>
+            <p class="rec-description">
+              基于搜索数据分析，AI工具相关内容需求激增156%，但供给仅增长42%。建议重点增加ChatGPT、Midjourney等热门AI工具的使用教程和最佳实践。
+            </p>
+          </div>
+          <span class="rec-priority priority-high">高优先级</span>
+        </div>
+
+        <div class="recommendation-card">
+          <div class="rec-icon">📱</div>
+          <div class="rec-content">
+            <h3 class="rec-title">优化移动端体验</h3>
+            <p class="rec-description">
+              30%的用户通过移动设备访问，但移动端的内容完成率仅为桌面端的65%。建议优化移动端的内容展示和交互体验。
+            </p>
+          </div>
+          <span class="rec-priority priority-medium">中优先级</span>
+        </div>
+
+        <div class="recommendation-card">
+          <div class="rec-icon">🔗</div>
+          <div class="rec-content">
+            <h3 class="rec-title">加强内容关联推荐</h3>
+            <p class="rec-description">
+              用户平均浏览3.2篇相关内容，通过优化推荐算法，预计可提升至4.5篇，增加用户停留时间和满意度。
+            </p>
+          </div>
+          <span class="rec-priority priority-medium">中优先级</span>
+        </div>
+
+        <div class="recommendation-card">
+          <div class="rec-icon">⏰</div>
+          <div class="rec-content">
+            <h3 class="rec-title">调整发布时间策略</h3>
+            <p class="rec-description">
+              14:00-16:00为用户活跃高峰期，建议将重要内容的发布时间调整至此时段，以获得更好的初始曝光。
+            </p>
+          </div>
+          <span class="rec-priority priority-low">低优先级</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 下载报告
+    document.querySelector('.btn-primary').addEventListener('click', function() {
+      alert('正在生成PDF报告...');
+    });
+
+    // 时间选择
+    document.querySelectorAll('.btn-secondary').forEach(btn => {
+      if (btn.textContent.includes('选择时间')) {
+        btn.addEventListener('click', function() {
+          alert('打开时间选择器...');
+        });
+      }
+    });
+
+    // 动画效果
+    window.addEventListener('load', function() {
+      // 进度条动画
+      document.querySelectorAll('.progress-fill').forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+          bar.style.width = width;
+        }, 500);
+      });
+
+      // 数字动画
+      document.querySelectorAll('.insight-value').forEach(value => {
+        const text = value.textContent;
+        const isPercentage = text.includes('%');
+        const isPlus = text.includes('+');
+        const number = parseFloat(text.replace(/[^\d.-]/g, ''));
+        
+        if (!isNaN(number)) {
+          let current = 0;
+          const increment = number / 50;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= number) {
+              current = number;
+              clearInterval(timer);
+            }
+            
+            let display = current.toFixed(text.includes('.') ? 2 : 0);
+            if (isPlus) display = '+' + display;
+            if (isPercentage) display += '%';
+            value.textContent = display;
+          }, 20);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,2648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEO Strategic Decision Dashboard - Data-Driven Content Planning</title>
+    <style>
+        /* Design Philosophy: Create a sophisticated analytics platform that transforms question data into strategic insights */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Professional color system optimized for data visualization */
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --indigo: #6366f1;
+            --teal: #14b8a6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --border: #e5e7eb;
+            --background: #f9fafb;
+            --surface: #ffffff;
+            --hover: #f3f4f6;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Advanced header design with gradient and metrics */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 24px 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo-text h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .logo-text p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Key metrics display */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .metric-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .metric-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .metric-change.positive {
+            color: #86efac;
+        }
+
+        .metric-change.negative {
+            color: #fca5a5;
+        }
+
+        /* Main container layout */
+        .container {
+            max-width: 1600px;
+            margin: 24px auto;
+            padding: 0 24px;
+        }
+
+        /* Navigation tabs */
+        .nav-tabs {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 8px;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .nav-tab:hover {
+            background: var(--hover);
+        }
+
+        .nav-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Dashboard grid layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        /* Card component design */
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Priority matrix visualization */
+        .priority-matrix {
+            grid-column: span 8;
+            height: 500px;
+        }
+
+        .matrix-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(to right, var(--hover) 1px, transparent 1px),
+                        linear-gradient(to bottom, var(--hover) 1px, transparent 1px);
+            background-size: 50px 50px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .matrix-axis {
+            position: absolute;
+            background: var(--text-primary);
+        }
+
+        .matrix-axis.x {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+
+        .matrix-axis.y {
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+        }
+
+        .matrix-label {
+            position: absolute;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .matrix-label.top {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .matrix-label.bottom {
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .matrix-label.left {
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+        }
+
+        .matrix-label.right {
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(90deg);
+        }
+
+        /* Priority bubble */
+        .priority-bubble {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .priority-bubble:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .priority-bubble.high {
+            background: var(--danger);
+        }
+
+        .priority-bubble.medium {
+            background: var(--warning);
+        }
+
+        .priority-bubble.low {
+            background: var(--info);
+        }
+
+        /* Question type distribution */
+        .type-distribution {
+            grid-column: span 4;
+        }
+
+        .donut-chart {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+        }
+
+        .donut-chart svg {
+            transform: rotate(-90deg);
+        }
+
+        .donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .donut-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .legend-label {
+            font-size: 14px;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .legend-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Coverage heatmap */
+        .coverage-heatmap {
+            grid-column: span 6;
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-top: 20px;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+            z-index: 10;
+        }
+
+        .heatmap-cell.level-0 {
+            background: var(--hover);
+            color: var(--text-muted);
+        }
+
+        .heatmap-cell.level-1 {
+            background: #dbeafe;
+            color: var(--text-secondary);
+        }
+
+        .heatmap-cell.level-2 {
+            background: #93c5fd;
+            color: white;
+        }
+
+        .heatmap-cell.level-3 {
+            background: #3b82f6;
+        }
+
+        .heatmap-cell.level-4 {
+            background: #1e40af;
+        }
+
+        /* Competitive analysis */
+        .competitive-analysis {
+            grid-column: span 6;
+        }
+
+        .competitor-bars {
+            margin-top: 20px;
+        }
+
+        .competitor-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .competitor-name {
+            width: 100px;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .competitor-bar-container {
+            flex: 1;
+            height: 32px;
+            background: var(--hover);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .competitor-bar {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            transition: width 1s ease;
+        }
+
+        .competitor-bar.us {
+            background: var(--success);
+        }
+
+        .competitor-bar.competitor {
+            background: var(--text-secondary);
+        }
+
+        /* Question list */
+        .question-list {
+            grid-column: span 12;
+        }
+
+        .list-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--hover);
+            border-radius: 8px;
+            padding: 8px 16px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Table design */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: var(--hover);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--hover);
+        }
+
+        .data-table td {
+            padding: 16px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        /* Badges and tags */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.type-what {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge.type-why {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge.type-how {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.type-best {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        .badge.type-compare {
+            background: #e9d5ff;
+            color: #581c87;
+        }
+
+        .priority-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .priority-indicator.urgent {
+            background: var(--danger);
+        }
+
+        .priority-indicator.high {
+            background: var(--warning);
+        }
+
+        .priority-indicator.medium {
+            background: var(--info);
+        }
+
+        .priority-indicator.low {
+            background: var(--text-muted);
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--hover);
+        }
+
+        .btn-icon {
+            padding: 8px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-icon:hover {
+            background: var(--hover);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Progress indicators */
+        .progress-bar {
+            height: 8px;
+            background: var(--hover);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: absolute;
+            background: var(--text-primary);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+        
+        /* Strategic Overview Styles */
+        .strategic-summary {
+            padding: 24px;
+        }
+        
+        .summary-section {
+            margin-bottom: 32px;
+        }
+        
+        .summary-section h4 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        
+        .summary-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .summary-section li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .summary-section ol {
+            padding-left: 20px;
+        }
+        
+        .summary-section ol li {
+            padding: 8px 0;
+            border: none;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .metric-box {
+            background: var(--hover);
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .metric-box .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        /* Priority Matrix Styles */
+        .matrix-legend {
+            margin-top: 24px;
+            padding: 0 24px 24px;
+        }
+        
+        .matrix-legend h4 {
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .quadrant-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .quadrant {
+            padding: 16px;
+            border-radius: 8px;
+            background: var(--hover);
+        }
+        
+        .quadrant h5 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        
+        .quadrant ul {
+            list-style: none;
+            padding: 0;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .quadrant li {
+            padding: 4px 0;
+        }
+        
+        .quadrant.q1 {
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .quadrant.q2 {
+            background: rgba(79, 70, 229, 0.1);
+        }
+        
+        .quadrant.q3 {
+            background: rgba(251, 191, 36, 0.1);
+        }
+        
+        .quadrant.q4 {
+            background: rgba(107, 114, 128, 0.1);
+        }
+        
+        /* Gap Analysis Styles */
+        .gap-analysis {
+            grid-column: span 6;
+        }
+        
+        .gap-list {
+            padding: 24px;
+        }
+        
+        .gap-item {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid;
+        }
+        
+        .gap-item.urgent {
+            background: rgba(239, 68, 68, 0.05);
+            border-color: var(--danger);
+        }
+        
+        .gap-item.high {
+            background: rgba(245, 158, 11, 0.05);
+            border-color: var(--warning);
+        }
+        
+        .gap-item.medium {
+            background: rgba(59, 130, 246, 0.05);
+            border-color: var(--info);
+        }
+        
+        .gap-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .gap-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .gap-coverage {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .gap-item p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* Competitor Tactics Styles */
+        .competitor-tactics {
+            grid-column: span 8;
+        }
+        
+        .tactics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            padding: 24px;
+        }
+        
+        .tactic-card {
+            background: var(--hover);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .tactic-card h4 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        
+        .tactic-card ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 16px;
+        }
+        
+        .tactic-card li {
+            padding: 4px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .tactic-insight {
+            font-size: 13px;
+            color: var(--primary);
+            font-style: italic;
+            margin: 0;
+        }
+        
+        /* Channel Strategy Styles */
+        .channel-overview {
+            grid-column: span 12;
+        }
+        
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 24px;
+        }
+        
+        .channel-card {
+            background: var(--hover);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .channel-header {
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        
+        .channel-header.reddit {
+            background: #FF4500;
+        }
+        
+        .channel-header.youtube {
+            background: #FF0000;
+        }
+        
+        .channel-header.faq {
+            background: var(--primary);
+        }
+        
+        .channel-header.medium {
+            background: #000000;
+        }
+        
+        .channel-header h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .channel-priority {
+            font-size: 12px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        
+        .channel-content {
+            padding: 20px;
+        }
+        
+        .channel-content h5 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        
+        .channel-content ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 16px;
+        }
+        
+        .channel-content li {
+            padding: 4px 0;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .coverage-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 8px 0 16px;
+        }
+        
+        .coverage-fill {
+            height: 100%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* Roadmap Styles */
+        .channel-roadmap {
+            grid-column: span 12;
+        }
+        
+        .roadmap-timeline {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            padding: 24px;
+        }
+        
+        .roadmap-phase {
+            background: var(--hover);
+            padding: 20px;
+            border-radius: 8px;
+            border-top: 4px solid var(--primary);
+        }
+        
+        .roadmap-phase h4 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        
+        .roadmap-phase ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .roadmap-phase li {
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .roadmap-phase li:last-child {
+            border-bottom: none;
+        }
+        
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .notification-icon {
+            font-size: 20px;
+        }
+        
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+        
+        .notification.info {
+            border-left: 4px solid var(--info);
+        }
+        
+        .notification.warning {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+        
+        /* Filter select styles */
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-select:hover {
+            border-color: var(--primary);
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+        }
+        
+        /* Interactive metric card styles */
+        .metric-card {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Export button in card headers */
+        .card-header .export-btn {
+            margin-left: auto;
+        }
+
+        /* Loading animation */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+            
+            .priority-matrix,
+            .type-distribution,
+            .coverage-heatmap,
+            .competitive-analysis,
+            .question-list {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .metrics-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Strategic header with key performance metrics -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-top">
+                <div class="logo-section">
+                    <div class="logo-icon">📊</div>
+                    <div class="logo-text">
+                        <h1>Eureka GEO Strategic Dashboard</h1>
+                        <p>Robot Vacuum Content Intelligence Platform</p>
+                    </div>
+                </div>
+                <button class="btn btn-primary" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);" onclick="exportFullReport()">
+                    <span>📥</span>
+                    <span>Export Report</span>
+                </button>
+            </div>
+            
+            <div class="metrics-row">
+                <div class="metric-card">
+                    <div class="metric-label">Eureka Questions</div>
+                    <div class="metric-value">247</div>
+                    <div class="metric-change positive">
+                        <span>↑</span>
+                        <span>+18 this week</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">vs Roomba Gap</div>
+                    <div class="metric-value">-26%</div>
+                    <div class="metric-change positive">
+                        <span>↑</span>
+                        <span>Closing by 4%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Pet Hair Queries</div>
+                    <div class="metric-value">4.8K</div>
+                    <div class="metric-change positive">
+                        <span>↑</span>
+                        <span>+15% searches</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Content Coverage</div>
+                    <div class="metric-value">68%</div>
+                    <div class="metric-change negative">
+                        <span>↓</span>
+                        <span>Below target 85%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Urgent Actions</div>
+                    <div class="metric-value">19</div>
+                    <div class="metric-change">
+                        <span>→</span>
+                        <span>Urgent items</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Navigation tabs for different analysis views -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('overview')">
+                <span>🎯</span>
+                <span>Strategic Overview</span>
+            </button>
+            <button class="nav-tab" onclick="switchTab('priority')">
+                <span>⚡</span>
+                <span>Priority Matrix</span>
+            </button>
+            <button class="nav-tab" onclick="switchTab('coverage')">
+                <span>🗺️</span>
+                <span>Coverage Analysis</span>
+            </button>
+            <button class="nav-tab" onclick="switchTab('competitive')">
+                <span>🏆</span>
+                <span>Competitive Gaps</span>
+            </button>
+            <button class="nav-tab" onclick="switchTab('channels')">
+                <span>📡</span>
+                <span>Channel Strategy</span>
+            </button>
+        </nav>
+
+        <!-- Main dashboard grid -->
+        <div class="dashboard-grid">
+            <!-- Priority Matrix Visualization -->
+            <div class="card priority-matrix">
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">Content Priority Matrix</h3>
+                        <p class="card-subtitle">Impact vs Effort analysis for content opportunities</p>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-icon" title="Filter">🔍</button>
+                        <button class="btn-icon" title="Settings">⚙️</button>
+                    </div>
+                </div>
+                <div class="matrix-container" id="priorityMatrix">
+                    <div class="matrix-axis x"></div>
+                    <div class="matrix-axis y"></div>
+                    <span class="matrix-label top">High Impact</span>
+                    <span class="matrix-label bottom">Low Impact</span>
+                    <span class="matrix-label left">Low Effort</span>
+                    <span class="matrix-label right">High Effort</span>
+                    <!-- Priority bubbles will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Question Type Distribution -->
+            <div class="card type-distribution">
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">Question Type Distribution</h3>
+                        <p class="card-subtitle">Content type breakdown</p>
+                    </div>
+                </div>
+                <div class="donut-chart">
+                    <svg width="200" height="200">
+                        <circle cx="100" cy="100" r="80" stroke="#f3f4f6" stroke-width="30" fill="none"></circle>
+                        <circle cx="100" cy="100" r="80" stroke="#3b82f6" stroke-width="30" fill="none"
+                                stroke-dasharray="125.6 376.8" stroke-dashoffset="0"></circle>
+                        <circle cx="100" cy="100" r="80" stroke="#10b981" stroke-width="30" fill="none"
+                                stroke-dasharray="94.2 376.8" stroke-dashoffset="-125.6"></circle>
+                        <circle cx="100" cy="100" r="80" stroke="#f59e0b" stroke-width="30" fill="none"
+                                stroke-dasharray="62.8 376.8" stroke-dashoffset="-219.8"></circle>
+                        <circle cx="100" cy="100" r="80" stroke="#ef4444" stroke-width="30" fill="none"
+                                stroke-dasharray="50.2 376.8" stroke-dashoffset="-282.6"></circle>
+                        <circle cx="100" cy="100" r="80" stroke="#8b5cf6" stroke-width="30" fill="none"
+                                stroke-dasharray="44.2 376.8" stroke-dashoffset="-332.8"></circle>
+                    </svg>
+                    <div class="donut-center">
+                        <div class="donut-value">247</div>
+                        <div class="donut-label">Total Questions</div>
+                    </div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div style="display: flex; align-items: center;">
+                            <span class="legend-color" style="background: #3b82f6;"></span>
+                            <span class="legend-label">How-to</span>
+                        </div>
+                        <span class="legend-value">33%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div style="display: flex; align-items: center;">
+                            <span class="legend-color" style="background: #10b981;"></span>
+                            <span class="legend-label">What</span>
+                        </div>
+                        <span class="legend-value">25%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div style="display: flex; align-items: center;">
+                            <span class="legend-color" style="background: #f59e0b;"></span>
+                            <span class="legend-label">Compare</span>
+                        </div>
+                        <span class="legend-value">17%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div style="display: flex; align-items: center;">
+                            <span class="legend-color" style="background: #ef4444;"></span>
+                            <span class="legend-label">Why</span>
+                        </div>
+                        <span class="legend-value">13%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div style="display: flex; align-items: center;">
+                            <span class="legend-color" style="background: #8b5cf6;"></span>
+                            <span class="legend-label">Best</span>
+                        </div>
+                        <span class="legend-value">12%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intent Coverage Heatmap -->
+            <div class="card coverage-heatmap">
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">Intent Coverage Heatmap</h3>
+                        <p class="card-subtitle">Question coverage across intent categories</p>
+                    </div>
+                </div>
+                <div class="heatmap-grid" id="coverageHeatmap">
+                    <!-- Heatmap cells will be dynamically generated -->
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 16px; font-size: 12px; color: var(--text-secondary);">
+                    <span>← Low Coverage</span>
+                    <span>High Coverage →</span>
+                </div>
+            </div>
+
+            <!-- Competitive Analysis -->
+            <div class="card competitive-analysis">
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">Competitive Gap Analysis</h3>
+                        <p class="card-subtitle">Content coverage vs competitors</p>
+                    </div>
+                </div>
+                <div class="competitor-bars">
+                    <div class="competitor-row">
+                        <span class="competitor-name">Eureka</span>
+                        <div class="competitor-bar-container">
+                            <div class="competitor-bar us" style="width: 68%;">68%</div>
+                        </div>
+                    </div>
+                    <div class="competitor-row">
+                        <span class="competitor-name">iRobot (Roomba)</span>
+                        <div class="competitor-bar-container">
+                            <div class="competitor-bar competitor" style="width: 94%;">94%</div>
+                        </div>
+                    </div>
+                    <div class="competitor-row">
+                        <span class="competitor-name">Shark</span>
+                        <div class="competitor-bar-container">
+                            <div class="competitor-bar competitor" style="width: 82%;">82%</div>
+                        </div>
+                    </div>
+                    <div class="competitor-row">
+                        <span class="competitor-name">Eufy</span>
+                        <div class="competitor-bar-container">
+                            <div class="competitor-bar competitor" style="width: 78%;">78%</div>
+                        </div>
+                    </div>
+                    <div class="competitor-row">
+                        <span class="competitor-name">Bissell</span>
+                        <div class="competitor-bar-container">
+                            <div class="competitor-bar competitor" style="width: 72%;">72%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Priority Questions List -->
+            <div class="card question-list">
+                <div class="card-header">
+                    <div>
+                        <h3 class="card-title">Priority Questions Queue</h3>
+                        <p class="card-subtitle">Questions ranked by strategic importance</p>
+                    </div>
+                </div>
+                <div class="list-controls">
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" class="search-input" placeholder="Search questions..." id="searchInput">
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="btn btn-secondary">
+                            <span>🔽</span>
+                            <span>Type</span>
+                        </button>
+                        <button class="btn btn-secondary">
+                            <span>🔽</span>
+                            <span>Priority</span>
+                        </button>
+                        <button class="btn btn-secondary">
+                            <span>🔽</span>
+                            <span>Channel</span>
+                        </button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox">
+                            </th>
+                            <th>Question</th>
+                            <th style="width: 100px;">Type</th>
+                            <th style="width: 120px;">Priority</th>
+                            <th style="width: 100px;">AI Score</th>
+                            <th style="width: 120px;">Search Vol.</th>
+                            <th style="width: 140px;">Channels</th>
+                            <th style="width: 100px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="questionTableBody">
+                        <!-- Eureka Robot Vacuum Priority Questions -->
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>Best Eureka robot vacuum for pet hair?</td>
+                            <td><span class="badge type-best">BEST</span></td>
+                            <td>
+                                <span class="priority-indicator urgent"></span>
+                                <span>Urgent</span>
+                            </td>
+                            <td>92%</td>
+                            <td>4,800/mo</td>
+                            <td>Reddit, YouTube, FAQ</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm">Create</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>Eureka Groove vs iRobot Roomba comparison</td>
+                            <td><span class="badge type-compare">COMPARE</span></td>
+                            <td>
+                                <span class="priority-indicator urgent"></span>
+                                <span>Urgent</span>
+                            </td>
+                            <td>89%</td>
+                            <td>3,200/mo</td>
+                            <td>YouTube, Reddit, Medium</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm">Create</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>How to set up Eureka robot vacuum with app?</td>
+                            <td><span class="badge type-how">HOW</span></td>
+                            <td>
+                                <span class="priority-indicator high"></span>
+                                <span>High</span>
+                            </td>
+                            <td>85%</td>
+                            <td>2,900/mo</td>
+                            <td>YouTube, FAQ, Manual</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm">Create</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>Eureka Groove robot vacuum not charging fix</td>
+                            <td><span class="badge type-how">HOW</span></td>
+                            <td>
+                                <span class="priority-indicator urgent"></span>
+                                <span>Urgent</span>
+                            </td>
+                            <td>88%</td>
+                            <td>2,100/mo</td>
+                            <td>Reddit, YouTube, FAQ</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm">Create</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>Is Eureka Groove worth it for small apartments?</td>
+                            <td><span class="badge type-why">WHY</span></td>
+                            <td>
+                                <span class="priority-indicator high"></span>
+                                <span>High</span>
+                            </td>
+                            <td>82%</td>
+                            <td>1,800/mo</td>
+                            <td>Reddit, Quora</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm">Create</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize dashboard with strategic data visualization
+        let currentView = 'overview';
+        let questionsData = [];
+        let selectedQuestions = new Set();
+
+        // Initialize the dashboard on page load
+        window.onload = function() {
+            initializeDashboard();
+            updateDashboardView('overview'); // Start with overview tab
+            animateMetrics();
+            initializeInteractiveFeatures();
+        };
+
+        // Initialize dashboard with sample data
+        function initializeDashboard() {
+            // Load question data from previous collection phase
+            const savedQuestions = localStorage.getItem('geoQuestions');
+            if (savedQuestions) {
+                questionsData = JSON.parse(savedQuestions);
+            } else {
+                // Generate sample data for demonstration
+                questionsData = generateSampleData();
+            }
+            
+            updateMetrics();
+            startRealTimeUpdates();
+        }
+
+        // Generate sample question data for visualization - Eureka Robot Vacuum Case
+        function generateSampleData() {
+            const eurekaQuestions = [
+                // High Priority - Purchase Intent
+                { text: "Best Eureka robot vacuum for pet hair?", type: 'best', priority: 'urgent', aiScore: 0.92, searchVolume: 4800, impact: 0.95, effort: 0.3, channels: ['Reddit', 'YouTube', 'FAQ'], competitorCoverage: false },
+                { text: "Eureka Groove vs iRobot Roomba comparison", type: 'compare', priority: 'urgent', aiScore: 0.89, searchVolume: 3200, impact: 0.9, effort: 0.4, channels: ['YouTube', 'Reddit', 'Medium'], competitorCoverage: true },
+                { text: "How to set up Eureka robot vacuum with app?", type: 'how', priority: 'high', aiScore: 0.85, searchVolume: 2900, impact: 0.85, effort: 0.2, channels: ['YouTube', 'FAQ', 'Manual'], competitorCoverage: false },
+                { text: "Eureka Groove robot vacuum not charging fix", type: 'how', priority: 'urgent', aiScore: 0.88, searchVolume: 2100, impact: 0.88, effort: 0.3, channels: ['Reddit', 'YouTube', 'FAQ'], competitorCoverage: false },
+                { text: "Is Eureka Groove worth it for small apartments?", type: 'why', priority: 'high', aiScore: 0.82, searchVolume: 1800, impact: 0.8, effort: 0.35, channels: ['Reddit', 'Quora'], competitorCoverage: false },
+                
+                // Medium Priority - Feature Questions
+                { text: "What is the battery life of Eureka Groove?", type: 'what', priority: 'medium', aiScore: 0.76, searchVolume: 1600, impact: 0.7, effort: 0.15, channels: ['FAQ', 'Amazon Q&A'], competitorCoverage: true },
+                { text: "How to clean Eureka robot vacuum brushes?", type: 'how', priority: 'high', aiScore: 0.83, searchVolume: 2400, impact: 0.82, effort: 0.25, channels: ['YouTube', 'FAQ'], competitorCoverage: false },
+                { text: "Why does Eureka vacuum get stuck under furniture?", type: 'why', priority: 'medium', aiScore: 0.71, searchVolume: 980, impact: 0.65, effort: 0.4, channels: ['Reddit', 'FAQ'], competitorCoverage: false },
+                { text: "Best cleaning solution for Eureka robot vacuum", type: 'best', priority: 'medium', aiScore: 0.74, searchVolume: 1200, impact: 0.68, effort: 0.3, channels: ['Reddit', 'Amazon'], competitorCoverage: false },
+                { text: "Eureka Groove vs Eureka Groove Pro differences", type: 'compare', priority: 'high', aiScore: 0.86, searchVolume: 2200, impact: 0.83, effort: 0.35, channels: ['YouTube', 'Medium'], competitorCoverage: false },
+                
+                // Technical & Maintenance
+                { text: "How to replace Eureka vacuum filters?", type: 'how', priority: 'medium', aiScore: 0.78, searchVolume: 1400, impact: 0.72, effort: 0.2, channels: ['YouTube', 'FAQ'], competitorCoverage: true },
+                { text: "What smart home systems work with Eureka?", type: 'what', priority: 'high', aiScore: 0.81, searchVolume: 1900, impact: 0.78, effort: 0.45, channels: ['Reddit', 'FAQ', 'Medium'], competitorCoverage: false },
+                { text: "Eureka vacuum error codes meaning", type: 'what', priority: 'high', aiScore: 0.84, searchVolume: 1100, impact: 0.8, effort: 0.25, channels: ['FAQ', 'Manual'], competitorCoverage: false },
+                { text: "How long do Eureka robot vacuums last?", type: 'how', priority: 'medium', aiScore: 0.73, searchVolume: 1300, impact: 0.7, effort: 0.35, channels: ['Reddit', 'Quora'], competitorCoverage: true },
+                { text: "Best accessories for Eureka Groove", type: 'best', priority: 'low', aiScore: 0.68, searchVolume: 800, impact: 0.6, effort: 0.4, channels: ['Amazon', 'Reddit'], competitorCoverage: false },
+                
+                // Comparison & Competition
+                { text: "Eureka vs Shark robot vacuum 2024", type: 'compare', priority: 'urgent', aiScore: 0.91, searchVolume: 3600, impact: 0.92, effort: 0.5, channels: ['YouTube', 'Reddit', 'Medium'], competitorCoverage: true },
+                { text: "Why choose Eureka over Roomba?", type: 'why', priority: 'high', aiScore: 0.83, searchVolume: 2000, impact: 0.85, effort: 0.6, channels: ['Reddit', 'Quora', 'Medium'], competitorCoverage: false },
+                { text: "Eureka Groove mapping capabilities explained", type: 'what', priority: 'high', aiScore: 0.87, searchVolume: 1700, impact: 0.82, effort: 0.4, channels: ['YouTube', 'FAQ'], competitorCoverage: false },
+                { text: "How to schedule Eureka vacuum cleaning?", type: 'how', priority: 'medium', aiScore: 0.79, searchVolume: 1500, impact: 0.75, effort: 0.2, channels: ['FAQ', 'YouTube'], competitorCoverage: true },
+                { text: "Best robot vacuum under $200 - Eureka review", type: 'best', priority: 'urgent', aiScore: 0.93, searchVolume: 5200, impact: 0.94, effort: 0.55, channels: ['YouTube', 'Reddit', 'Blog'], competitorCoverage: false }
+            ];
+            
+            // Add more questions to reach 247 total
+            const additionalTypes = ['what', 'why', 'how', 'best', 'compare'];
+            const additionalPriorities = ['medium', 'low', 'medium', 'high'];
+            const channels = ['Reddit', 'Quora', 'Medium', 'YouTube', 'FAQ', 'Amazon Q&A', 'Blog'];
+            
+            while (eurekaQuestions.length < 247) {
+                const type = additionalTypes[Math.floor(Math.random() * additionalTypes.length)];
+                const priority = additionalPriorities[Math.floor(Math.random() * additionalPriorities.length)];
+                
+                eurekaQuestions.push({
+                    id: generateId(),
+                    text: generateEurekaQuestion(type),
+                    type: type,
+                    priority: priority,
+                    aiScore: 0.5 + Math.random() * 0.4,
+                    searchVolume: Math.floor(Math.random() * 2000) + 200,
+                    impact: 0.4 + Math.random() * 0.5,
+                    effort: 0.2 + Math.random() * 0.6,
+                    channels: channels.filter(() => Math.random() > 0.6),
+                    competitorCoverage: Math.random() > 0.6
+                });
+            }
+            
+            return eurekaQuestions;
+        }
+        
+        // Generate realistic Eureka vacuum questions
+        function generateEurekaQuestion(type) {
+            const questionTemplates = {
+                what: [
+                    "What is Eureka Groove's suction power?",
+                    "What surfaces can Eureka robot vacuum clean?",
+                    "What's included in Eureka Groove box?",
+                    "What warranty does Eureka offer?",
+                    "What are Eureka vacuum dimensions?"
+                ],
+                why: [
+                    "Why is Eureka vacuum making loud noise?",
+                    "Why won't Eureka connect to WiFi?",
+                    "Why does Eureka vacuum stop mid-clean?",
+                    "Why is Eureka cheaper than competitors?",
+                    "Why choose Eureka for hardwood floors?"
+                ],
+                how: [
+                    "How to reset Eureka robot vacuum?",
+                    "How to update Eureka firmware?",
+                    "How often to replace Eureka filters?",
+                    "How to map home with Eureka?",
+                    "How to troubleshoot Eureka sensors?"
+                ],
+                best: [
+                    "Best Eureka model for carpets",
+                    "Best settings for Eureka vacuum",
+                    "Best time to buy Eureka on sale",
+                    "Best Eureka for multi-level homes",
+                    "Best maintenance tips for Eureka"
+                ],
+                compare: [
+                    "Eureka Groove vs E10 comparison",
+                    "Eureka vs Bissell robot vacuum",
+                    "Eureka vs Eufy RoboVac comparison",
+                    "Eureka models comparison chart",
+                    "Eureka vs traditional vacuum pros/cons"
+                ]
+            };
+            
+            const templates = questionTemplates[type];
+            return templates[Math.floor(Math.random() * templates.length)];
+        }
+
+        // Generate unique ID for tracking
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Generate priority matrix visualization
+        function generatePriorityMatrix() {
+            const matrix = document.getElementById('priorityMatrix');
+            const bounds = matrix.getBoundingClientRect();
+            
+            // Clear existing bubbles
+            matrix.querySelectorAll('.priority-bubble').forEach(b => b.remove());
+            
+            // Add priority bubbles for high-priority questions
+            const priorityQuestions = questionsData
+                .filter(q => q.priority === 'urgent' || q.priority === 'high')
+                .slice(0, 20); // Show top 20 for clarity
+            
+            priorityQuestions.forEach(question => {
+                const bubble = document.createElement('div');
+                bubble.className = `priority-bubble ${question.priority === 'urgent' ? 'high' : 'medium'}`;
+                
+                // Calculate position based on impact (y-axis) and effort (x-axis)
+                const x = question.effort * 350 + 25; // Matrix is 400px wide
+                const y = (1 - question.impact) * 350 + 25; // Invert y-axis for high impact at top
+                const size = 30 + (question.searchVolume / 100); // Size based on search volume
+                
+                bubble.style.left = `${x}px`;
+                bubble.style.top = `${y}px`;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                
+                // Add tooltip on hover
+                bubble.title = `${question.text}\nPriority: ${question.priority}\nSearch Vol: ${question.searchVolume}/mo`;
+                
+                matrix.appendChild(bubble);
+            });
+        }
+
+        // Generate coverage heatmap
+        function generateCoverageHeatmap() {
+            const heatmap = document.getElementById('coverageHeatmap');
+            heatmap.innerHTML = '';
+            
+            // Create Eureka-specific intent categories grid with actual coverage data
+            const intents = [
+                { name: 'Pet Hair Solutions', coverage: 0.92 },
+                { name: 'Model Comparisons', coverage: 0.85 },
+                { name: 'Charging Issues', coverage: 0.78 },
+                { name: 'App Setup', coverage: 0.45 },
+                { name: 'Suction Power', coverage: 0.68 },
+                { name: 'Maintenance Guides', coverage: 0.72 },
+                { name: 'Price Comparisons', coverage: 0.88 },
+                { name: 'User Reviews', coverage: 0.35 },
+                { name: 'Installation', coverage: 0.55 },
+                { name: 'Smart Home Integration', coverage: 0.25 },
+                { name: 'Warranty Info', coverage: 0.42 },
+                { name: 'Replacement Parts', coverage: 0.38 },
+                { name: 'vs Roomba', coverage: 0.95 },
+                { name: 'Small Spaces', coverage: 0.76 },
+                { name: 'Carpet Performance', coverage: 0.62 },
+                { name: 'Error Codes', coverage: 0.28 },
+                { name: 'Cleaning Patterns', coverage: 0.48 },
+                { name: 'Budget Options', coverage: 0.91 },
+                { name: 'Noise Levels', coverage: 0.33 },
+                { name: 'Battery Life', coverage: 0.71 },
+                { name: 'Multi-Floor Use', coverage: 0.15 }
+            ];
+            
+            intents.forEach(intent => {
+                const cell = document.createElement('div');
+                const coverage = intent.coverage;
+                const level = Math.floor(coverage * 5);
+                
+                cell.className = `heatmap-cell level-${level}`;
+                cell.textContent = coverage > 0.3 ? Math.floor(coverage * 100) : '';
+                cell.title = `${intent.name}: ${Math.floor(coverage * 100)}% coverage`;
+                
+                heatmap.appendChild(cell);
+            });
+        }
+
+        // Animate metrics on load
+        function animateMetrics() {
+            const metrics = document.querySelectorAll('.metric-value');
+            metrics.forEach(metric => {
+                const endValue = metric.textContent;
+                const isPercentage = endValue.includes('%');
+                const numericValue = parseInt(endValue);
+                let currentValue = 0;
+                
+                const increment = numericValue / 50;
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= numericValue) {
+                        currentValue = numericValue;
+                        clearInterval(timer);
+                    }
+                    metric.textContent = Math.floor(currentValue) + (isPercentage ? '%' : '');
+                }, 20);
+            });
+        }
+
+        // Update dashboard metrics
+        function updateMetrics() {
+            // Calculate real metrics from question data
+            const totalQuestions = questionsData.length;
+            const urgentQuestions = questionsData.filter(q => q.priority === 'urgent').length;
+            const highAIScore = questionsData.filter(q => q.aiScore > 0.7).length;
+            const coverageScore = calculateCoverageScore();
+            
+            // Update metric displays
+            document.querySelector('.metric-value').textContent = totalQuestions;
+            // Additional metric updates would go here
+        }
+
+        // Calculate coverage score
+        function calculateCoverageScore() {
+            const typeDistribution = {};
+            questionsData.forEach(q => {
+                typeDistribution[q.type] = (typeDistribution[q.type] || 0) + 1;
+            });
+            
+            // Calculate balance across types
+            const values = Object.values(typeDistribution);
+            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+            const variance = values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / values.length;
+            const coverage = Math.max(0, 100 - (Math.sqrt(variance) / avg * 100));
+            
+            return Math.floor(coverage);
+        }
+
+        // Switch between dashboard tabs
+        function switchTab(tab) {
+            currentView = tab;
+            
+            // Update tab styles
+            document.querySelectorAll('.nav-tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            event.target.closest('.nav-tab').classList.add('active');
+            
+            // Update dashboard content based on selected view
+            updateDashboardView(tab);
+        }
+
+        // Update dashboard view based on selected tab
+        function updateDashboardView(view) {
+            const dashboardGrid = document.querySelector('.dashboard-grid');
+            dashboardGrid.innerHTML = '';
+            
+            switch(view) {
+                case 'overview':
+                    showStrategicOverview();
+                    break;
+                case 'priority':
+                    showPriorityMatrix();
+                    break;
+                case 'coverage':
+                    showCoverageAnalysis();
+                    break;
+                case 'competitive':
+                    showCompetitiveGaps();
+                    break;
+                case 'channels':
+                    showChannelStrategy();
+                    break;
+            }
+        }
+        
+        // Strategic Overview Tab
+        function showStrategicOverview() {
+            const dashboardGrid = document.querySelector('.dashboard-grid');
+            dashboardGrid.innerHTML = `
+                <div class="card" style="grid-column: span 12;">
+                    <div class="card-header">
+                        <h3 class="card-title">Eureka Robot Vacuum - Strategic Content Overview</h3>
+                        <p class="card-subtitle">Executive summary of content opportunities and priorities</p>
+                    </div>
+                    <div class="strategic-summary">
+                        <div class="summary-section">
+                            <h4>🎯 Key Opportunities</h4>
+                            <ul>
+                                <li><strong>Pet Hair Content Gap:</strong> 92% AI priority score with 4,800 monthly searches</li>
+                                <li><strong>vs Roomba Comparisons:</strong> Critical for market positioning (3,200 searches/mo)</li>
+                                <li><strong>Troubleshooting Content:</strong> High-intent queries lacking coverage (charging, connectivity)</li>
+                                <li><strong>Budget Positioning:</strong> "Under $200" queries show 5,200 monthly searches</li>
+                            </ul>
+                        </div>
+                        <div class="summary-section">
+                            <h4>📊 Content Performance Metrics</h4>
+                            <div class="metric-grid">
+                                <div class="metric-box">
+                                    <div class="metric-title">Total Questions Identified</div>
+                                    <div class="metric-value">247</div>
+                                </div>
+                                <div class="metric-box">
+                                    <div class="metric-title">Urgent Priority Items</div>
+                                    <div class="metric-value">19</div>
+                                </div>
+                                <div class="metric-box">
+                                    <div class="metric-title">Coverage Score</div>
+                                    <div class="metric-value">68%</div>
+                                </div>
+                                <div class="metric-box">
+                                    <div class="metric-title">vs Competition</div>
+                                    <div class="metric-value">-26%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-section">
+                            <h4>🚀 Recommended Actions</h4>
+                            <ol>
+                                <li>Create comprehensive pet hair performance content cluster</li>
+                                <li>Develop head-to-head comparison series with major competitors</li>
+                                <li>Build troubleshooting video library for common issues</li>
+                                <li>Establish budget-friendly positioning content</li>
+                                <li>Improve app setup and smart home integration guides</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Priority Matrix Tab
+        function showPriorityMatrix() {
+            const dashboardGrid = document.querySelector('.dashboard-grid');
+            dashboardGrid.innerHTML = `
+                <div class="card priority-matrix">
+                    <div class="card-header">
+                        <h3 class="card-title">Content Priority Matrix - Eureka Vacuum</h3>
+                        <p class="card-subtitle">Impact vs Effort analysis for content opportunities</p>
+                    </div>
+                    <div class="matrix-container" id="priorityMatrix">
+                        <div class="matrix-axis x"></div>
+                        <div class="matrix-axis y"></div>
+                        <span class="matrix-label top">High Impact</span>
+                        <span class="matrix-label bottom">Low Impact</span>
+                        <span class="matrix-label left">Low Effort</span>
+                        <span class="matrix-label right">High Effort</span>
+                    </div>
+                    <div class="matrix-legend">
+                        <h4>Priority Quadrants</h4>
+                        <div class="quadrant-info">
+                            <div class="quadrant q1">
+                                <h5>Quick Wins (High Impact, Low Effort)</h5>
+                                <ul>
+                                    <li>Pet hair performance FAQ</li>
+                                    <li>Charging troubleshooting guide</li>
+                                    <li>App setup tutorial</li>
+                                </ul>
+                            </div>
+                            <div class="quadrant q2">
+                                <h5>Major Projects (High Impact, High Effort)</h5>
+                                <ul>
+                                    <li>Complete Roomba comparison series</li>
+                                    <li>Video review production</li>
+                                    <li>Interactive buying guide</li>
+                                </ul>
+                            </div>
+                            <div class="quadrant q3">
+                                <h5>Fill-ins (Low Impact, Low Effort)</h5>
+                                <ul>
+                                    <li>Basic FAQ updates</li>
+                                    <li>Specification sheets</li>
+                                    <li>Warranty information</li>
+                                </ul>
+                            </div>
+                            <div class="quadrant q4">
+                                <h5>Consider Later (Low Impact, High Effort)</h5>
+                                <ul>
+                                    <li>Advanced technical documentation</li>
+                                    <li>Niche use case studies</li>
+                                    <li>Developer API guides</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            generatePriorityMatrix();
+        }
+        
+        // Coverage Analysis Tab
+        function showCoverageAnalysis() {
+            const dashboardGrid = document.querySelector('.dashboard-grid');
+            dashboardGrid.innerHTML = `
+                <div class="card coverage-heatmap">
+                    <div class="card-header">
+                        <h3 class="card-title">Content Coverage Analysis - Eureka</h3>
+                        <p class="card-subtitle">Identifying gaps in our content strategy</p>
+                    </div>
+                    <div class="heatmap-grid" id="coverageHeatmap"></div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 16px; font-size: 12px; color: var(--text-secondary);">
+                        <span>← Low Coverage</span>
+                        <span>High Coverage →</span>
+                    </div>
+                </div>
+                <div class="card gap-analysis">
+                    <div class="card-header">
+                        <h3 class="card-title">Critical Content Gaps</h3>
+                    </div>
+                    <div class="gap-list">
+                        <div class="gap-item urgent">
+                            <div class="gap-header">
+                                <span class="gap-title">Smart Home Integration</span>
+                                <span class="gap-coverage">25% Coverage</span>
+                            </div>
+                            <p>Missing: Alexa/Google Home setup, automation guides, IFTTT recipes</p>
+                        </div>
+                        <div class="gap-item high">
+                            <div class="gap-header">
+                                <span class="gap-title">Error Code Troubleshooting</span>
+                                <span class="gap-coverage">28% Coverage</span>
+                            </div>
+                            <p>Missing: Comprehensive error code dictionary, video fixes, diagnostic tools</p>
+                        </div>
+                        <div class="gap-item high">
+                            <div class="gap-header">
+                                <span class="gap-title">User Reviews & Testimonials</span>
+                                <span class="gap-coverage">35% Coverage</span>
+                            </div>
+                            <p>Missing: Video testimonials, long-term reviews, comparison reviews</p>
+                        </div>
+                        <div class="gap-item medium">
+                            <div class="gap-header">
+                                <span class="gap-title">Multi-Floor Navigation</span>
+                                <span class="gap-coverage">15% Coverage</span>
+                            </div>
+                            <p>Missing: Multi-level home guides, stair detection info, floor mapping</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            generateCoverageHeatmap();
+        }
+        
+        // Competitive Gaps Tab
+        function showCompetitiveGaps() {
+            const dashboardGrid = document.querySelector('.dashboard-grid');
+            dashboardGrid.innerHTML = `
+                <div class="card competitive-analysis">
+                    <div class="card-header">
+                        <h3 class="card-title">Competitive Content Gap Analysis</h3>
+                        <p class="card-subtitle">How Eureka compares to competitors in content coverage</p>
+                    </div>
+                    <div class="competitor-bars">
+                        <div class="competitor-row">
+                            <span class="competitor-name">Eureka</span>
+                            <div class="competitor-bar-container">
+                                <div class="competitor-bar us" style="width: 68%;">68%</div>
+                            </div>
+                        </div>
+                        <div class="competitor-row">
+                            <span class="competitor-name">iRobot (Roomba)</span>
+                            <div class="competitor-bar-container">
+                                <div class="competitor-bar competitor" style="width: 94%;">94%</div>
+                            </div>
+                        </div>
+                        <div class="competitor-row">
+                            <span class="competitor-name">Shark</span>
+                            <div class="competitor-bar-container">
+                                <div class="competitor-bar competitor" style="width: 82%;">82%</div>
+                            </div>
+                        </div>
+                        <div class="competitor-row">
+                            <span class="competitor-name">Eufy</span>
+                            <div class="competitor-bar-container">
+                                <div class="competitor-bar competitor" style="width: 78%;">78%</div>
+                            </div>
+                        </div>
+                        <div class="competitor-row">
+                            <span class="competitor-name">Bissell</span>
+                            <div class="competitor-bar-container">
+                                <div class="competitor-bar competitor" style="width: 72%;">72%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card competitor-tactics">
+                    <div class="card-header">
+                        <h3 class="card-title">Competitor Content Tactics</h3>
+                    </div>
+                    <div class="tactics-grid">
+                        <div class="tactic-card">
+                            <h4>iRobot (Roomba)</h4>
+                            <ul>
+                                <li>✓ Extensive troubleshooting database</li>
+                                <li>✓ Professional video tutorials</li>
+                                <li>✓ Active community forum</li>
+                                <li>✓ AI-powered support chatbot</li>
+                            </ul>
+                            <p class="tactic-insight">Focus: Premium positioning through comprehensive support</p>
+                        </div>
+                        <div class="tactic-card">
+                            <h4>Shark</h4>
+                            <ul>
+                                <li>✓ Comparison tools</li>
+                                <li>✓ Budget-friendly messaging</li>
+                                <li>✓ Influencer partnerships</li>
+                                <li>✓ Retail partner content</li>
+                            </ul>
+                            <p class="tactic-insight">Focus: Value proposition and retail presence</p>
+                        </div>
+                        <div class="tactic-card">
+                            <h4>Eufy</h4>
+                            <ul>
+                                <li>✓ Tech-focused content</li>
+                                <li>✓ Smart home integration</li>
+                                <li>✓ App feature highlights</li>
+                                <li>✓ Privacy-focused messaging</li>
+                            </ul>
+                            <p class="tactic-insight">Focus: Tech-savvy audience and privacy</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Channel Strategy Tab
+        function showChannelStrategy() {
+            const dashboardGrid = document.querySelector('.dashboard-grid');
+            dashboardGrid.innerHTML = `
+                <div class="card channel-overview">
+                    <div class="card-header">
+                        <h3 class="card-title">Multi-Channel Content Strategy - Eureka</h3>
+                        <p class="card-subtitle">Optimized content distribution across platforms</p>
+                    </div>
+                    <div class="channel-grid">
+                        <div class="channel-card">
+                            <div class="channel-header reddit">
+                                <h4>Reddit</h4>
+                                <span class="channel-priority">High Priority</span>
+                            </div>
+                            <div class="channel-content">
+                                <h5>Key Subreddits:</h5>
+                                <ul>
+                                    <li>r/VacuumCleaners (45k members)</li>
+                                    <li>r/RobotVacuums (22k members)</li>
+                                    <li>r/CleaningTips (380k members)</li>
+                                </ul>
+                                <h5>Content Strategy:</h5>
+                                <ul>
+                                    <li>Troubleshooting threads</li>
+                                    <li>Honest comparisons</li>
+                                    <li>User experience stories</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="channel-card">
+                            <div class="channel-header youtube">
+                                <h4>YouTube</h4>
+                                <span class="channel-priority">Critical</span>
+                            </div>
+                            <div class="channel-content">
+                                <h5>Video Content Needs:</h5>
+                                <ul>
+                                    <li>Unboxing & Setup (0 videos)</li>
+                                    <li>Pet Hair Tests (1 video)</li>
+                                    <li>vs Roomba Series (0 videos)</li>
+                                    <li>Maintenance Guides (2 videos)</li>
+                                </ul>
+                                <h5>Competitor Videos:</h5>
+                                <p>Roomba: 450+ videos<br>Shark: 280+ videos</p>
+                            </div>
+                        </div>
+                        <div class="channel-card">
+                            <div class="channel-header faq">
+                                <h4>Website FAQ</h4>
+                                <span class="channel-priority">Medium</span>
+                            </div>
+                            <div class="channel-content">
+                                <h5>Current Coverage:</h5>
+                                <div class="coverage-bar">
+                                    <div class="coverage-fill" style="width: 45%;">45%</div>
+                                </div>
+                                <h5>Missing Topics:</h5>
+                                <ul>
+                                    <li>App connectivity issues</li>
+                                    <li>Error code meanings</li>
+                                    <li>Compatibility info</li>
+                                    <li>Warranty details</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="channel-card">
+                            <div class="channel-header medium">
+                                <h4>Medium/Blog</h4>
+                                <span class="channel-priority">Low</span>
+                            </div>
+                            <div class="channel-content">
+                                <h5>Long-form Content:</h5>
+                                <ul>
+                                    <li>Buying guides</li>
+                                    <li>Technology deep-dives</li>
+                                    <li>Industry comparisons</li>
+                                </ul>
+                                <h5>SEO Opportunity:</h5>
+                                <p>Target: 15 articles/quarter<br>Current: 2 articles/quarter</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card channel-roadmap">
+                    <div class="card-header">
+                        <h3 class="card-title">90-Day Channel Execution Roadmap</h3>
+                    </div>
+                    <div class="roadmap-timeline">
+                        <div class="roadmap-phase">
+                            <h4>Days 1-30: Foundation</h4>
+                            <ul>
+                                <li>✓ Create 10 troubleshooting videos</li>
+                                <li>✓ Launch Reddit presence</li>
+                                <li>✓ Update FAQ with 25 new answers</li>
+                            </ul>
+                        </div>
+                        <div class="roadmap-phase">
+                            <h4>Days 31-60: Expansion</h4>
+                            <ul>
+                                <li>✓ Produce comparison video series</li>
+                                <li>✓ Engage in 5 Reddit AMAs</li>
+                                <li>✓ Publish 5 buying guides</li>
+                            </ul>
+                        </div>
+                        <div class="roadmap-phase">
+                            <h4>Days 61-90: Optimization</h4>
+                            <ul>
+                                <li>✓ A/B test content formats</li>
+                                <li>✓ Launch influencer partnerships</li>
+                                <li>✓ Create interactive tools</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Search functionality
+        document.getElementById('searchInput')?.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#questionTableBody tr');
+            
+            rows.forEach(row => {
+                const questionText = row.cells[1].textContent.toLowerCase();
+                row.style.display = questionText.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Start real-time updates simulation
+        function startRealTimeUpdates() {
+            setInterval(() => {
+                // Simulate real-time metric updates
+                const changeIndicators = document.querySelectorAll('.metric-change');
+                changeIndicators.forEach(indicator => {
+                    if (Math.random() > 0.7) {
+                        // Randomly update some metrics
+                        const value = indicator.querySelector('span:last-child');
+                        const isPositive = Math.random() > 0.5;
+                        indicator.className = `metric-change ${isPositive ? 'positive' : 'negative'}`;
+                        indicator.querySelector('span:first-child').textContent = isPositive ? '↑' : '↓';
+                    }
+                });
+            }, 5000);
+        }
+
+        // Export functionality
+        function exportReport() {
+            // Generate CSV report of priority questions
+            const csv = [
+                ['Question', 'Type', 'Priority', 'AI Score', 'Search Volume', 'Channels'],
+                ...questionsData.map(q => [
+                    q.text,
+                    q.type,
+                    q.priority,
+                    Math.floor(q.aiScore * 100) + '%',
+                    q.searchVolume + '/mo',
+                    q.channels.join(', ')
+                ])
+            ].map(row => row.join(',')).join('\n');
+            
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `geo-strategic-report-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // Tooltip functionality
+        function showTooltip(element, text) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.textContent = text;
+            document.body.appendChild(tooltip);
+            
+            const rect = element.getBoundingClientRect();
+            tooltip.style.left = rect.left + 'px';
+            tooltip.style.top = (rect.top - 40) + 'px';
+            tooltip.classList.add('show');
+            
+            setTimeout(() => {
+                tooltip.remove();
+            }, 2000);
+        }
+        
+        // Initialize interactive features
+        function initializeInteractiveFeatures() {
+            // Add click handlers for metric cards
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.metric-card')) {
+                    const card = e.target.closest('.metric-card');
+                    showMetricDetails(card);
+                }
+            });
+            
+            // Add hover effects for priority bubbles
+            document.addEventListener('mouseover', function(e) {
+                if (e.target.classList.contains('priority-bubble')) {
+                    showBubbleDetails(e.target);
+                }
+            });
+            
+            // Add export functionality
+            addExportButtons();
+            
+            // Initialize filters
+            initializeFilters();
+        }
+        
+        // Show detailed metric information
+        function showMetricDetails(card) {
+            const metricLabel = card.querySelector('.metric-label').textContent;
+            const metricValue = card.querySelector('.metric-value').textContent;
+            
+            const details = {
+                'Total Questions': 'Represents all unique questions collected across platforms about Eureka robot vacuums',
+                'Coverage Score': 'Percentage of user intents covered by existing content',
+                'Content Gaps': 'Number of high-priority questions without adequate content coverage',
+                'Priority Actions': 'Questions requiring immediate content creation based on AI scores and search volume'
+            };
+            
+            showTooltip(card, details[metricLabel] || 'Click to see detailed analysis');
+        }
+        
+        // Show bubble details on hover
+        function showBubbleDetails(bubble) {
+            const details = questionsData.find(q => 
+                Math.abs(q.impact * 350 + 25 - parseInt(bubble.style.top)) < 5
+            );
+            
+            if (details) {
+                const info = `${details.text}\nSearch Vol: ${details.searchVolume}/mo\nAI Score: ${Math.floor(details.aiScore * 100)}%`;
+                showTooltip(bubble, info);
+            }
+        }
+        
+        // Add export buttons to each view
+        function addExportButtons() {
+            const exportBtn = document.createElement('button');
+            exportBtn.className = 'btn btn-secondary';
+            exportBtn.innerHTML = '📥 Export Data';
+            exportBtn.onclick = () => exportCurrentView();
+            
+            // Will be added to each view dynamically
+        }
+        
+        // Export current view data
+        function exportCurrentView() {
+            let data = '';
+            const timestamp = new Date().toISOString().split('T')[0];
+            
+            switch(currentView) {
+                case 'overview':
+                    data = exportOverviewData();
+                    break;
+                case 'priority':
+                    data = exportPriorityData();
+                    break;
+                case 'coverage':
+                    data = exportCoverageData();
+                    break;
+                case 'competitive':
+                    data = exportCompetitiveData();
+                    break;
+                case 'channels':
+                    data = exportChannelData();
+                    break;
+            }
+            
+            downloadFile(`eureka-geo-${currentView}-${timestamp}.csv`, data);
+        }
+        
+        // Export overview data
+        function exportOverviewData() {
+            const headers = ['Metric', 'Value', 'Change', 'Status'];
+            const rows = [
+                ['Total Questions', '247', '+12', 'Growing'],
+                ['Coverage Score', '68%', '-2%', 'Below Target'],
+                ['Content Gaps', '31', '-8', 'Improving'],
+                ['Priority Actions', '12', '0', 'Stable'],
+                ['vs Competition', '-26%', '+4%', 'Closing Gap']
+            ];
+            
+            return [headers, ...rows].map(row => row.join(',')).join('\n');
+        }
+        
+        // Export priority matrix data
+        function exportPriorityData() {
+            const headers = ['Question', 'Type', 'Priority', 'Impact', 'Effort', 'AI Score', 'Search Volume'];
+            const rows = questionsData
+                .filter(q => q.priority === 'urgent' || q.priority === 'high')
+                .map(q => [
+                    q.text,
+                    q.type,
+                    q.priority,
+                    Math.floor(q.impact * 100) + '%',
+                    Math.floor(q.effort * 100) + '%',
+                    Math.floor(q.aiScore * 100) + '%',
+                    q.searchVolume + '/mo'
+                ]);
+            
+            return [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+        }
+        
+        // Export coverage data
+        function exportCoverageData() {
+            const headers = ['Intent Category', 'Coverage %', 'Gap Type', 'Priority'];
+            const coverageData = [
+                ['Pet Hair Solutions', '92', 'None', 'Maintain'],
+                ['Model Comparisons', '85', 'Minor', 'Low'],
+                ['Smart Home Integration', '25', 'Critical', 'Urgent'],
+                ['Error Codes', '28', 'Major', 'High'],
+                ['User Reviews', '35', 'Major', 'High'],
+                ['Multi-Floor Use', '15', 'Critical', 'Medium']
+            ];
+            
+            return [headers, ...coverageData].map(row => row.join(',')).join('\n');
+        }
+        
+        // Export competitive data
+        function exportCompetitiveData() {
+            const headers = ['Brand', 'Coverage %', 'Gap vs Eureka', 'Key Strengths'];
+            const competitorData = [
+                ['Eureka', '68', '0', 'Budget positioning'],
+                ['iRobot (Roomba)', '94', '+26', 'Comprehensive support'],
+                ['Shark', '82', '+14', 'Value messaging'],
+                ['Eufy', '78', '+10', 'Tech integration'],
+                ['Bissell', '72', '+4', 'Traditional market']
+            ];
+            
+            return [headers, ...competitorData].map(row => row.join(',')).join('\n');
+        }
+        
+        // Export channel strategy data
+        function exportChannelData() {
+            const headers = ['Channel', 'Priority', 'Current Coverage', 'Target Coverage', 'Key Actions'];
+            const channelData = [
+                ['Reddit', 'High', '35%', '80%', 'Launch community presence'],
+                ['YouTube', 'Critical', '20%', '90%', 'Create video library'],
+                ['Website FAQ', 'Medium', '45%', '95%', 'Fill content gaps'],
+                ['Medium/Blog', 'Low', '15%', '60%', 'SEO content creation']
+            ];
+            
+            return [headers, ...channelData].map(row => row.join(',')).join('\n');
+        }
+        
+        // Download file utility
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Initialize filters for question list
+        function initializeFilters() {
+            // Type filter
+            const typeFilter = document.createElement('select');
+            typeFilter.className = 'filter-select';
+            typeFilter.innerHTML = `
+                <option value="">All Types</option>
+                <option value="best">Best</option>
+                <option value="how">How-to</option>
+                <option value="compare">Compare</option>
+                <option value="what">What</option>
+                <option value="why">Why</option>
+            `;
+            typeFilter.onchange = () => filterQuestions();
+            
+            // Priority filter
+            const priorityFilter = document.createElement('select');
+            priorityFilter.className = 'filter-select';
+            priorityFilter.innerHTML = `
+                <option value="">All Priorities</option>
+                <option value="urgent">Urgent</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            `;
+            priorityFilter.onchange = () => filterQuestions();
+            
+            // Add filters to page when needed
+            window.typeFilter = typeFilter;
+            window.priorityFilter = priorityFilter;
+        }
+        
+        // Filter questions based on selected criteria
+        function filterQuestions() {
+            const typeValue = window.typeFilter?.value || '';
+            const priorityValue = window.priorityFilter?.value || '';
+            
+            const filtered = questionsData.filter(q => {
+                const matchType = !typeValue || q.type === typeValue;
+                const matchPriority = !priorityValue || q.priority === priorityValue;
+                return matchType && matchPriority;
+            });
+            
+            updateQuestionTable(filtered);
+        }
+        
+        // Update question table with filtered data
+        function updateQuestionTable(questions) {
+            const tbody = document.getElementById('questionTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = questions.slice(0, 10).map(q => `
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>${q.text}</td>
+                    <td><span class="badge type-${q.type}">${q.type.toUpperCase()}</span></td>
+                    <td>
+                        <span class="priority-indicator ${q.priority}"></span>
+                        <span>${q.priority.charAt(0).toUpperCase() + q.priority.slice(1)}</span>
+                    </td>
+                    <td>${Math.floor(q.aiScore * 100)}%</td>
+                    <td>${q.searchVolume}/mo</td>
+                    <td>${q.channels.join(', ')}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="createContent('${q.id}')">Create</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Create content for selected question
+        function createContent(questionId) {
+            const question = questionsData.find(q => q.id === questionId);
+            if (question) {
+                // In real implementation, this would navigate to content creation
+                alert(`Creating content for: "${question.text}"\n\nThis would open the Asset Creation Studio with pre-filled data.`);
+            }
+        }
+        
+        // Add real-time notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span class="notification-icon">${type === 'success' ? '✓' : 'ℹ'}</span>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Simulate real-time updates
+        function simulateRealtimeUpdates() {
+            setInterval(() => {
+                const updates = [
+                    'New question detected: "Eureka Groove vs Neato comparison"',
+                    'Content gap identified: Multi-room mapping guides',
+                    'Competitor alert: Roomba launched new comparison tool',
+                    'Search trend: +15% increase in "Eureka pet hair" queries'
+                ];
+                
+                if (Math.random() > 0.8) {
+                    const update = updates[Math.floor(Math.random() * updates.length)];
+                    showNotification(update, 'info');
+                }
+            }, 30000); // Every 30 seconds
+        }
+        
+        // Export full strategic report
+        function exportFullReport() {
+            const timestamp = new Date().toISOString().split('T')[0];
+            const reportData = generateFullReport();
+            
+            // Create comprehensive CSV report
+            const csv = reportData.map(section => {
+                return section.title + '\n' + 
+                       section.headers.join(',') + '\n' + 
+                       section.data.map(row => row.join(',')).join('\n') + '\n\n';
+            }).join('');
+            
+            downloadFile(`eureka-geo-strategic-report-${timestamp}.csv`, csv);
+            showNotification('Strategic report exported successfully!', 'success');
+        }
+        
+        // Generate comprehensive report data
+        function generateFullReport() {
+            return [
+                {
+                    title: 'Executive Summary - Eureka Robot Vacuum GEO Analysis',
+                    headers: ['Metric', 'Current Value', 'Target', 'Gap', 'Priority'],
+                    data: [
+                        ['Total Questions Identified', '247', '300', '-53', 'Medium'],
+                        ['Content Coverage Score', '68%', '85%', '-17%', 'High'],
+                        ['vs Roomba Gap', '-26%', '0%', '-26%', 'Critical'],
+                        ['Pet Hair Content Coverage', '92%', '95%', '-3%', 'Low'],
+                        ['Smart Home Integration', '25%', '80%', '-55%', 'Critical']
+                    ]
+                },
+                {
+                    title: 'Top Priority Questions - Immediate Action Required',
+                    headers: ['Question', 'Search Volume', 'AI Score', 'Competition', 'Channels'],
+                    data: questionsData.filter(q => q.priority === 'urgent').slice(0, 10).map(q => [
+                        q.text,
+                        q.searchVolume + '/mo',
+                        Math.floor(q.aiScore * 100) + '%',
+                        q.competitorCoverage ? 'Yes' : 'No',
+                        q.channels.join('; ')
+                    ])
+                },
+                {
+                    title: 'Competitive Analysis - Content Coverage Comparison',
+                    headers: ['Competitor', 'Coverage %', 'Key Strengths', 'Our Gap'],
+                    data: [
+                        ['iRobot (Roomba)', '94%', 'Comprehensive support; Video library', '-26%'],
+                        ['Shark', '82%', 'Budget messaging; Influencer content', '-14%'],
+                        ['Eufy', '78%', 'Tech integration; Privacy focus', '-10%'],
+                        ['Bissell', '72%', 'Traditional retail; Basic guides', '-4%']
+                    ]
+                },
+                {
+                    title: 'Channel Strategy - 90-Day Action Plan',
+                    headers: ['Channel', 'Current State', 'Target State', 'Key Actions', 'Timeline'],
+                    data: [
+                        ['YouTube', '2 videos', '25+ videos', 'Pet hair tests; vs Roomba series', 'Days 1-30'],
+                        ['Reddit', 'No presence', 'Active in 3 subs', 'Community engagement; AMAs', 'Days 1-30'],
+                        ['FAQ/Support', '45% coverage', '95% coverage', 'Error codes; Smart home guides', 'Days 31-60'],
+                        ['Blog/SEO', '2 articles/quarter', '15 articles/quarter', 'Buying guides; Tech deep-dives', 'Days 61-90']
+                    ]
+                }
+            ];
+        }
+    </script>
+</body>
+</html>

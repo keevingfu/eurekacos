@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内容市场首页 - GEO内容市场</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --market-primary: #6366F1;
+            --market-secondary: #8B5CF6;
+            --market-accent: #EC4899;
+            --market-success: #10B981;
+            --market-warning: #F59E0B;
+            --market-info: #06B6D4;
+            --gray-900: #111827;
+            --gray-800: #1F2937;
+            --gray-700: #374151;
+            --gray-600: #4B5563;
+            --gray-500: #6B7280;
+            --gray-400: #9CA3AF;
+            --gray-300: #D1D5DB;
+            --gray-200: #E5E7EB;
+            --gray-100: #F3F4F6;
+            --gray-50: #F9FAFB;
+            --white: #FFFFFF;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+        }
+
+        .marketplace-home {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            border-radius: 16px;
+            padding: 48px;
+            margin-bottom: 32px;
+            text-align: center;
+            color: white;
+        }
+
+        .welcome-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .welcome-desc {
+            font-size: 18px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .categories-section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .category-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .category-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .category-count {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .recent-activities {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: 8px;
+        }
+
+        .activity-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--market-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+    </style>
+</head>
+<body>
+    <div class="marketplace-home">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <h1 class="welcome-title">🎯 欢迎来到GEO内容市场</h1>
+            <p class="welcome-desc">
+                发现、分享和使用高质量的内容资产，加速您的内容创作流程。
+                与团队协作，共同构建企业级内容资产库。
+            </p>
+            <div class="quick-actions">
+                <button class="quick-action-btn" onclick="parent.switchSection('marketplace-template-library.html')">
+                    📋 浏览模板库
+                </button>
+                <button class="quick-action-btn" onclick="parent.switchSection('marketplace-best-practices.html')">
+                    ⭐ 查看最佳实践
+                </button>
+                <button class="quick-action-btn" onclick="parent.switchSection('marketplace-my-content.html')">
+                    📁 我的内容
+                </button>
+            </div>
+        </section>
+
+        <!-- Statistics Grid -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-value">3,456</div>
+                <div class="stat-label">内容资产总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">126</div>
+                <div class="stat-label">活跃贡献者</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⬇️</div>
+                <div class="stat-value">12,890</div>
+                <div class="stat-label">本月下载量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-value">4.8</div>
+                <div class="stat-label">平均评分</div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="categories-section">
+            <div class="section-header">
+                <h2 class="section-title">内容分类</h2>
+            </div>
+            <div class="categories-grid">
+                <div class="category-card" onclick="parent.switchSection('marketplace-template-library.html')">
+                    <div class="category-icon">❓</div>
+                    <div class="category-name">FAQ模板</div>
+                    <div class="category-count">1,234个资产</div>
+                </div>
+                <div class="category-card" onclick="parent.switchSection('marketplace-template-library.html')">
+                    <div class="category-icon">📖</div>
+                    <div class="category-name">教程指南</div>
+                    <div class="category-count">892个资产</div>
+                </div>
+                <div class="category-card" onclick="parent.switchSection('marketplace-template-library.html')">
+                    <div class="category-icon">⚖️</div>
+                    <div class="category-name">对比分析</div>
+                    <div class="category-count">756个资产</div>
+                </div>
+                <div class="category-card" onclick="parent.switchSection('marketplace-template-library.html')">
+                    <div class="category-icon">📈</div>
+                    <div class="category-name">案例研究</div>
+                    <div class="category-count">623个资产</div>
+                </div>
+                <div class="category-card" onclick="parent.switchSection('marketplace-template-library.html')">
+                    <div class="category-icon">🎬</div>
+                    <div class="category-name">视频脚本</div>
+                    <div class="category-count">445个资产</div>
+                </div>
+                <div class="category-card" onclick="parent.switchSection('marketplace-template-library.html')">
+                    <div class="category-icon">🤖</div>
+                    <div class="category-name">AI优化</div>
+                    <div class="category-count">312个资产</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activities -->
+        <section class="recent-activities">
+            <div class="section-header">
+                <h2 class="section-title">最新动态</h2>
+            </div>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-avatar">JL</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>Jane Liu</strong> 发布了新的FAQ模板包</div>
+                        <div class="activity-time">2分钟前</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-avatar">MK</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>Mike Kim</strong> 更新了Reddit内容策略</div>
+                        <div class="activity-time">15分钟前</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-avatar">ST</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>Sarah Tang</strong> 分享了数据分析工作流</div>
+                        <div class="activity-time">1小时前</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-avatar">AL</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>Alex Lee</strong> 获得了"本月最佳贡献者"称号</div>
+                        <div class="activity-time">2小时前</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

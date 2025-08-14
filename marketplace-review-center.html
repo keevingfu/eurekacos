@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>审核中心 - GEO内容市场</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #5e35b1;
+      --primary-dark: #4527a0;
+      --primary-light: #7e57c2;
+      --secondary: #00897b;
+      --success: #43a047;
+      --warning: #fb8c00;
+      --danger: #e53935;
+      --info: #1e88e5;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --border: #e0e0e0;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --hover: #f5f5f5;
+      --shadow: 0 2px 4px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* 布局 */
+    .page-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* 侧边栏 */
+    .sidebar {
+      width: 280px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-title {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* 审核队列 */
+    .queue-section {
+      padding: 16px;
+    }
+
+    .queue-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .queue-item {
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      background: var(--hover);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .queue-item:hover {
+      background: var(--primary-light);
+      color: white;
+    }
+
+    .queue-item.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .queue-count {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--danger);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* 主内容区 */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 顶部工具栏 */
+    .toolbar {
+      background: var(--surface);
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .toolbar-left {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .search-box {
+      position: relative;
+      width: 300px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 16px 8px 40px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 审核列表 */
+    .review-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .review-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+    }
+
+    .review-card:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .content-info {
+      flex: 1;
+    }
+
+    .content-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .content-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-pending {
+      background: #fff3e0;
+      color: var(--warning);
+    }
+
+    .status-reviewing {
+      background: #e3f2fd;
+      color: var(--info);
+    }
+
+    .status-approved {
+      background: #e8f5e9;
+      color: var(--success);
+    }
+
+    .status-rejected {
+      background: #ffebee;
+      color: var(--danger);
+    }
+
+    /* 内容预览 */
+    .content-preview {
+      background: var(--hover);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .preview-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    /* 审核标准 */
+    .review-criteria {
+      margin-bottom: 20px;
+    }
+
+    .criteria-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .criteria-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .criteria-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .criteria-check {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .criteria-check.checked {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    /* 审核操作 */
+    .review-actions {
+      display: flex;
+      gap: 12px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .feedback-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-approve {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-approve:hover {
+      background: #388e3c;
+    }
+
+    .btn-reject {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-reject:hover {
+      background: #d32f2f;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--hover);
+      border-color: var(--primary);
+    }
+
+    /* 右侧详情面板 */
+    .detail-panel {
+      width: 350px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .detail-section {
+      margin-bottom: 32px;
+    }
+
+    .detail-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .author-info {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      background: var(--hover);
+      border-radius: 8px;
+    }
+
+    .author-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+    }
+
+    .author-details {
+      flex: 1;
+    }
+
+    .author-name {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .author-stats {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* 历史记录 */
+    .history-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-action {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .history-time {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* 快速操作 */
+    .quick-actions {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .quick-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      background: var(--primary);
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s;
+    }
+
+    .quick-btn:hover {
+      transform: scale(1.1);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 1200px) {
+      .detail-panel {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+      
+      .search-box {
+        width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <!-- 左侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">审核中心</h2>
+        <div class="sidebar-stats">
+          <div class="stat-item">
+            <div class="stat-number">47</div>
+            <div class="stat-label">待审核</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">12</div>
+            <div class="stat-label">进行中</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">156</div>
+            <div class="stat-label">今日完成</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 审核队列 -->
+      <div class="queue-section">
+        <h3 class="queue-title">审核队列</h3>
+        <div class="queue-item active">
+          <span>待审核内容</span>
+          <span class="queue-count">47</span>
+        </div>
+        <div class="queue-item">
+          <span>模板审核</span>
+          <span class="queue-count">23</span>
+        </div>
+        <div class="queue-item">
+          <span>最佳实践</span>
+          <span class="queue-count">15</span>
+        </div>
+        <div class="queue-item">
+          <span>工作流程</span>
+          <span class="queue-count">9</span>
+        </div>
+      </div>
+
+      <div class="queue-section">
+        <h3 class="queue-title">我的审核</h3>
+        <div class="queue-item">
+          <span>进行中</span>
+          <span class="queue-count">12</span>
+        </div>
+        <div class="queue-item">
+          <span>已完成</span>
+          <span class="queue-count">156</span>
+        </div>
+        <div class="queue-item">
+          <span>需要复审</span>
+          <span class="queue-count">3</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 顶部工具栏 -->
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="搜索内容标题、作者或ID...">
+          </div>
+          <button class="filter-btn">
+            <span>🎯</span>
+            <span>筛选</span>
+          </button>
+          <button class="filter-btn">
+            <span>📅</span>
+            <span>时间范围</span>
+          </button>
+        </div>
+        <div>
+          <select class="filter-btn" style="border: 1px solid var(--border);">
+            <option>按提交时间排序</option>
+            <option>按优先级排序</option>
+            <option>按作者信誉排序</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 审核列表 -->
+      <div class="review-list">
+        <!-- 审核卡片1 -->
+        <div class="review-card">
+          <div class="review-header">
+            <div class="content-info">
+              <h3 class="content-title">智能家居设备选购完全指南</h3>
+              <div class="content-meta">
+                <span class="meta-item">
+                  <span>👤</span>
+                  <span>张明</span>
+                </span>
+                <span class="meta-item">
+                  <span>📁</span>
+                  <span>购买指南</span>
+                </span>
+                <span class="meta-item">
+                  <span>⏱️</span>
+                  <span>2小时前提交</span>
+                </span>
+                <span class="meta-item">
+                  <span>📝</span>
+                  <span>8500字</span>
+                </span>
+              </div>
+            </div>
+            <span class="status-badge status-pending">待审核</span>
+          </div>
+
+          <div class="content-preview">
+            <p class="preview-text">
+              本指南全面介绍了智能家居设备的选购要点，包括智能音箱、智能灯具、智能插座、智能门锁等主流产品的功能对比、品牌推荐和安装使用建议。通过详细的产品评测和实际使用体验，帮助用户构建适合自己的智能家居系统...
+            </p>
+          </div>
+
+          <div class="review-criteria">
+            <h4 class="criteria-title">审核标准</h4>
+            <div class="criteria-list">
+              <div class="criteria-item">
+                <div class="criteria-check checked">✓</div>
+                <span>内容原创性</span>
+              </div>
+              <div class="criteria-item">
+                <div class="criteria-check checked">✓</div>
+                <span>信息准确性</span>
+              </div>
+              <div class="criteria-item">
+                <div class="criteria-check checked">✓</div>
+                <span>结构完整性</span>
+              </div>
+              <div class="criteria-item">
+                <div class="criteria-check"></div>
+                <span>SEO优化</span>
+              </div>
+              <div class="criteria-item">
+                <div class="criteria-check checked">✓</div>
+                <span>用户价值</span>
+              </div>
+              <div class="criteria-item">
+                <div class="criteria-check"></div>
+                <span>图片版权</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="review-actions">
+            <textarea class="feedback-input" placeholder="请输入审核意见或修改建议..."></textarea>
+            <div class="action-buttons">
+              <button class="btn btn-secondary">
+                <span>💬</span>
+                <span>需要修改</span>
+              </button>
+              <button class="btn btn-reject">
+                <span>❌</span>
+                <span>拒绝</span>
+              </button>
+              <button class="btn btn-approve">
+                <span>✅</span>
+                <span>通过</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 审核卡片2 -->
+        <div class="review-card">
+          <div class="review-header">
+            <div class="content-info">
+              <h3 class="content-title">FAQ模板：电子产品售后服务</h3>
+              <div class="content-meta">
+                <span class="meta-item">
+                  <span>👤</span>
+                  <span>李娜</span>
+                </span>
+                <span class="meta-item">
+                  <span>📁</span>
+                  <span>FAQ模板</span>
+                </span>
+                <span class="meta-item">
+                  <span>⏱️</span>
+                  <span>4小时前提交</span>
+                </span>
+                <span class="meta-item">
+                  <span>❓</span>
+                  <span>25个问答</span>
+                </span>
+              </div>
+            </div>
+            <span class="status-badge status-reviewing">审核中</span>
+          </div>
+
+          <div class="content-preview">
+            <p class="preview-text">
+              专业的电子产品售后服务FAQ模板，涵盖保修政策、退换货流程、常见故障处理、维修服务等内容。每个问题都提供了详细的答案模板，可直接套用或根据实际情况修改...
+            </p>
+          </div>
+
+          <div class="review-criteria">
+            <h4 class="criteria-title">审核标准</h4>
+            <div class="criteria-list">
+              <div class="criteria-item">
+                <div class="criteria-check checked">✓</div>
+                <span>模板通用性</span>
+              </div>
+              <div class="criteria-item">
+                <div class="criteria-check checked">✓</div>
+                <span>内容完整性</span>
+              </div>
+              <div class="criteria-item">
+                <div class="criteria-check checked">✓</div>
+                <span>格式规范</span>
+              </div>
+              <div class="criteria-item">
+                <div class="criteria-check checked">✓</div>
+                <span>易于使用</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="review-actions">
+            <textarea class="feedback-input" placeholder="请输入审核意见或修改建议...">建议补充关于跨境产品售后的相关内容</textarea>
+            <div class="action-buttons">
+              <button class="btn btn-secondary">
+                <span>💬</span>
+                <span>需要修改</span>
+              </button>
+              <button class="btn btn-approve">
+                <span>✅</span>
+                <span>通过</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 右侧详情面板 -->
+    <aside class="detail-panel">
+      <div class="detail-section">
+        <h3 class="detail-title">作者信息</h3>
+        <div class="author-info">
+          <div class="author-avatar">ZM</div>
+          <div class="author-details">
+            <div class="author-name">张明</div>
+            <div class="author-stats">
+              贡献者 • 发布125篇 • 4.8评分
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3 class="detail-title">审核历史</h3>
+        <div class="history-item">
+          <div class="history-action">王伟 开始审核</div>
+          <div class="history-time">15分钟前</div>
+        </div>
+        <div class="history-item">
+          <div class="history-action">系统自动检测通过</div>
+          <div class="history-time">2小时前</div>
+        </div>
+        <div class="history-item">
+          <div class="history-action">作者提交内容</div>
+          <div class="history-time">2小时前</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3 class="detail-title">相似内容检测</h3>
+        <div style="padding: 16px; background: var(--hover); border-radius: 8px; text-align: center;">
+          <div style="font-size: 32px; color: var(--success); margin-bottom: 8px;">92%</div>
+          <div style="font-size: 14px; color: var(--text-secondary);">原创度评分</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3 class="detail-title">快速操作</h3>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <button class="btn btn-secondary" style="width: 100%;">
+            <span>👁️</span>
+            <span>预览完整内容</span>
+          </button>
+          <button class="btn btn-secondary" style="width: 100%;">
+            <span>📊</span>
+            <span>查看SEO分析</span>
+          </button>
+          <button class="btn btn-secondary" style="width: 100%;">
+            <span>🔍</span>
+            <span>检测重复内容</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 快速操作按钮 -->
+    <div class="quick-actions">
+      <button class="quick-btn" title="上一个">⬆️</button>
+      <button class="quick-btn" title="下一个">⬇️</button>
+    </div>
+  </div>
+
+  <script>
+    // 切换审核项目选中状态
+    document.querySelectorAll('.criteria-check').forEach(check => {
+      check.addEventListener('click', function() {
+        this.classList.toggle('checked');
+        if (this.classList.contains('checked')) {
+          this.textContent = '✓';
+        } else {
+          this.textContent = '';
+        }
+      });
+    });
+
+    // 审核操作
+    document.querySelectorAll('.btn-approve').forEach(btn => {
+      btn.addEventListener('click', function() {
+        alert('内容已通过审核！');
+      });
+    });
+
+    document.querySelectorAll('.btn-reject').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const feedback = this.closest('.review-actions').querySelector('.feedback-input').value;
+        if (!feedback) {
+          alert('请填写拒绝原因');
+          return;
+        }
+        alert('内容已拒绝');
+      });
+    });
+
+    // 队列切换
+    document.querySelectorAll('.queue-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.queue-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

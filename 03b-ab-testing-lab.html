@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/B测试实验室 - A/B Testing Laboratory</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        /* 全局设计系统 - 建立统一的视觉语言 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 主色调系统 - 科学实验室风格 */
+            --primary: #6366F1;      /* 主色：靛蓝紫 */
+            --secondary: #8B5CF6;    /* 次色：紫色 */
+            --success: #10B981;      /* 成功：绿色 */
+            --warning: #F59E0B;      /* 警告：橙色 */
+            --danger: #EF4444;       /* 危险：红色 */
+            --info: #3B82F6;         /* 信息：蓝色 */
+            
+            /* 中性色系统 */
+            --dark: #1F2937;
+            --gray-700: #374151;
+            --gray-600: #4B5563;
+            --gray-500: #6B7280;
+            --gray-400: #9CA3AF;
+            --gray-300: #D1D5DB;
+            --gray-200: #E5E7EB;
+            --gray-100: #F3F4F6;
+            --white: #FFFFFF;
+            
+            /* 渐变定义 */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #667eea 0%, #48bb78 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        /* 主容器布局 */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 页面头部设计 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 按钮系统 */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* 标签页导航 */
+        .tabs {
+            background: white;
+            border-radius: 12px;
+            padding: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab {
+            padding: 12px 24px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background: var(--gray-100);
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* 主内容区域网格布局 */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* 卡片组件 */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* 实验设计面板 */
+        .experiment-designer {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* 变体编辑器 */
+        .variant-editor {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .variant-editor:hover {
+            border-color: var(--primary);
+        }
+
+        .variant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .variant-label {
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .variant-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .variant-badge.control {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .variant-badge.variant {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        /* 流量分配滑块 */
+        .traffic-slider {
+            margin: 20px 0;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            background: var(--gray-200);
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .slider-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .slider-handle {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .slider-value {
+            min-width: 45px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* 统计面板 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* 实验状态指示器 */
+        .experiment-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .experiment-status.running {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .experiment-status.paused {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .experiment-status.completed {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            height: 350px;
+            margin-bottom: 20px;
+        }
+
+        /* 实验列表 */
+        .experiment-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .experiment-item {
+            padding: 16px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .experiment-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .experiment-item.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* 信心度指示器 */
+        .confidence-meter {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .confidence-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--danger), var(--warning), var(--success));
+            transition: width 0.5s ease;
+        }
+
+        .confidence-label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* 最佳实践卡片 */
+        .best-practice-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .best-practice-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .best-practice-desc {
+            font-size: 14px;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面头部 -->
+        <header class="header">
+            <div class="header-title">
+                <span style="font-size: 32px;">🧪</span>
+                <h1>A/B测试实验室</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline" onclick="openBestPractices()">
+                    <span>📚</span>
+                    最佳实践
+                </button>
+                <button class="btn btn-primary" onclick="createNewExperiment()">
+                    <span>➕</span>
+                    新建实验
+                </button>
+            </div>
+        </header>
+
+        <!-- 标签页导航 -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('design')">实验设计</button>
+            <button class="tab" onclick="switchTab('running')">运行中</button>
+            <button class="tab" onclick="switchTab('completed')">已完成</button>
+            <button class="tab" onclick="switchTab('analysis')">深度分析</button>
+            <button class="tab" onclick="switchTab('history')">历史记录</button>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-grid">
+            <!-- 左侧：实验设计和监控 -->
+            <div class="left-panel">
+                <!-- 实验设计器 -->
+                <div class="experiment-designer">
+                    <div class="card-header">
+                        <h3 class="card-title">实验配置</h3>
+                        <div class="experiment-status running">
+                            <span class="status-dot"></span>
+                            运行中
+                        </div>
+                    </div>
+
+                    <!-- 基本信息 -->
+                    <div class="form-group">
+                        <label class="form-label">实验名称</label>
+                        <input type="text" class="form-input" value="首页CTA按钮优化测试" id="experimentName">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">测试类型</label>
+                        <select class="form-select" id="testType" onchange="updateTestType()">
+                            <option value="ab">A/B测试</option>
+                            <option value="multivariate">多变量测试</option>
+                            <option value="redirect">重定向测试</option>
+                            <option value="personalization">个性化测试</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">目标指标</label>
+                        <select class="form-select" id="targetMetric">
+                            <option value="conversion">转化率</option>
+                            <option value="click">点击率</option>
+                            <option value="engagement">互动率</option>
+                            <option value="revenue">收入</option>
+                            <option value="retention">留存率</option>
+                        </select>
+                    </div>
+
+                    <!-- 变体配置 -->
+                    <div class="form-group">
+                        <label class="form-label">测试变体</label>
+                        
+                        <!-- 控制组 -->
+                        <div class="variant-editor">
+                            <div class="variant-header">
+                                <span class="variant-label">变体 A (控制组)</span>
+                                <span class="variant-badge control">原始版本</span>
+                            </div>
+                            <input type="text" class="form-input" value="立即开始免费试用" placeholder="按钮文案">
+                        </div>
+
+                        <!-- 测试变体 -->
+                        <div class="variant-editor">
+                            <div class="variant-header">
+                                <span class="variant-label">变体 B</span>
+                                <span class="variant-badge variant">测试版本</span>
+                            </div>
+                            <input type="text" class="form-input" value="获取30天免费体验" placeholder="按钮文案">
+                        </div>
+
+                        <button class="btn btn-outline" onclick="addVariant()" style="width: 100%;">
+                            <span>➕</span> 添加更多变体
+                        </button>
+                    </div>
+
+                    <!-- 流量分配 -->
+                    <div class="form-group">
+                        <label class="form-label">流量分配</label>
+                        <div class="traffic-slider">
+                            <div class="slider-container">
+                                <span style="font-size: 14px;">变体A</span>
+                                <div class="slider" onclick="updateTrafficSplit(event)">
+                                    <div class="slider-fill" style="width: 50%;" id="trafficSlider"></div>
+                                    <div class="slider-handle" style="left: 50%;" id="sliderHandle"></div>
+                                </div>
+                                <span style="font-size: 14px;">变体B</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                                <span class="slider-value" id="trafficA">50%</span>
+                                <span class="slider-value" id="trafficB">50%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 高级设置 -->
+                    <div class="form-group">
+                        <label class="form-label">样本量要求</label>
+                        <input type="number" class="form-input" value="10000" id="sampleSize">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">置信度水平</label>
+                        <select class="form-select" id="confidenceLevel">
+                            <option value="90">90%</option>
+                            <option value="95" selected>95%</option>
+                            <option value="99">99%</option>
+                        </select>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-primary" style="flex: 1;" onclick="startExperiment()">
+                            <span>▶️</span> 开始实验
+                        </button>
+                        <button class="btn btn-outline" style="flex: 1;" onclick="pauseExperiment()">
+                            <span>⏸️</span> 暂停
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 实时结果图表 -->
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">实验结果趋势</h3>
+                        <select class="form-select" style="width: 120px;" onchange="updateChartMetric()">
+                            <option value="conversion">转化率</option>
+                            <option value="confidence">置信度</option>
+                            <option value="lift">提升率</option>
+                        </select>
+                    </div>
+                    <div class="chart-container" id="resultChart"></div>
+                    
+                    <!-- 统计显著性指示器 -->
+                    <div class="confidence-meter">
+                        <span style="font-size: 14px; color: var(--gray-600);">统计显著性:</span>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: 87%;" id="confidenceFill"></div>
+                        </div>
+                        <span class="confidence-label" id="confidenceValue">87%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：统计和分析面板 -->
+            <div class="right-panel">
+                <!-- 实时统计数据 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">实时统计</h3>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">总访问量</div>
+                            <div class="stat-value" id="totalVisitors">8,456</div>
+                            <div class="stat-change positive">↑ 523 今日</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">转化数</div>
+                            <div class="stat-value" id="totalConversions">1,247</div>
+                            <div class="stat-change positive">↑ 89 今日</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">变体A转化率</div>
+                            <div class="stat-value" id="variantARate">14.2%</div>
+                            <div class="stat-change">基准线</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">变体B转化率</div>
+                            <div class="stat-value" id="variantBRate">16.8%</div>
+                            <div class="stat-change positive">↑ 18.3%</div>
+                        </div>
+                    </div>
+
+                    <!-- 预计完成时间 -->
+                    <div style="background: var(--gray-50); border-radius: 8px; padding: 12px; margin-top: 16px;">
+                        <div style="font-size: 12px; color: var(--gray-500); margin-bottom: 4px;">预计达到统计显著性</div>
+                        <div style="font-size: 18px; font-weight: 600; color: var(--primary);">还需 2.5 天</div>
+                        <div style="font-size: 12px; color: var(--gray-500); margin-top: 4px;">基于当前流量速度</div>
+                    </div>
+                </div>
+
+                <!-- 优胜者预测 -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3 class="card-title">优胜者分析</h3>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">🏆</div>
+                        <div style="font-size: 20px; font-weight: 600; color: var(--success); margin-bottom: 8px;">
+                            变体 B 领先
+                        </div>
+                        <div style="font-size: 14px; color: var(--gray-600);">
+                            预计提升转化率 18.3%
+                        </div>
+                    </div>
+
+                    <!-- 自动应用设置 -->
+                    <div style="background: var(--gray-50); border-radius: 8px; padding: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 14px; font-weight: 500;">自动应用优胜版本</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div style="font-size: 12px; color: var(--gray-500);">
+                            当置信度达到95%时自动部署优胜变体
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分段分析 -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3 class="card-title">分段表现</h3>
+                    </div>
+                    <div class="chart-container" id="segmentChart" style="height: 250px;"></div>
+                </div>
+
+                <!-- 历史实验列表 -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3 class="card-title">相关实验</h3>
+                    </div>
+                    <div class="experiment-list">
+                        <div class="experiment-item">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-weight: 500;">标题文案测试</span>
+                                <span class="experiment-status completed" style="font-size: 12px;">
+                                    已完成
+                                </span>
+                            </div>
+                            <div style="font-size: 14px; color: var(--gray-600);">
+                                提升: +12.5% | 样本: 15,234
+                            </div>
+                        </div>
+                        <div class="experiment-item">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-weight: 500;">价格展示优化</span>
+                                <span class="experiment-status completed" style="font-size: 12px;">
+                                    已完成
+                                </span>
+                            </div>
+                            <div style="font-size: 14px; color: var(--gray-600);">
+                                提升: +8.7% | 样本: 12,890
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 多变量测试矩阵 (初始隐藏) -->
+        <div class="card" id="multivariatePanel" style="display: none;">
+            <div class="card-header">
+                <h3 class="card-title">多变量测试配置</h3>
+            </div>
+            <div class="chart-container" id="multivariateChart"></div>
+        </div>
+
+        <!-- 最佳实践库 (初始隐藏) -->
+        <div class="card" id="bestPracticesPanel" style="display: none;">
+            <div class="card-header">
+                <h3 class="card-title">A/B测试最佳实践</h3>
+            </div>
+            <div style="display: grid; gap: 12px;">
+                <div class="best-practice-card">
+                    <div class="best-practice-title">🎯 明确测试假设</div>
+                    <div class="best-practice-desc">
+                        每个实验都应该基于明确的假设，例如："将CTA按钮颜色从蓝色改为绿色将提升点击率15%"
+                    </div>
+                </div>
+                <div class="best-practice-card">
+                    <div class="best-practice-title">📊 确保统计显著性</div>
+                    <div class="best-practice-desc">
+                        等待达到95%的置信度水平再做决策，避免过早结束实验导致的假阳性结果
+                    </div>
+                </div>
+                <div class="best-practice-card">
+                    <div class="best-practice-title">🔄 一次只改变一个变量</div>
+                    <div class="best-practice-desc">
+                        除非进行多变量测试，否则每次只改变一个元素，以准确判断影响因素
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* 开关组件样式 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray-300);
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        .slider.round {
+            border-radius: 24px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+
+    <script>
+        // ========== 全局状态管理 ==========
+        let experimentState = {
+            currentExperiment: {
+                id: 'exp_001',
+                name: '首页CTA按钮优化测试',
+                type: 'ab',
+                status: 'running',
+                variants: [
+                    { id: 'A', name: '控制组', traffic: 50, conversions: 0, visitors: 0 },
+                    { id: 'B', name: '测试组', traffic: 50, conversions: 0, visitors: 0 }
+                ],
+                startTime: new Date(),
+                targetMetric: 'conversion',
+                confidenceLevel: 95,
+                sampleSize: 10000
+            },
+            charts: {},
+            updateInterval: null
+        };
+
+        // ========== 初始化函数 ==========
+        function initializeCharts() {
+            // 初始化结果趋势图
+            initResultChart();
+            // 初始化分段分析图
+            initSegmentChart();
+            // 初始化多变量矩阵图
+            initMultivariateChart();
+            
+            // 启动数据更新
+            startDataUpdates();
+        }
+
+        // ========== 结果趋势图 ==========
+        function initResultChart() {
+            const chartDom = document.getElementById('resultChart');
+            experimentState.charts.result = echarts.init(chartDom);
+            
+            // 生成时间序列数据
+            const generateTimeSeriesData = () => {
+                const hours = 48;
+                const now = new Date();
+                const variantAData = [];
+                const variantBData = [];
+                const timeLabels = [];
+                
+                for (let i = hours; i > 0; i--) {
+                    const time = new Date(now - i * 3600000);
+                    timeLabels.push(time.toLocaleString('zh-CN', { 
+                        month: '2-digit', 
+                        day: '2-digit', 
+                        hour: '2-digit' 
+                    }));
+                    
+                    // 模拟转化率数据，B组逐渐优于A组
+                    const baseRate = 14.2;
+                    const improvement = (48 - i) * 0.1; // 逐渐增加的改进
+                    variantAData.push((baseRate + Math.random() * 2 - 1).toFixed(1));
+                    variantBData.push((baseRate + improvement + Math.random() * 2).toFixed(1));
+                }
+                
+                return { timeLabels, variantAData, variantBData };
+            };
+            
+            const { timeLabels, variantAData, variantBData } = generateTimeSeriesData();
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        return `${params[0].axisValue}<br/>
+                                ${params[0].marker} 变体A: ${params[0].value}%<br/>
+                                ${params[1].marker} 变体B: ${params[1].value}%`;
+                    }
+                },
+                legend: {
+                    data: ['变体A (控制组)', '变体B (测试组)'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: timeLabels,
+                    axisLabel: {
+                        rotate: 45,
+                        interval: 5
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}%'
+                    }
+                },
+                series: [
+                    {
+                        name: '变体A (控制组)',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 4,
+                        lineStyle: {
+                            width: 2,
+                            color: '#6B7280'
+                        },
+                        itemStyle: {
+                            color: '#6B7280'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(107, 114, 128, 0.2)' },
+                                { offset: 1, color: 'rgba(107, 114, 128, 0.05)' }
+                            ])
+                        },
+                        data: variantAData
+                    },
+                    {
+                        name: '变体B (测试组)',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 4,
+                        lineStyle: {
+                            width: 3,
+                            color: '#10B981'
+                        },
+                        itemStyle: {
+                            color: '#10B981'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(16, 185, 129, 0.3)' },
+                                { offset: 1, color: 'rgba(16, 185, 129, 0.05)' }
+                            ])
+                        },
+                        data: variantBData
+                    }
+                ]
+            };
+            
+            experimentState.charts.result.setOption(option);
+        }
+
+        // ========== 分段分析图 ==========
+        function initSegmentChart() {
+            const chartDom = document.getElementById('segmentChart');
+            experimentState.charts.segment = echarts.init(chartDom);
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['变体A', '变体B'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}%'
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['移动端', '桌面端', '新用户', '老用户', '直接流量', '搜索流量']
+                },
+                series: [
+                    {
+                        name: '变体A',
+                        type: 'bar',
+                        data: [13.2, 15.1, 12.8, 16.2, 14.5, 13.9],
+                        itemStyle: {
+                            color: '#6B7280'
+                        }
+                    },
+                    {
+                        name: '变体B',
+                        type: 'bar',
+                        data: [15.8, 17.9, 16.2, 17.5, 16.8, 15.2],
+                        itemStyle: {
+                            color: '#10B981'
+                        }
+                    }
+                ]
+            };
+            
+            experimentState.charts.segment.setOption(option);
+        }
+
+        // ========== 多变量测试矩阵 ==========
+        function initMultivariateChart() {
+            const chartDom = document.getElementById('multivariateChart');
+            if (!chartDom) return;
+            
+            experimentState.charts.multivariate = echarts.init(chartDom);
+            
+            // 创建热力图数据
+            const factors = ['标题', '按钮颜色', '按钮文案', '位置'];
+            const combinations = ['组合1', '组合2', '组合3', '组合4', '组合5', '组合6', '组合7', '组合8'];
+            const data = [];
+            
+            for (let i = 0; i < factors.length; i++) {
+                for (let j = 0; j < combinations.length; j++) {
+                    data.push([j, i, Math.floor(Math.random() * 20 + 10)]);
+                }
+            }
+            
+            const option = {
+                tooltip: {
+                    position: 'top',
+                    formatter: function(params) {
+                        return `${combinations[params.data[0]]} - ${factors[params.data[1]]}<br/>转化率: ${params.data[2]}%`;
+                    }
+                },
+                grid: {
+                    left: '15%',
+                    right: '10%',
+                    bottom: '15%',
+                    top: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: combinations,
+                    splitArea: {
+                        show: true
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: factors,
+                    splitArea: {
+                        show: true
+                    }
+                },
+                visualMap: {
+                    min: 10,
+                    max: 30,
+                    calculable: true,
+                    orient: 'horizontal',
+                    left: 'center',
+                    bottom: '0%',
+                    inRange: {
+                        color: ['#E5E7EB', '#6366F1', '#10B981']
+                    }
+                },
+                series: [{
+                    name: '转化率',
+                    type: 'heatmap',
+                    data: data,
+                    label: {
+                        show: true,
+                        formatter: '{c}%'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }]
+            };
+            
+            experimentState.charts.multivariate.setOption(option);
+        }
+
+        // ========== 数据更新逻辑 ==========
+        function startDataUpdates() {
+            // 清除现有的更新间隔
+            if (experimentState.updateInterval) {
+                clearInterval(experimentState.updateInterval);
+            }
+            
+            // 每3秒更新一次数据
+            experimentState.updateInterval = setInterval(() => {
+                updateStatistics();
+                updateConfidence();
+                addNewDataPoint();
+            }, 3000);
+        }
+
+        // 更新统计数据
+        function updateStatistics() {
+            // 模拟访问量增长
+            const totalVisitors = document.getElementById('totalVisitors');
+            const currentVisitors = parseInt(totalVisitors.textContent.replace(',', ''));
+            const newVisitors = currentVisitors + Math.floor(Math.random() * 10 + 5);
+            totalVisitors.textContent = newVisitors.toLocaleString();
+            
+            // 模拟转化数增长
+            const totalConversions = document.getElementById('totalConversions');
+            const currentConversions = parseInt(totalConversions.textContent.replace(',', ''));
+            const newConversions = currentConversions + Math.floor(Math.random() * 3);
+            totalConversions.textContent = newConversions.toLocaleString();
+            
+            // 更新转化率
+            const variantARate = document.getElementById('variantARate');
+            const variantBRate = document.getElementById('variantBRate');
+            const aRate = (14.2 + (Math.random() - 0.5) * 0.5).toFixed(1);
+            const bRate = (16.8 + (Math.random() - 0.5) * 0.5).toFixed(1);
+            variantARate.textContent = aRate + '%';
+            variantBRate.textContent = bRate + '%';
+        }
+
+        // 更新置信度
+        function updateConfidence() {
+            const confidenceFill = document.getElementById('confidenceFill');
+            const confidenceValue = document.getElementById('confidenceValue');
+            
+            // 逐渐增加置信度
+            let currentConfidence = parseInt(confidenceValue.textContent);
+            if (currentConfidence < 95) {
+                currentConfidence += Math.random() * 2;
+                currentConfidence = Math.min(95, currentConfidence);
+                confidenceFill.style.width = currentConfidence + '%';
+                confidenceValue.textContent = Math.floor(currentConfidence) + '%';
+                
+                // 根据置信度改变颜色
+                if (currentConfidence >= 95) {
+                    confidenceValue.style.color = 'var(--success)';
+                } else if (currentConfidence >= 80) {
+                    confidenceValue.style.color = 'var(--warning)';
+                } else {
+                    confidenceValue.style.color = 'var(--danger)';
+                }
+            }
+        }
+
+        // 添加新数据点到图表
+        function addNewDataPoint() {
+            if (!experimentState.charts.result) return;
+            
+            const option = experimentState.charts.result.getOption();
+            const variantAData = option.series[0].data;
+            const variantBData = option.series[1].data;
+            const timeLabels = option.xAxis[0].data;
+            
+            // 移除最早的数据点
+            variantAData.shift();
+            variantBData.shift();
+            timeLabels.shift();
+            
+            // 添加新数据点
+            const now = new Date();
+            timeLabels.push(now.toLocaleString('zh-CN', { 
+                month: '2-digit', 
+                day: '2-digit', 
+                hour: '2-digit' 
+            }));
+            
+            const aRate = (14.2 + (Math.random() - 0.5) * 2).toFixed(1);
+            const bRate = (16.8 + (Math.random() - 0.5) * 2).toFixed(1);
+            variantAData.push(aRate);
+            variantBData.push(bRate);
+            
+            experimentState.charts.result.setOption(option);
+        }
+
+        // ========== 交互功能 ==========
+        
+        // 切换标签页
+        function switchTab(tabName) {
+            // 更新标签状态
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 根据不同标签显示不同内容
+            console.log(`切换到 ${tabName} 标签`);
+            
+            // 隐藏特殊面板
+            document.getElementById('multivariatePanel').style.display = 'none';
+            document.getElementById('bestPracticesPanel').style.display = 'none';
+        }
+
+        // 更新测试类型
+        function updateTestType() {
+            const testType = document.getElementById('testType').value;
+            
+            if (testType === 'multivariate') {
+                // 显示多变量测试配置
+                document.getElementById('multivariatePanel').style.display = 'block';
+                if (experimentState.charts.multivariate) {
+                    experimentState.charts.multivariate.resize();
+                }
+            } else {
+                document.getElementById('multivariatePanel').style.display = 'none';
+            }
+        }
+
+        // 流量分配滑块控制
+        function updateTrafficSplit(event) {
+            const slider = event.currentTarget;
+            const rect = slider.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
+            
+            // 更新滑块位置
+            document.getElementById('trafficSlider').style.width = percent + '%';
+            document.getElementById('sliderHandle').style.left = percent + '%';
+            
+            // 更新数值显示
+            document.getElementById('trafficA').textContent = Math.round(percent) + '%';
+            document.getElementById('trafficB').textContent = (100 - Math.round(percent)) + '%';
+        }
+
+        // 添加新变体
+        function addVariant() {
+            alert('添加变体功能：可以添加更多测试变体进行多变量测试');
+        }
+
+        // 开始实验
+        function startExperiment() {
+            const experimentName = document.getElementById('experimentName').value;
+            console.log(`开始实验: ${experimentName}`);
+            
+            // 更新状态显示
+            const statusElements = document.querySelectorAll('.experiment-status');
+            statusElements.forEach(el => {
+                el.className = 'experiment-status running';
+                el.innerHTML = '<span class="status-dot"></span> 运行中';
+            });
+            
+            // 开始数据更新
+            startDataUpdates();
+        }
+
+        // 暂停实验
+        function pauseExperiment() {
+            console.log('暂停实验');
+            
+            // 更新状态显示
+            const statusElements = document.querySelectorAll('.experiment-status');
+            statusElements.forEach(el => {
+                el.className = 'experiment-status paused';
+                el.innerHTML = '<span class="status-dot"></span> 已暂停';
+            });
+            
+            // 停止数据更新
+            if (experimentState.updateInterval) {
+                clearInterval(experimentState.updateInterval);
+            }
+        }
+
+        // 创建新实验
+        function createNewExperiment() {
+            // 重置表单
+            document.getElementById('experimentName').value = '';
+            document.getElementById('testType').value = 'ab';
+            document.getElementById('targetMetric').value = 'conversion';
+            
+            alert('创建新实验向导将引导您完成实验设置');
+        }
+
+        // 打开最佳实践
+        function openBestPractices() {
+            const panel = document.getElementById('bestPracticesPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // 更新图表指标
+        function updateChartMetric() {
+            console.log('切换图表显示指标');
+            // 这里可以根据选择的指标重新渲染图表
+        }
+
+        // ========== 响应式处理 ==========
+        function handleResize() {
+            Object.values(experimentState.charts).forEach(chart => {
+                if (chart && !chart.isDisposed()) {
+                    chart.resize();
+                }
+            });
+        }
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('A/B测试实验室初始化');
+            
+            // 初始化所有图表
+            initializeCharts();
+            
+            // 监听窗口大小变化
+            window.addEventListener('resize', handleResize);
+        });
+
+        // ========== 清理资源 ==========
+        window.addEventListener('beforeunload', function() {
+            // 清除更新间隔
+            if (experimentState.updateInterval) {
+                clearInterval(experimentState.updateInterval);
+            }
+            
+            // 销毁图表实例
+            Object.values(experimentState.charts).forEach(chart => {
+                if (chart && !chart.isDisposed()) {
+                    chart.dispose();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

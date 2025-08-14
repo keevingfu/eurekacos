@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>团队协作 - GEO内容市场</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #5e35b1;
+      --primary-dark: #4527a0;
+      --primary-light: #7e57c2;
+      --secondary: #00897b;
+      --success: #43a047;
+      --warning: #fb8c00;
+      --danger: #e53935;
+      --info: #1e88e5;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --border: #e0e0e0;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --hover: #f5f5f5;
+      --shadow: 0 2px 4px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* 布局容器 */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* 左侧边栏 */
+    .left-sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    /* 团队列表 */
+    .team-list {
+      padding: 16px;
+    }
+
+    .team-item {
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .team-item:hover {
+      background: var(--hover);
+    }
+
+    .team-item.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .team-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      color: white;
+    }
+
+    .team-info {
+      flex: 1;
+    }
+
+    .team-name {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .team-members {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .team-badge {
+      padding: 2px 8px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    /* 主内容区 */
+    .main-content {
+      background: var(--background);
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .content-header {
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 300;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+    }
+
+    /* 任务看板 */
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .kanban-column {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .column-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .column-title {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .column-count {
+      padding: 2px 8px;
+      background: var(--hover);
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .task-card {
+      background: var(--hover);
+      padding: 16px;
+      border-radius: 8px;
+      cursor: move;
+      transition: all 0.3s;
+    }
+
+    .task-card:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    .task-title {
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .task-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .task-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-tags {
+      display: flex;
+      gap: 6px;
+    }
+
+    .task-tag {
+      padding: 2px 8px;
+      background: var(--surface);
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .task-assignee {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* 添加任务按钮 */
+    .add-task-btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      transition: all 0.3s;
+      margin-top: 12px;
+    }
+
+    .add-task-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* 项目概览 */
+    .project-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .overview-card {
+      background: var(--surface);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .overview-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--hover);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .overview-value {
+      font-size: 32px;
+      font-weight: 300;
+      margin-bottom: 4px;
+    }
+
+    .overview-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .overview-change {
+      font-size: 12px;
+      color: var(--success);
+      margin-top: 8px;
+    }
+
+    /* 右侧活动栏 */
+    .right-sidebar {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+    }
+
+    .activity-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+    }
+
+    .activity-list {
+      padding: 16px;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--hover);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-text {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .activity-time {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* 团队成员网格 */
+    .members-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 32px;
+    }
+
+    .member-card {
+      background: var(--surface);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .member-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .member-avatar-large {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 16px;
+    }
+
+    .member-name {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .member-role {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .member-stats {
+      display: flex;
+      justify-content: space-around;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* 按钮样式 */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 1200px) {
+      .page-layout {
+        grid-template-columns: 1fr;
+      }
+      
+      .left-sidebar,
+      .right-sidebar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .kanban-board {
+        grid-template-columns: 1fr;
+      }
+      
+      .members-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-layout">
+    <!-- 左侧边栏 -->
+    <aside class="left-sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">我的团队</h2>
+        <button class="btn btn-primary" style="width: 100%;">
+          <span>➕</span>
+          <span>创建团队</span>
+        </button>
+      </div>
+      
+      <div class="team-list">
+        <div class="team-item active">
+          <div class="team-avatar">MK</div>
+          <div class="team-info">
+            <div class="team-name">营销团队</div>
+            <div class="team-members">12 成员</div>
+          </div>
+          <span class="team-badge">3</span>
+        </div>
+        
+        <div class="team-item">
+          <div class="team-avatar" style="background: #00897b;">CT</div>
+          <div class="team-info">
+            <div class="team-name">内容团队</div>
+            <div class="team-members">8 成员</div>
+          </div>
+          <span class="team-badge">5</span>
+        </div>
+        
+        <div class="team-item">
+          <div class="team-avatar" style="background: #fb8c00;">DS</div>
+          <div class="team-info">
+            <div class="team-name">设计团队</div>
+            <div class="team-members">6 成员</div>
+          </div>
+        </div>
+        
+        <div class="team-item">
+          <div class="team-avatar" style="background: #e53935;">PD</div>
+          <div class="team-info">
+            <div class="team-name">产品团队</div>
+            <div class="team-members">10 成员</div>
+          </div>
+          <span class="team-badge">1</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <div class="content-header">
+        <h1 class="page-title">营销团队工作空间</h1>
+        <p class="page-subtitle">协同创作，共同成长</p>
+      </div>
+
+      <!-- 项目概览 -->
+      <div class="project-overview">
+        <div class="overview-card">
+          <div class="overview-icon" style="background: #e3f2fd;">📝</div>
+          <div class="overview-value">24</div>
+          <div class="overview-label">进行中的任务</div>
+          <div class="overview-change">↑ 20% 较上周</div>
+        </div>
+        
+        <div class="overview-card">
+          <div class="overview-icon" style="background: #e8f5e9;">✅</div>
+          <div class="overview-value">156</div>
+          <div class="overview-label">本月完成</div>
+          <div class="overview-change">↑ 15% 较上月</div>
+        </div>
+        
+        <div class="overview-card">
+          <div class="overview-icon" style="background: #fff3e0;">👥</div>
+          <div class="overview-value">12</div>
+          <div class="overview-label">活跃成员</div>
+          <div class="overview-change">100% 参与率</div>
+        </div>
+        
+        <div class="overview-card">
+          <div class="overview-icon" style="background: #fce4ec;">⏱️</div>
+          <div class="overview-value">2.3天</div>
+          <div class="overview-label">平均完成时间</div>
+          <div class="overview-change">↓ 18% 效率提升</div>
+        </div>
+      </div>
+
+      <!-- 任务看板 -->
+      <h2 style="margin-bottom: 24px; font-weight: 400;">任务看板</h2>
+      <div class="kanban-board">
+        <!-- 待办列 -->
+        <div class="kanban-column">
+          <div class="column-header">
+            <h3 class="column-title">
+              <span>📋</span>
+              <span>待办</span>
+            </h3>
+            <span class="column-count">5</span>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-title">空气净化器选购指南内容策划</div>
+              <div class="task-description">
+                制定详细的内容大纲，包括选购要点、品牌对比、使用建议等模块
+              </div>
+              <div class="task-meta">
+                <div class="task-tags">
+                  <span class="task-tag">内容策划</span>
+                  <span class="task-tag">高优先级</span>
+                </div>
+                <div class="task-assignee">JD</div>
+              </div>
+            </div>
+            
+            <div class="task-card">
+              <div class="task-title">Q4季度内容日历制定</div>
+              <div class="task-description">
+                规划10-12月的内容发布计划，确保重要节点全覆盖
+              </div>
+              <div class="task-meta">
+                <div class="task-tags">
+                  <span class="task-tag">规划</span>
+                </div>
+                <div class="task-assignee">LM</div>
+              </div>
+            </div>
+          </div>
+          <button class="add-task-btn">
+            <span>➕</span>
+            <span>添加任务</span>
+          </button>
+        </div>
+
+        <!-- 进行中列 -->
+        <div class="kanban-column">
+          <div class="column-header">
+            <h3 class="column-title">
+              <span>🚀</span>
+              <span>进行中</span>
+            </h3>
+            <span class="column-count">3</span>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-title">双11促销页面内容优化</div>
+              <div class="task-description">
+                优化产品描述和促销文案，提升转化率
+              </div>
+              <div class="task-meta">
+                <div class="task-tags">
+                  <span class="task-tag">文案优化</span>
+                  <span class="task-tag">紧急</span>
+                </div>
+                <div class="task-assignee">ZW</div>
+              </div>
+            </div>
+            
+            <div class="task-card">
+              <div class="task-title">用户案例故事采写</div>
+              <div class="task-description">
+                采访3位典型用户，撰写使用体验故事
+              </div>
+              <div class="task-meta">
+                <div class="task-tags">
+                  <span class="task-tag">案例</span>
+                </div>
+                <div class="task-assignee">XY</div>
+              </div>
+            </div>
+          </div>
+          <button class="add-task-btn">
+            <span>➕</span>
+            <span>添加任务</span>
+          </button>
+        </div>
+
+        <!-- 审核中列 -->
+        <div class="kanban-column">
+          <div class="column-header">
+            <h3 class="column-title">
+              <span>👁️</span>
+              <span>审核中</span>
+            </h3>
+            <span class="column-count">2</span>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-title">新品发布新闻稿</div>
+              <div class="task-description">
+                等待法务和品牌部门审核确认
+              </div>
+              <div class="task-meta">
+                <div class="task-tags">
+                  <span class="task-tag">新闻稿</span>
+                </div>
+                <div class="task-assignee">CL</div>
+              </div>
+            </div>
+          </div>
+          <button class="add-task-btn">
+            <span>➕</span>
+            <span>添加任务</span>
+          </button>
+        </div>
+
+        <!-- 已完成列 -->
+        <div class="kanban-column">
+          <div class="column-header">
+            <h3 class="column-title">
+              <span>✅</span>
+              <span>已完成</span>
+            </h3>
+            <span class="column-count">8</span>
+          </div>
+          <div class="task-list">
+            <div class="task-card">
+              <div class="task-title">FAQ内容更新</div>
+              <div class="task-description">
+                更新了15个常见问题的答案
+              </div>
+              <div class="task-meta">
+                <div class="task-tags">
+                  <span class="task-tag">FAQ</span>
+                  <span class="task-tag">完成</span>
+                </div>
+                <div class="task-assignee">TK</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 团队成员 -->
+      <h2 style="margin-bottom: 24px; font-weight: 400;">团队成员</h2>
+      <div class="members-grid">
+        <div class="member-card">
+          <div class="member-avatar-large">JD</div>
+          <div class="member-name">张三</div>
+          <div class="member-role">内容策略师</div>
+          <div class="member-stats">
+            <div class="stat">
+              <div class="stat-value">45</div>
+              <div class="stat-label">已完成</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">3</div>
+              <div class="stat-label">进行中</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">98%</div>
+              <div class="stat-label">准时率</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="member-card">
+          <div class="member-avatar-large" style="background: #00897b;">LM</div>
+          <div class="member-name">李明</div>
+          <div class="member-role">高级编辑</div>
+          <div class="member-stats">
+            <div class="stat">
+              <div class="stat-value">62</div>
+              <div class="stat-label">已完成</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">2</div>
+              <div class="stat-label">进行中</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">95%</div>
+              <div class="stat-label">准时率</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="member-card">
+          <div class="member-avatar-large" style="background: #fb8c00;">ZW</div>
+          <div class="member-name">赵薇</div>
+          <div class="member-role">文案专员</div>
+          <div class="member-stats">
+            <div class="stat">
+              <div class="stat-value">38</div>
+              <div class="stat-label">已完成</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">4</div>
+              <div class="stat-label">进行中</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">92%</div>
+              <div class="stat-label">准时率</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 右侧活动栏 -->
+    <aside class="right-sidebar">
+      <div class="activity-header">
+        最新动态
+      </div>
+      
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-avatar">JD</div>
+          <div class="activity-content">
+            <div class="activity-text">
+              <strong>张三</strong> 完成了任务 <em>"FAQ内容更新"</em>
+            </div>
+            <div class="activity-time">5分钟前</div>
+          </div>
+        </div>
+        
+        <div class="activity-item">
+          <div class="activity-avatar" style="background: #00897b;">LM</div>
+          <div class="activity-content">
+            <div class="activity-text">
+              <strong>李明</strong> 开始处理 <em>"Q4季度内容日历"</em>
+            </div>
+            <div class="activity-time">15分钟前</div>
+          </div>
+        </div>
+        
+        <div class="activity-item">
+          <div class="activity-avatar" style="background: #fb8c00;">ZW</div>
+          <div class="activity-content">
+            <div class="activity-text">
+              <strong>赵薇</strong> 提交了 <em>"双11促销页面"</em> 供审核
+            </div>
+            <div class="activity-time">1小时前</div>
+          </div>
+        </div>
+        
+        <div class="activity-item">
+          <div class="activity-avatar" style="background: #e53935;">XY</div>
+          <div class="activity-content">
+            <div class="activity-text">
+              <strong>王小雨</strong> 评论了 <em>"用户案例故事"</em>
+            </div>
+            <div class="activity-time">2小时前</div>
+          </div>
+        </div>
+        
+        <div class="activity-item">
+          <div class="activity-avatar">CL</div>
+          <div class="activity-content">
+            <div class="activity-text">
+              <strong>陈磊</strong> 创建了新任务 <em>"新品发布新闻稿"</em>
+            </div>
+            <div class="activity-time">3小时前</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // 初始化拖拽功能
+    function initKanban() {
+      const tasks = document.querySelectorAll('.task-card');
+      const columns = document.querySelectorAll('.task-list');
+      
+      tasks.forEach(task => {
+        task.draggable = true;
+        task.addEventListener('dragstart', handleDragStart);
+        task.addEventListener('dragend', handleDragEnd);
+      });
+      
+      columns.forEach(column => {
+        column.addEventListener('dragover', handleDragOver);
+        column.addEventListener('drop', handleDrop);
+        column.addEventListener('dragleave', handleDragLeave);
+      });
+    }
+
+    let draggedElement = null;
+
+    function handleDragStart(e) {
+      draggedElement = e.target;
+      e.target.style.opacity = '0.5';
+    }
+
+    function handleDragEnd(e) {
+      e.target.style.opacity = '';
+    }
+
+    function handleDragOver(e) {
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+      e.dataTransfer.dropEffect = 'move';
+      return false;
+    }
+
+    function handleDragLeave(e) {
+      // 处理拖拽离开
+    }
+
+    function handleDrop(e) {
+      if (e.stopPropagation) {
+        e.stopPropagation();
+      }
+      
+      if (draggedElement && draggedElement !== e.target) {
+        const targetList = e.target.closest('.task-list');
+        if (targetList) {
+          targetList.appendChild(draggedElement);
+          updateColumnCount(targetList.closest('.kanban-column'));
+          updateColumnCount(draggedElement.parentElement.closest('.kanban-column'));
+        }
+      }
+      
+      return false;
+    }
+
+    function updateColumnCount(column) {
+      if (!column) return;
+      const count = column.querySelectorAll('.task-card').length;
+      const countElement = column.querySelector('.column-count');
+      if (countElement) {
+        countElement.textContent = count;
+      }
+    }
+
+    // 切换团队
+    function switchTeam(element) {
+      document.querySelectorAll('.team-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      element.classList.add('active');
+    }
+
+    // 页面加载完成后初始化
+    window.onload = function() {
+      initKanban();
+      
+      // 绑定团队切换事件
+      document.querySelectorAll('.team-item').forEach(item => {
+        item.addEventListener('click', function() {
+          switchTeam(this);
+        });
+      });
+    };
+  </script>
+</body>
+</html>

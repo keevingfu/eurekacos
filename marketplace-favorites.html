@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>收藏夹 - GEO内容市场</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #5e35b1;
+      --primary-dark: #4527a0;
+      --primary-light: #7e57c2;
+      --secondary: #00897b;
+      --success: #43a047;
+      --warning: #fb8c00;
+      --danger: #e53935;
+      --info: #1e88e5;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --border: #e0e0e0;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --hover: #f5f5f5;
+      --shadow: 0 2px 4px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* 布局容器 */
+    .page-layout {
+      display: flex;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+      gap: 24px;
+    }
+
+    /* 侧边栏 */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-section {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    /* 收藏夹列表 */
+    .collection-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .collection-item {
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .collection-item:hover {
+      background: var(--hover);
+    }
+
+    .collection-item.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .collection-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .collection-icon {
+      font-size: 20px;
+    }
+
+    .collection-name {
+      font-weight: 500;
+    }
+
+    .collection-count {
+      padding: 2px 8px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    /* 创建新收藏夹 */
+    .create-collection {
+      width: 100%;
+      padding: 12px;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--primary);
+      font-weight: 500;
+      transition: all 0.3s;
+      margin-top: 12px;
+    }
+
+    .create-collection:hover {
+      border-color: var(--primary);
+      background: var(--hover);
+    }
+
+    /* 主内容区 */
+    .main-content {
+      flex: 1;
+    }
+
+    /* 页面头部 */
+    .page-header {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 400;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .page-description {
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    /* 收藏夹统计 */
+    .collection-stats {
+      display: flex;
+      gap: 24px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .stat-icon {
+      font-size: 18px;
+    }
+
+    .stat-value {
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    /* 工具栏 */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .search-box {
+      position: relative;
+      width: 300px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+    }
+
+    .view-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .view-btn {
+      padding: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .view-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .view-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* 内容网格/列表 */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .content-list-view {
+      display: grid;
+      gap: 16px;
+    }
+
+    /* 收藏内容卡片 */
+    .favorite-card {
+      background: var(--surface);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .favorite-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .card-image {
+      height: 180px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-type {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 12px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: all 0.3s;
+    }
+
+    .favorite-card:hover .remove-btn {
+      opacity: 1;
+    }
+
+    .remove-btn:hover {
+      background: white;
+      color: var(--danger);
+    }
+
+    .card-content {
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      text-decoration: none;
+      display: block;
+    }
+
+    .card-title:hover {
+      color: var(--primary);
+    }
+
+    .card-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .card-author {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .author-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: white;
+    }
+
+    .card-date {
+      font-size: 12px;
+    }
+
+    /* 列表视图样式 */
+    .list-item {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      transition: all 0.3s;
+    }
+
+    .list-item:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .list-thumbnail {
+      width: 120px;
+      height: 90px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      flex-shrink: 0;
+    }
+
+    .list-content {
+      flex: 1;
+    }
+
+    .list-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* 按钮样式 */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--hover);
+      border-color: var(--primary);
+    }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: 12px;
+    }
+
+    .empty-description {
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 1024px) {
+      .page-layout {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .search-box {
+        width: 100%;
+      }
+      
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-layout">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <h2 class="section-title">我的收藏夹</h2>
+        
+        <div class="collection-list">
+          <div class="collection-item active">
+            <div class="collection-info">
+              <span class="collection-icon">📚</span>
+              <span class="collection-name">全部收藏</span>
+            </div>
+            <span class="collection-count">156</span>
+          </div>
+          
+          <div class="collection-item">
+            <div class="collection-info">
+              <span class="collection-icon">🔧</span>
+              <span class="collection-name">技术教程</span>
+            </div>
+            <span class="collection-count">45</span>
+          </div>
+          
+          <div class="collection-item">
+            <div class="collection-info">
+              <span class="collection-icon">💡</span>
+              <span class="collection-name">产品指南</span>
+            </div>
+            <span class="collection-count">38</span>
+          </div>
+          
+          <div class="collection-item">
+            <div class="collection-info">
+              <span class="collection-icon">📊</span>
+              <span class="collection-name">数据分析</span>
+            </div>
+            <span class="collection-count">23</span>
+          </div>
+          
+          <div class="collection-item">
+            <div class="collection-info">
+              <span class="collection-icon">🎯</span>
+              <span class="collection-name">最佳实践</span>
+            </div>
+            <span class="collection-count">32</span>
+          </div>
+          
+          <div class="collection-item">
+            <div class="collection-info">
+              <span class="collection-icon">🤖</span>
+              <span class="collection-name">AI工具</span>
+            </div>
+            <span class="collection-count">18</span>
+          </div>
+        </div>
+        
+        <button class="create-collection">
+          <span>➕</span>
+          <span>创建收藏夹</span>
+        </button>
+      </div>
+
+      <div class="sidebar-section">
+        <h2 class="section-title">标签云</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="padding: 4px 12px; background: var(--hover); border-radius: 20px; font-size: 14px; cursor: pointer;">FAQ</span>
+          <span style="padding: 4px 12px; background: var(--hover); border-radius: 20px; font-size: 14px; cursor: pointer;">操作指南</span>
+          <span style="padding: 4px 12px; background: var(--hover); border-radius: 20px; font-size: 14px; cursor: pointer;">智能家居</span>
+          <span style="padding: 4px 12px; background: var(--hover); border-radius: 20px; font-size: 14px; cursor: pointer;">AI工具</span>
+          <span style="padding: 4px 12px; background: var(--hover); border-radius: 20px; font-size: 14px; cursor: pointer;">产品评测</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 页面头部 -->
+      <div class="page-header">
+        <div class="header-top">
+          <h1 class="page-title">全部收藏</h1>
+          <div class="header-actions">
+            <button class="btn btn-secondary">
+              <span>🔗</span>
+              <span>分享收藏夹</span>
+            </button>
+            <button class="btn btn-primary">
+              <span>📥</span>
+              <span>导出列表</span>
+            </button>
+          </div>
+        </div>
+        
+        <p class="page-description">
+          您已收藏了156篇优质内容，随时查看和管理您感兴趣的知识
+        </p>
+        
+        <div class="collection-stats">
+          <div class="stat">
+            <span class="stat-icon">📚</span>
+            <span>总收藏：</span>
+            <span class="stat-value">156篇</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">📁</span>
+            <span>收藏夹：</span>
+            <span class="stat-value">6个</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">🏷️</span>
+            <span>标签：</span>
+            <span class="stat-value">23个</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">📅</span>
+            <span>最近收藏：</span>
+            <span class="stat-value">3天前</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 工具栏 -->
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" placeholder="搜索收藏内容...">
+        </div>
+        <div class="view-options">
+          <button class="view-btn active" onclick="switchView('grid')" title="网格视图">⊞</button>
+          <button class="view-btn" onclick="switchView('list')" title="列表视图">☰</button>
+        </div>
+      </div>
+
+      <!-- 内容网格 -->
+      <div class="content-grid" id="contentContainer">
+        <!-- 收藏卡片1 -->
+        <div class="favorite-card">
+          <div class="card-image">
+            <span class="card-type">购买指南</span>
+            <button class="remove-btn" title="移除收藏">❤️</button>
+          </div>
+          <div class="card-content">
+            <a href="#" class="card-title">智能家居设备选购完全指南</a>
+            <p class="card-description">
+              全面介绍智能家居设备的选购要点，包括智能音箱、智能灯具、智能插座等产品的功能对比和品牌推荐...
+            </p>
+            <div class="card-meta">
+              <div class="card-author">
+                <div class="author-avatar">ZX</div>
+                <span>张晓</span>
+              </div>
+              <span class="card-date">收藏于3天前</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 收藏卡片2 -->
+        <div class="favorite-card">
+          <div class="card-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <span class="card-type">FAQ</span>
+            <button class="remove-btn" title="移除收藏">❤️</button>
+          </div>
+          <div class="card-content">
+            <a href="#" class="card-title">空气净化器使用与维护FAQ</a>
+            <p class="card-description">
+              详细解答空气净化器的日常使用、滤网更换、故障排除等常见问题，帮助用户更好地使用设备...
+            </p>
+            <div class="card-meta">
+              <div class="card-author">
+                <div class="author-avatar" style="background: #00897b;">LW</div>
+                <span>李伟</span>
+              </div>
+              <span class="card-date">收藏于1周前</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 收藏卡片3 -->
+        <div class="favorite-card">
+          <div class="card-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <span class="card-type">操作指南</span>
+            <button class="remove-btn" title="移除收藏">❤️</button>
+          </div>
+          <div class="card-content">
+            <a href="#" class="card-title">ChatGPT高级使用技巧</a>
+            <p class="card-description">
+              掌握ChatGPT的高级提示词技巧，包括角色扮演、思维链、Few-shot学习等方法，提升AI对话质量...
+            </p>
+            <div class="card-meta">
+              <div class="card-author">
+                <div class="author-avatar" style="background: #fb8c00;">WM</div>
+                <span>王敏</span>
+              </div>
+              <span class="card-date">收藏于2周前</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 收藏卡片4 -->
+        <div class="favorite-card">
+          <div class="card-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <span class="card-type">对比分析</span>
+            <button class="remove-btn" title="移除收藏">❤️</button>
+          </div>
+          <div class="card-content">
+            <a href="#" class="card-title">主流扫地机器人品牌对比</a>
+            <p class="card-description">
+              深度对比小米、科沃斯、石头等品牌的扫地机器人，从清洁能力、导航技术、智能功能等维度分析...
+            </p>
+            <div class="card-meta">
+              <div class="card-author">
+                <div class="author-avatar" style="background: #e53935;">CL</div>
+                <span>陈磊</span>
+              </div>
+              <span class="card-date">收藏于3周前</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 收藏卡片5 -->
+        <div class="favorite-card">
+          <div class="card-image" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+            <span class="card-type">最佳实践</span>
+            <button class="remove-btn" title="移除收藏">❤️</button>
+          </div>
+          <div class="card-content">
+            <a href="#" class="card-title">内容SEO优化最佳实践</a>
+            <p class="card-description">
+              总结了提升内容在搜索引擎排名的实用技巧，包括关键词研究、内容结构优化、Schema标记等...
+            </p>
+            <div class="card-meta">
+              <div class="card-author">
+                <div class="author-avatar" style="background: #1e88e5;">ZT</div>
+                <span>赵婷</span>
+              </div>
+              <span class="card-date">收藏于1个月前</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 收藏卡片6 -->
+        <div class="favorite-card">
+          <div class="card-image" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+            <span class="card-type">故障排除</span>
+            <button class="remove-btn" title="移除收藏">❤️</button>
+          </div>
+          <div class="card-content">
+            <a href="#" class="card-title">智能门锁常见问题解决方案</a>
+            <p class="card-description">
+              汇总智能门锁使用中的常见故障和解决方法，包括指纹识别失败、电池更换、系统重置等问题...
+            </p>
+            <div class="card-meta">
+              <div class="card-author">
+                <div class="author-avatar" style="background: #43a047;">HJ</div>
+                <span>黄杰</span>
+              </div>
+              <span class="card-date">收藏于1个月前</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 空状态（当没有收藏时显示） -->
+      <!-- <div class="empty-state">
+        <div class="empty-icon">💔</div>
+        <h2 class="empty-title">还没有收藏内容</h2>
+        <p class="empty-description">浏览内容市场，收藏您感兴趣的优质内容</p>
+        <button class="btn btn-primary">
+          <span>🔍</span>
+          <span>浏览内容</span>
+        </button>
+      </div> -->
+    </main>
+  </div>
+
+  <script>
+    // 切换视图
+    function switchView(view) {
+      const container = document.getElementById('contentContainer');
+      const viewBtns = document.querySelectorAll('.view-btn');
+      
+      viewBtns.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      if (view === 'list') {
+        container.className = 'content-list-view';
+        // 转换为列表视图（这里仅作示例）
+        alert('切换到列表视图');
+      } else {
+        container.className = 'content-grid';
+      }
+    }
+
+    // 切换收藏夹
+    document.querySelectorAll('.collection-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.collection-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        
+        const collectionName = this.querySelector('.collection-name').textContent;
+        document.querySelector('.page-title').textContent = collectionName;
+        
+        console.log('切换到收藏夹：', collectionName);
+      });
+    });
+
+    // 创建新收藏夹
+    document.querySelector('.create-collection').addEventListener('click', function() {
+      const name = prompt('请输入收藏夹名称：');
+      if (name) {
+        alert(`创建收藏夹"${name}"成功！`);
+      }
+    });
+
+    // 移除收藏
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const card = this.closest('.favorite-card');
+        const title = card.querySelector('.card-title').textContent;
+        
+        if (confirm(`确定要取消收藏"${title}"吗？`)) {
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.8)';
+          setTimeout(() => {
+            card.remove();
+            updateStats();
+          }, 300);
+        }
+      });
+    });
+
+    // 更新统计
+    function updateStats() {
+      const totalCount = document.querySelectorAll('.favorite-card').length;
+      document.querySelector('.stat-value').textContent = totalCount + '篇';
+      
+      // 更新侧边栏计数
+      const activeCollection = document.querySelector('.collection-item.active');
+      const countBadge = activeCollection.querySelector('.collection-count');
+      countBadge.textContent = totalCount;
+    }
+
+    // 搜索功能
+    document.querySelector('.search-input').addEventListener('input', function(e) {
+      const keyword = e.target.value.toLowerCase();
+      document.querySelectorAll('.favorite-card').forEach(card => {
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        const desc = card.querySelector('.card-description').textContent.toLowerCase();
+        
+        if (title.includes(keyword) || desc.includes(keyword)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+
+    // 分享收藏夹
+    document.querySelector('.btn-secondary').addEventListener('click', function() {
+      alert('生成分享链接...');
+    });
+
+    // 导出列表
+    document.querySelector('.btn-primary').addEventListener('click', function() {
+      alert('导出收藏列表为Excel文件...');
+    });
+
+    // 标签点击
+    document.querySelectorAll('.sidebar-section:last-child span').forEach(tag => {
+      tag.addEventListener('click', function() {
+        const tagName = this.textContent;
+        document.querySelector('.search-input').value = tagName;
+        document.querySelector('.search-input').dispatchEvent(new Event('input'));
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>使用统计 - GEO内容市场</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #5e35b1;
+      --primary-dark: #4527a0;
+      --primary-light: #7e57c2;
+      --secondary: #00897b;
+      --success: #43a047;
+      --warning: #fb8c00;
+      --danger: #e53935;
+      --info: #1e88e5;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --border: #e0e0e0;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --hover: #f5f5f5;
+      --shadow: 0 2px 4px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* 主容器 */
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* 页面头部 */
+    .page-header {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 300;
+    }
+
+    .date-range-selector {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .date-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .date-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .date-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* 总览卡片 */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .overview-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+    }
+
+    .overview-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .card-value {
+      font-size: 36px;
+      font-weight: 300;
+      margin-bottom: 8px;
+    }
+
+    .card-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .card-trend {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .trend-up {
+      color: var(--success);
+    }
+
+    .trend-down {
+      color: var(--danger);
+    }
+
+    /* 图表区域 */
+    .charts-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-container {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .chart-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chart-btn {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .chart-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .chart-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* 模拟图表样式 */
+    .chart-area {
+      height: 300px;
+      background: var(--hover);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-placeholder {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    /* 数据表格 */
+    .data-table-section {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .table-title {
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      background: var(--hover);
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text-secondary);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 16px;
+      border-bottom: 1px solid var(--hover);
+    }
+
+    .data-table tr:hover {
+      background: var(--hover);
+    }
+
+    .content-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .content-link:hover {
+      text-decoration: underline;
+    }
+
+    .usage-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .usage-high {
+      background: #e8f5e9;
+      color: var(--success);
+    }
+
+    .usage-medium {
+      background: #fff3e0;
+      color: var(--warning);
+    }
+
+    .usage-low {
+      background: #ffebee;
+      color: var(--danger);
+    }
+
+    /* 热力图 */
+    .heatmap-section {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-top: 20px;
+    }
+
+    .heatmap-cell {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .heatmap-cell:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .heat-level-0 { background: #f0f0f0; }
+    .heat-level-1 { background: #e3f2fd; }
+    .heat-level-2 { background: #90caf9; }
+    .heat-level-3 { background: #42a5f5; }
+    .heat-level-4 { background: #1976d2; }
+
+    /* 导出按钮 */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--hover);
+      border-color: var(--primary);
+    }
+
+    /* 筛选器 */
+    .filter-bar {
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-select {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      font-size: 14px;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 1024px) {
+      .charts-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .overview-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .date-range-selector {
+        flex-wrap: wrap;
+      }
+      
+      .table-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1 class="page-title">使用统计</h1>
+        <div class="date-range-selector">
+          <button class="date-btn">今日</button>
+          <button class="date-btn active">本周</button>
+          <button class="date-btn">本月</button>
+          <button class="date-btn">本季度</button>
+          <button class="date-btn">自定义</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 总览卡片 -->
+    <div class="overview-grid">
+      <div class="overview-card">
+        <div class="card-header">
+          <div>
+            <div class="card-value">15,234</div>
+            <div class="card-label">总使用次数</div>
+            <div class="card-trend trend-up">
+              <span>↑</span>
+              <span>23.5% 较上周</span>
+            </div>
+          </div>
+          <div class="card-icon" style="background: #e3f2fd;">📊</div>
+        </div>
+      </div>
+
+      <div class="overview-card">
+        <div class="card-header">
+          <div>
+            <div class="card-value">3,456</div>
+            <div class="card-label">活跃用户数</div>
+            <div class="card-trend trend-up">
+              <span>↑</span>
+              <span>15.2% 较上周</span>
+            </div>
+          </div>
+          <div class="card-icon" style="background: #e8f5e9;">👥</div>
+        </div>
+      </div>
+
+      <div class="overview-card">
+        <div class="card-header">
+          <div>
+            <div class="card-value">892</div>
+            <div class="card-label">新增内容</div>
+            <div class="card-trend trend-up">
+              <span>↑</span>
+              <span>42.1% 较上周</span>
+            </div>
+          </div>
+          <div class="card-icon" style="background: #fff3e0;">📝</div>
+        </div>
+      </div>
+
+      <div class="overview-card">
+        <div class="card-header">
+          <div>
+            <div class="card-value">4.8</div>
+            <div class="card-label">平均评分</div>
+            <div class="card-trend trend-up">
+              <span>↑</span>
+              <span>0.2 较上周</span>
+            </div>
+          </div>
+          <div class="card-icon" style="background: #fce4ec;">⭐</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 图表区域 -->
+    <div class="charts-section">
+      <!-- 使用趋势图 -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h2 class="chart-title">使用趋势</h2>
+          <div class="chart-options">
+            <button class="chart-btn active">日</button>
+            <button class="chart-btn">周</button>
+            <button class="chart-btn">月</button>
+          </div>
+        </div>
+        <div class="chart-area">
+          <div class="chart-placeholder">
+            <div style="font-size: 48px; margin-bottom: 16px;">📈</div>
+            <div>使用量趋势图</div>
+            <div style="font-size: 12px; margin-top: 8px;">显示过去7天的使用量变化</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 内容类型分布 -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h2 class="chart-title">内容类型分布</h2>
+          <div class="chart-options">
+            <button class="chart-btn active">饼图</button>
+            <button class="chart-btn">柱图</button>
+          </div>
+        </div>
+        <div class="chart-area">
+          <div class="chart-placeholder">
+            <div style="font-size: 48px; margin-bottom: 16px;">🍩</div>
+            <div>内容类型分布图</div>
+            <div style="font-size: 12px; margin-top: 8px;">FAQ 45% | 指南 30% | 对比 15% | 其他 10%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 热门内容表格 -->
+    <div class="data-table-section">
+      <div class="table-header">
+        <h2 class="table-title">热门内容排行</h2>
+        <div class="table-actions">
+          <select class="filter-select">
+            <option>全部类型</option>
+            <option>FAQ</option>
+            <option>操作指南</option>
+            <option>对比分析</option>
+          </select>
+          <button class="btn btn-secondary">
+            <span>📥</span>
+            <span>导出数据</span>
+          </button>
+        </div>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>排名</th>
+            <th>内容标题</th>
+            <th>类型</th>
+            <th>使用次数</th>
+            <th>平均评分</th>
+            <th>趋势</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="#" class="content-link">空气净化器选购完全指南</a></td>
+            <td>购买指南</td>
+            <td>2,345</td>
+            <td>⭐ 4.9</td>
+            <td><span class="usage-badge usage-high">↑ 23%</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="#" class="content-link">智能家居设备FAQ大全</a></td>
+            <td>FAQ</td>
+            <td>1,892</td>
+            <td>⭐ 4.8</td>
+            <td><span class="usage-badge usage-high">↑ 18%</span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="#" class="content-link">扫地机器人品牌对比</a></td>
+            <td>对比分析</td>
+            <td>1,567</td>
+            <td>⭐ 4.7</td>
+            <td><span class="usage-badge usage-medium">↑ 5%</span></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="#" class="content-link">净水器安装操作指南</a></td>
+            <td>操作指南</td>
+            <td>1,234</td>
+            <td>⭐ 4.8</td>
+            <td><span class="usage-badge usage-low">↓ 3%</span></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><a href="#" class="content-link">智能门锁故障排除</a></td>
+            <td>故障排除</td>
+            <td>987</td>
+            <td>⭐ 4.6</td>
+            <td><span class="usage-badge usage-high">↑ 45%</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 活跃度热力图 -->
+    <div class="heatmap-section">
+      <div class="chart-header">
+        <h2 class="chart-title">本月活跃度热力图</h2>
+        <div class="chart-options">
+          <span style="font-size: 14px; color: var(--text-secondary);">越深表示活跃度越高</span>
+        </div>
+      </div>
+      
+      <div class="heatmap-grid">
+        <!-- 模拟一个月的热力图数据 -->
+        <div class="heatmap-cell heat-level-0" data-tooltip="11月1日: 234次"></div>
+        <div class="heatmap-cell heat-level-1" data-tooltip="11月2日: 456次"></div>
+        <div class="heatmap-cell heat-level-2" data-tooltip="11月3日: 678次"></div>
+        <div class="heatmap-cell heat-level-3" data-tooltip="11月4日: 890次"></div>
+        <div class="heatmap-cell heat-level-4" data-tooltip="11月5日: 1234次"></div>
+        <div class="heatmap-cell heat-level-3" data-tooltip="11月6日: 987次"></div>
+        <div class="heatmap-cell heat-level-2" data-tooltip="11月7日: 654次"></div>
+        <div class="heatmap-cell heat-level-1" data-tooltip="11月8日: 432次"></div>
+        <div class="heatmap-cell heat-level-2" data-tooltip="11月9日: 567次"></div>
+        <div class="heatmap-cell heat-level-3" data-tooltip="11月10日: 789次"></div>
+        <div class="heatmap-cell heat-level-4" data-tooltip="11月11日: 1567次"></div>
+        <div class="heatmap-cell heat-level-4" data-tooltip="11月12日: 1432次"></div>
+        <div class="heatmap-cell heat-level-3" data-tooltip="11月13日: 987次"></div>
+        <div class="heatmap-cell heat-level-2" data-tooltip="11月14日: 654次"></div>
+        <div class="heatmap-cell heat-level-1" data-tooltip="11月15日: 345次"></div>
+        <div class="heatmap-cell heat-level-2" data-tooltip="11月16日: 567次"></div>
+        <div class="heatmap-cell heat-level-3" data-tooltip="11月17日: 890次"></div>
+        <div class="heatmap-cell heat-level-4" data-tooltip="11月18日: 1234次"></div>
+        <div class="heatmap-cell heat-level-3" data-tooltip="11月19日: 876次"></div>
+        <div class="heatmap-cell heat-level-2" data-tooltip="11月20日: 543次"></div>
+        <div class="heatmap-cell heat-level-1" data-tooltip="11月21日: 321次"></div>
+      </div>
+    </div>
+
+    <!-- 用户行为分析 -->
+    <div class="charts-section">
+      <!-- 使用时段分布 -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h2 class="chart-title">使用时段分布</h2>
+        </div>
+        <div class="chart-area">
+          <div class="chart-placeholder">
+            <div style="font-size: 48px; margin-bottom: 16px;">⏰</div>
+            <div>24小时使用分布图</div>
+            <div style="font-size: 12px; margin-top: 8px;">高峰时段：9-11点、14-16点、20-22点</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 设备类型分布 -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h2 class="chart-title">访问设备分布</h2>
+        </div>
+        <div class="chart-area">
+          <div class="chart-placeholder">
+            <div style="font-size: 48px; margin-bottom: 16px;">📱</div>
+            <div>设备类型分布</div>
+            <div style="font-size: 12px; margin-top: 8px;">桌面 65% | 移动端 30% | 平板 5%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 日期范围选择
+    document.querySelectorAll('.date-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        console.log('切换日期范围：', this.textContent);
+      });
+    });
+
+    // 图表选项切换
+    document.querySelectorAll('.chart-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const parent = this.closest('.chart-options');
+        parent.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        console.log('切换图表类型：', this.textContent);
+      });
+    });
+
+    // 导出数据
+    document.querySelector('.btn-secondary').addEventListener('click', function() {
+      alert('正在导出数据为Excel文件...');
+    });
+
+    // 热力图交互
+    document.querySelectorAll('.heatmap-cell').forEach(cell => {
+      cell.addEventListener('click', function() {
+        const tooltip = this.getAttribute('data-tooltip');
+        alert('查看详情：' + tooltip);
+      });
+    });
+  </script>
+</body>
+</html>

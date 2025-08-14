@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置控制台 - System Settings Console</title>
+    <style>
+        /* Global Design System - Emphasizing security and clarity */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Professional color system conveying trust and caution */
+            --primary: #2563EB;      /* Blue - primary actions */
+            --secondary: #7C3AED;    /* Purple - secondary features */
+            --success: #16A34A;      /* Green - successful operations */
+            --warning: #EA580C;      /* Orange - warnings */
+            --danger: #DC2626;       /* Red - critical actions */
+            --info: #0891B2;         /* Cyan - informational */
+            
+            /* Extended neutral palette for subtle UI elements */
+            --slate-950: #020617;
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --white: #FFFFFF;
+            
+            /* System status colors */
+            --status-active: #10B981;
+            --status-inactive: #6B7280;
+            --status-error: #EF4444;
+            --status-warning: #F59E0B;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--slate-100);
+            color: var(--slate-900);
+            line-height: 1.6;
+        }
+
+        /* Container layout for maximum width and centering */
+        .console-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar navigation for system sections */
+        .sidebar {
+            width: 260px;
+            background: var(--slate-900);
+            color: var(--slate-100);
+            padding: 24px 0;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--slate-700);
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: var(--slate-800);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--status-active);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+            padding: 0 24px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--slate-500);
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            color: var(--slate-300);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: var(--slate-800);
+            color: var(--white);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .nav-icon {
+            width: 20px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 32px;
+        }
+
+        /* Page header with breadcrumb and actions */
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--slate-500);
+            margin-bottom: 16px;
+        }
+
+        .breadcrumb-separator {
+            color: var(--slate-400);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--slate-900);
+            margin-bottom: 8px;
+        }
+
+        .page-description {
+            font-size: 14px;
+            color: var(--slate-600);
+        }
+
+        /* Card component for content sections */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--slate-200);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+
+        /* Button system with clear hierarchy */
+        .btn {
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1D4ED8;
+        }
+
+        .btn-secondary {
+            background: var(--slate-200);
+            color: var(--slate-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--slate-300);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #B91C1C;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Form controls for settings */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--slate-700);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--slate-300);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--slate-300);
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--slate-500);
+            margin-top: 4px;
+        }
+
+        /* Toggle switch for boolean settings */
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--slate-300);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        /* User management table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: var(--slate-50);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--slate-600);
+            border-bottom: 2px solid var(--slate-200);
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--slate-100);
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: var(--slate-50);
+        }
+
+        /* User avatar in tables */
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--slate-900);
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: var(--slate-500);
+        }
+
+        /* Role badge styling */
+        .role-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .role-admin {
+            background: var(--danger);
+            color: white;
+        }
+
+        .role-editor {
+            background: var(--primary);
+            color: white;
+        }
+
+        .role-viewer {
+            background: var(--slate-200);
+            color: var(--slate-700);
+        }
+
+        /* Status badge for various states */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background: rgba(107, 114, 128, 0.1);
+            color: var(--slate-600);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Settings grid for parameter configuration */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--slate-50);
+            border-radius: 8px;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-label {
+            font-weight: 500;
+            color: var(--slate-900);
+            margin-bottom: 4px;
+        }
+
+        .setting-description {
+            font-size: 12px;
+            color: var(--slate-500);
+        }
+
+        /* Backup status card */
+        .backup-card {
+            background: linear-gradient(135deg, var(--slate-50), var(--slate-100));
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .backup-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .backup-info {
+            flex: 1;
+        }
+
+        .backup-label {
+            font-size: 14px;
+            color: var(--slate-600);
+            margin-bottom: 4px;
+        }
+
+        .backup-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--slate-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* API quota visualization */
+        .quota-meter {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--slate-50);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .quota-chart {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+
+        .quota-ring {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--primary) 0deg,
+                var(--primary) calc(var(--percentage) * 3.6deg),
+                var(--slate-200) calc(var(--percentage) * 3.6deg)
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quota-center {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .quota-details {
+            flex: 1;
+        }
+
+        .quota-title {
+            font-weight: 500;
+            color: var(--slate-900);
+            margin-bottom: 4px;
+        }
+
+        .quota-usage {
+            font-size: 12px;
+            color: var(--slate-600);
+        }
+
+        /* Security policy indicators */
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .security-item {
+            padding: 16px;
+            background: var(--slate-50);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .security-item.warning {
+            border-left-color: var(--warning);
+        }
+
+        .security-item.danger {
+            border-left-color: var(--danger);
+        }
+
+        .security-title {
+            font-weight: 500;
+            color: var(--slate-900);
+            margin-bottom: 8px;
+        }
+
+        .security-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--slate-900);
+        }
+
+        /* Audit log table styling */
+        .log-entry {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+
+        .log-entry:hover {
+            background: var(--slate-50);
+        }
+
+        .log-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--slate-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .log-content {
+            flex: 1;
+        }
+
+        .log-action {
+            font-weight: 500;
+            color: var(--slate-900);
+            margin-bottom: 4px;
+        }
+
+        .log-details {
+            font-size: 12px;
+            color: var(--slate-500);
+        }
+
+        .log-time {
+            font-size: 12px;
+            color: var(--slate-500);
+        }
+
+        /* Alert and notification styling */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-info {
+            background: rgba(8, 145, 178, 0.1);
+            border: 1px solid rgba(8, 145, 178, 0.2);
+            color: var(--info);
+        }
+
+        .alert-warning {
+            background: rgba(234, 88, 12, 0.1);
+            border: 1px solid rgba(234, 88, 12, 0.2);
+            color: var(--warning);
+        }
+
+        .alert-danger {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            color: var(--danger);
+        }
+
+        /* Responsive design adjustments */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .security-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="console-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <span>⚙️</span>
+                    <span>系统控制台</span>
+                </div>
+                <div class="system-status">
+                    <div class="status-indicator"></div>
+                    <span>系统运行正常</span>
+                </div>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-section-title">用户管理</div>
+                    <div class="nav-item active" onclick="switchSection('users')">
+                        <span class="nav-icon">👥</span>
+                        <span>用户账户</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('roles')">
+                        <span class="nav-icon">🔐</span>
+                        <span>角色权限</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">系统配置</div>
+                    <div class="nav-item" onclick="switchSection('parameters')">
+                        <span class="nav-icon">🎛️</span>
+                        <span>系统参数</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('api')">
+                        <span class="nav-icon">🔌</span>
+                        <span>API管理</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('backup')">
+                        <span class="nav-icon">💾</span>
+                        <span>备份恢复</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">安全监控</div>
+                    <div class="nav-item" onclick="switchSection('security')">
+                        <span class="nav-icon">🛡️</span>
+                        <span>安全策略</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('audit')">
+                        <span class="nav-icon">📝</span>
+                        <span>审计日志</span>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="breadcrumb">
+                    <span>系统设置</span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span>用户管理</span>
+                    <span class="breadcrumb-separator">›</span>
+                    <span>用户账户</span>
+                </div>
+                <h1 class="page-title">用户账户管理</h1>
+                <p class="page-description">管理系统用户账户、权限分配和访问控制</p>
+            </div>
+
+            <!-- Alert Section -->
+            <div class="alert alert-warning">
+                <span>⚠️</span>
+                <span>有3个用户账户的密码将在7天内过期，请提醒用户及时更新。</span>
+            </div>
+
+            <!-- User Management Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">用户列表</h2>
+                    <div>
+                        <button class="btn btn-secondary" onclick="exportUsers()">
+                            <span>📥</span> 导出
+                        </button>
+                        <button class="btn btn-primary" onclick="addUser()">
+                            <span>➕</span> 添加用户
+                        </button>
+                    </div>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>用户</th>
+                            <th>角色</th>
+                            <th>状态</th>
+                            <th>最后登录</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar">JD</div>
+                                    <div class="user-details">
+                                        <div class="user-name">John Doe</div>
+                                        <div class="user-email">john.doe@company.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="role-badge role-admin">管理员</span></td>
+                            <td>
+                                <span class="status-badge status-active">
+                                    <span class="status-dot"></span>
+                                    活跃
+                                </span>
+                            </td>
+                            <td>2分钟前</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 6px 12px;" onclick="editUser()">编辑</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar" style="background: var(--success);">AS</div>
+                                    <div class="user-details">
+                                        <div class="user-name">Alice Smith</div>
+                                        <div class="user-email">alice.smith@company.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="role-badge role-editor">编辑者</span></td>
+                            <td>
+                                <span class="status-badge status-active">
+                                    <span class="status-dot"></span>
+                                    活跃
+                                </span>
+                            </td>
+                            <td>1小时前</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 6px 12px;" onclick="editUser()">编辑</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar" style="background: var(--warning);">BJ</div>
+                                    <div class="user-details">
+                                        <div class="user-name">Bob Johnson</div>
+                                        <div class="user-email">bob.johnson@company.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="role-badge role-viewer">查看者</span></td>
+                            <td>
+                                <span class="status-badge status-inactive">
+                                    <span class="status-dot"></span>
+                                    未激活
+                                </span>
+                            </td>
+                            <td>3天前</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 6px 12px;" onclick="editUser()">编辑</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- System Parameters Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">系统参数设置</h2>
+                    <button class="btn btn-success" onclick="saveSettings()">
+                        <span>💾</span> 保存更改
+                    </button>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">会话超时时间</div>
+                            <div class="setting-description">用户无操作后自动登出的时间（分钟）</div>
+                        </div>
+                        <input type="number" class="form-input" style="width: 100px;" value="30">
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">密码最小长度</div>
+                            <div class="setting-description">用户密码的最小字符数要求</div>
+                        </div>
+                        <input type="number" class="form-input" style="width: 100px;" value="8">
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">登录尝试限制</div>
+                            <div class="setting-description">锁定账户前的最大失败尝试次数</div>
+                        </div>
+                        <input type="number" class="form-input" style="width: 100px;" value="5">
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">启用双因素认证</div>
+                            <div class="setting-description">要求所有用户使用2FA登录</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">自动备份</div>
+                            <div class="setting-description">每日自动执行系统备份</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-label">维护模式</div>
+                            <div class="setting-description">临时禁止用户访问系统</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSwitch(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Quota Management -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">API配额管理</h2>
+                </div>
+
+                <div class="quota-meter">
+                    <div class="quota-chart">
+                        <div class="quota-ring" style="--percentage: 75">
+                            <div class="quota-center">75%</div>
+                        </div>
+                    </div>
+                    <div class="quota-details">
+                        <div class="quota-title">LinkedIn API</div>
+                        <div class="quota-usage">7,500 / 10,000 请求已使用</div>
+                    </div>
+                </div>
+
+                <div class="quota-meter">
+                    <div class="quota-chart">
+                        <div class="quota-ring" style="--percentage: 45">
+                            <div class="quota-center">45%</div>
+                        </div>
+                    </div>
+                    <div class="quota-details">
+                        <div class="quota-title">Twitter API</div>
+                        <div class="quota-usage">4,500 / 10,000 请求已使用</div>
+                    </div>
+                </div>
+
+                <div class="quota-meter">
+                    <div class="quota-chart">
+                        <div class="quota-ring" style="--percentage: 90">
+                            <div class="quota-center">90%</div>
+                        </div>
+                    </div>
+                    <div class="quota-details">
+                        <div class="quota-title">YouTube API</div>
+                        <div class="quota-usage">9,000 / 10,000 请求已使用</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Metrics -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">安全状态</h2>
+                </div>
+
+                <div class="security-grid">
+                    <div class="security-item">
+                        <div class="security-title">登录失败次数</div>
+                        <div class="security-value">12</div>
+                    </div>
+                    <div class="security-item warning">
+                        <div class="security-title">待审查活动</div>
+                        <div class="security-value">3</div>
+                    </div>
+                    <div class="security-item">
+                        <div class="security-title">活跃会话</div>
+                        <div class="security-value">45</div>
+                    </div>
+                    <div class="security-item">
+                        <div class="security-title">安全评分</div>
+                        <div class="security-value">85/100</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Log -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">审计日志</h2>
+                    <button class="btn btn-secondary" onclick="exportLogs()">
+                        <span>📥</span> 导出日志
+                    </button>
+                </div>
+
+                <div class="log-entries">
+                    <div class="log-entry">
+                        <div class="log-icon">🔐</div>
+                        <div class="log-content">
+                            <div class="log-action">用户权限更改</div>
+                            <div class="log-details">John Doe 将 Alice Smith 的角色从查看者更改为编辑者</div>
+                        </div>
+                        <div class="log-time">5分钟前</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-icon">⚙️</div>
+                        <div class="log-content">
+                            <div class="log-action">系统设置更新</div>
+                            <div class="log-details">会话超时时间从60分钟更改为30分钟</div>
+                        </div>
+                        <div class="log-time">1小时前</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-icon">💾</div>
+                        <div class="log-content">
+                            <div class="log-action">备份完成</div>
+                            <div class="log-details">系统自动备份成功完成，大小: 2.3GB</div>
+                        </div>
+                        <div class="log-time">3小时前</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // System state management - central control for all settings
+        const systemState = {
+            currentSection: 'users',
+            users: [],
+            settings: {
+                sessionTimeout: 30,
+                passwordMinLength: 8,
+                loginAttemptLimit: 5,
+                twoFactorEnabled: true,
+                autoBackupEnabled: true,
+                maintenanceMode: false
+            },
+            apiQuotas: {
+                linkedin: { used: 7500, limit: 10000 },
+                twitter: { used: 4500, limit: 10000 },
+                youtube: { used: 9000, limit: 10000 }
+            },
+            auditLog: []
+        };
+
+        // Section navigation - handles switching between different admin panels
+        function switchSection(sectionName) {
+            // Update navigation visual state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            systemState.currentSection = sectionName;
+            
+            // Log the navigation action for audit purposes
+            logAction('Section Navigation', `Accessed ${sectionName} section`);
+            
+            console.log(`Switched to section: ${sectionName}`);
+            
+            // In a real application, this would load different content
+            // based on the selected section
+        }
+
+        // Toggle switch functionality - for boolean settings
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+            
+            // Get the setting name from the label
+            const settingLabel = element.closest('.setting-item')
+                .querySelector('.setting-label').textContent;
+            
+            const isActive = element.classList.contains('active');
+            
+            // Special handling for critical settings
+            if (settingLabel === '维护模式' && isActive) {
+                if (!confirm('启用维护模式将阻止所有用户访问系统。确定要继续吗？')) {
+                    element.classList.remove('active');
+                    return;
+                }
+            }
+            
+            // Log the change
+            logAction('Setting Changed', `${settingLabel}: ${isActive ? '启用' : '禁用'}`);
+        }
+
+        // User management functions
+        function addUser() {
+            console.log('Opening add user dialog...');
+            
+            // In a real application, this would open a modal form
+            const email = prompt('请输入新用户的邮箱地址:');
+            if (email) {
+                // Validate email format
+                if (!isValidEmail(email)) {
+                    alert('请输入有效的邮箱地址');
+                    return;
+                }
+                
+                logAction('User Added', `Created new user account for ${email}`);
+                alert(`用户账户 ${email} 已创建，激活链接已发送到该邮箱。`);
+            }
+        }
+
+        function editUser() {
+            console.log('Opening user edit dialog...');
+            // In production, this would open a detailed user editing interface
+            alert('用户编辑界面');
+        }
+
+        function exportUsers() {
+            console.log('Exporting user list...');
+            
+            // Simulate export process
+            const format = confirm('导出为CSV格式？（取消则导出为Excel）') ? 'CSV' : 'Excel';
+            
+            logAction('Data Export', `Exported user list as ${format}`);
+            
+            setTimeout(() => {
+                alert(`用户列表已导出为 ${format} 格式`);
+            }, 1000);
+        }
+
+        // Settings management
+        function saveSettings() {
+            console.log('Saving system settings...');
+            
+            // Collect all settings from the form
+            const settings = {
+                sessionTimeout: document.querySelector('input[type="number"]').value,
+                // ... collect other settings
+            };
+            
+            // Validate settings before saving
+            if (settings.sessionTimeout < 5) {
+                alert('会话超时时间不能少于5分钟');
+                return;
+            }
+            
+            // Show confirmation for critical changes
+            if (confirm('确定要保存这些系统设置吗？某些更改可能需要用户重新登录。')) {
+                // Save to backend
+                systemState.settings = { ...systemState.settings, ...settings };
+                
+                logAction('Settings Updated', 'System configuration saved');
+                
+                // Show success message
+                showNotification('设置已成功保存', 'success');
+            }
+        }
+
+        // Audit logging function
+        function logAction(action, details) {
+            const logEntry = {
+                action: action,
+                details: details,
+                timestamp: new Date(),
+                user: 'Current User' // Would be actual user in production
+            };
+            
+            systemState.auditLog.unshift(logEntry);
+            
+            // Keep only recent entries in memory
+            if (systemState.auditLog.length > 100) {
+                systemState.auditLog.pop();
+            }
+            
+            console.log('Audit log:', logEntry);
+        }
+
+        // Export audit logs
+        function exportLogs() {
+            console.log('Exporting audit logs...');
+            
+            const dateRange = prompt('导出日期范围（例如：2025-01-01 到 2025-01-31）:');
+            if (dateRange) {
+                logAction('Audit Export', `Exported logs for date range: ${dateRange}`);
+                
+                setTimeout(() => {
+                    alert('审计日志已导出');
+                }, 1000);
+            }
+        }
+
+        // Utility functions
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function showNotification(message, type = 'info') {
+            // In production, this would show a toast notification
+            console.log(`${type.toUpperCase()}: ${message}`);
+            
+            // Create a temporary alert div
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `<span>ℹ️</span> <span>${message}</span>`;
+            
+            // Insert at the top of main content
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(alertDiv, mainContent.firstChild);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Initialize system monitoring
+        function initializeMonitoring() {
+            // Update API quotas periodically
+            setInterval(() => {
+                // Simulate API usage changes
+                Object.keys(systemState.apiQuotas).forEach(api => {
+                    const quota = systemState.apiQuotas[api];
+                    quota.used = Math.min(quota.limit, quota.used + Math.floor(Math.random() * 10));
+                    
+                    // Update UI if quota is getting high
+                    if (quota.used / quota.limit > 0.9) {
+                        console.warn(`${api} API quota is above 90%`);
+                    }
+                });
+            }, 30000); // Every 30 seconds
+            
+            // Check for security issues
+            setInterval(() => {
+                checkSecurityStatus();
+            }, 60000); // Every minute
+        }
+
+        // Security monitoring
+        function checkSecurityStatus() {
+            // Simulate security checks
+            const securityScore = calculateSecurityScore();
+            
+            if (securityScore < 70) {
+                showNotification('安全评分较低，请检查安全设置', 'warning');
+            }
+            
+            // Check for suspicious activities
+            const suspiciousActivities = checkForSuspiciousActivities();
+            if (suspiciousActivities > 0) {
+                showNotification(`检测到 ${suspiciousActivities} 个可疑活动`, 'warning');
+            }
+        }
+
+        function calculateSecurityScore() {
+            let score = 100;
+            
+            // Deduct points for security issues
+            if (!systemState.settings.twoFactorEnabled) score -= 20;
+            if (systemState.settings.passwordMinLength < 8) score -= 15;
+            if (systemState.settings.sessionTimeout > 60) score -= 10;
+            
+            return Math.max(0, score);
+        }
+
+        function checkForSuspiciousActivities() {
+            // In production, this would analyze real audit logs
+            return Math.floor(Math.random() * 5);
+        }
+
+        // Initialize the console when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('System Settings Console initialized');
+            
+            // Initialize monitoring systems
+            initializeMonitoring();
+            
+            // Log initial access
+            logAction('Console Access', 'Administrator accessed system settings');
+            
+            // Set up periodic backup reminder
+            setInterval(() => {
+                const lastBackup = new Date();
+                const hoursSinceBackup = 24; // Would calculate actual time
+                
+                if (hoursSinceBackup > 48) {
+                    showNotification('建议执行系统备份', 'info');
+                }
+            }, 3600000); // Every hour
+        });
+
+        // Handle page unload - save state and log logout
+        window.addEventListener('beforeunload', function() {
+            // Save current state to session storage
+            sessionStorage.setItem('systemState', JSON.stringify(systemState));
+            
+            // Log the session end
+            logAction('Session End', 'Administrator left system settings');
+        });
+    </script>
+</body>
+</html>

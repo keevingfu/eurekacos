@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEO问题地图构建系统</title>
+    <style>
+        /* 设计理念：采用清晰的视觉层次和功能分区，让复杂的问题管理变得简单直观 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 色彩系统：使用专业但不失活力的配色方案 */
+            --primary-color: #1890ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --error-color: #f5222d;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+            --border-color: #d9d9d9;
+            --background: #f0f2f5;
+            --card-bg: #ffffff;
+            --hover-bg: #f5f5f5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* 顶部导航栏设计 */
+        .header {
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 32px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* 主体内容区域布局 */
+        .container {
+            max-width: 1400px;
+            margin: 24px auto;
+            padding: 0 24px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+        }
+
+        /* 左侧面板：问题录入和筛选 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 表单控件样式 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* 标签输入组件 */
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            min-height: 40px;
+            cursor: text;
+        }
+
+        .tag {
+            background: #f0f5ff;
+            color: var(--primary-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0.7;
+        }
+
+        .tag-remove:hover {
+            opacity: 1;
+        }
+
+        .tag-input {
+            border: none;
+            outline: none;
+            flex: 1;
+            min-width: 100px;
+            font-size: 14px;
+        }
+
+        /* 按钮系统 */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(24,144,255,0.3);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        /* 主内容区：问题列表和可视化 */
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 顶部工具栏 */
+        .toolbar {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .view-switcher {
+            display: flex;
+            gap: 8px;
+        }
+
+        .view-btn {
+            padding: 8px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* 问题卡片网格布局 */
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+
+        .question-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* 问题类型的颜色编码 */
+        .type-what { background: #e6f7ff; color: #0050b3; }
+        .type-why { background: #fff1f0; color: #cf1322; }
+        .type-how { background: #f6ffed; color: #389e0d; }
+        .type-best { background: #fff7e6; color: #d46b08; }
+        .type-compare { background: #f9f0ff; color: #531dab; }
+
+        .question-text {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .question-meta {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .question-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .small-tag {
+            background: #f5f5f5;
+            color: var(--text-secondary);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        /* 数据可视化区域 */
+        .visualization {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .chart-container {
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .chart-bar {
+            width: 60px;
+            background: linear-gradient(180deg, var(--primary-color), #69c0ff);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+            transform: translateY(-4px);
+        }
+
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .chart-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* 批量操作浮动面板 */
+        .bulk-actions {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 12px 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            display: none;
+            align-items: center;
+            gap: 16px;
+            z-index: 200;
+        }
+
+        .bulk-actions.show {
+            display: flex;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-stats {
+                display: none;
+            }
+            
+            .questions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 空状态提示 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .empty-hint {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏：展示核心指标 -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span>🗺️</span>
+                <span>GEO问题地图构建系统</span>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalQuestions">0</div>
+                    <div class="stat-label">问题总数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="coverageRate">0%</div>
+                    <div class="stat-label">意图覆盖率</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="aiCitationRate">0%</div>
+                    <div class="stat-label">AI引用率</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-grid">
+            <!-- 左侧边栏：问题录入和筛选 -->
+            <aside class="sidebar">
+                <!-- 问题录入卡片 -->
+                <div class="card">
+                    <h3 class="card-title">
+                        <span>📝</span>
+                        <span>新建问题</span>
+                    </h3>
+                    <form id="questionForm">
+                        <div class="form-group">
+                            <label class="form-label">问题类型</label>
+                            <select class="form-select" id="questionType" required>
+                                <option value="">请选择类型</option>
+                                <option value="what">What - 定义解释</option>
+                                <option value="why">Why - 原因分析</option>
+                                <option value="how">How - 操作指南</option>
+                                <option value="best">Best - 最佳实践</option>
+                                <option value="compare">Compare - 对比选择</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">问题内容</label>
+                            <textarea class="form-textarea" id="questionText" 
+                                placeholder="例如：How to reduce pet dander at home?" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">意图标签</label>
+                            <div class="tag-input-container" id="tagContainer">
+                                <input type="text" class="tag-input" id="tagInput" 
+                                    placeholder="输入标签后按Enter">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">适配渠道</label>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label style="font-size: 13px;">
+                                    <input type="checkbox" name="channels" value="reddit"> Reddit
+                                </label>
+                                <label style="font-size: 13px;">
+                                    <input type="checkbox" name="channels" value="quora"> Quora
+                                </label>
+                                <label style="font-size: 13px;">
+                                    <input type="checkbox" name="channels" value="medium"> Medium
+                                </label>
+                                <label style="font-size: 13px;">
+                                    <input type="checkbox" name="channels" value="youtube"> YouTube
+                                </label>
+                                <label style="font-size: 13px;">
+                                    <input type="checkbox" name="channels" value="stackexchange"> Stack Exchange
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">优先级</label>
+                            <select class="form-select" id="priority">
+                                <option value="low">低</option>
+                                <option value="medium" selected>中</option>
+                                <option value="high">高</option>
+                                <option value="urgent">紧急</option>
+                            </select>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">
+                                <span>➕</span>
+                                <span>添加问题</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <span>🔄</span>
+                                <span>重置</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 快速筛选卡片 -->
+                <div class="card">
+                    <h3 class="card-title">
+                        <span>🔍</span>
+                        <span>快速筛选</span>
+                    </h3>
+                    <div class="form-group">
+                        <label class="form-label">按类型筛选</label>
+                        <select class="form-select" id="filterType" onchange="filterQuestions()">
+                            <option value="">全部类型</option>
+                            <option value="what">What - 定义解释</option>
+                            <option value="why">Why - 原因分析</option>
+                            <option value="how">How - 操作指南</option>
+                            <option value="best">Best - 最佳实践</option>
+                            <option value="compare">Compare - 对比选择</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">按优先级筛选</label>
+                        <select class="form-select" id="filterPriority" onchange="filterQuestions()">
+                            <option value="">全部优先级</option>
+                            <option value="urgent">紧急</option>
+                            <option value="high">高</option>
+                            <option value="medium">中</option>
+                            <option value="low">低</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 批量操作卡片 -->
+                <div class="card">
+                    <h3 class="card-title">
+                        <span>⚡</span>
+                        <span>批量操作</span>
+                    </h3>
+                    <button class="btn btn-secondary" onclick="importQuestions()" style="width: 100%; margin-bottom: 8px;">
+                        <span>📥</span>
+                        <span>导入CSV</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportQuestions()" style="width: 100%;">
+                        <span>📤</span>
+                        <span>导出数据</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- 主内容区：问题展示和可视化 -->
+            <main class="content">
+                <!-- 工具栏 -->
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" class="search-input" id="searchInput" 
+                            placeholder="搜索问题..." onkeyup="searchQuestions()">
+                    </div>
+                    <div class="view-switcher">
+                        <button class="view-btn active" onclick="switchView('grid')" title="网格视图">
+                            <span>⊞</span>
+                        </button>
+                        <button class="view-btn" onclick="switchView('list')" title="列表视图">
+                            <span>☰</span>
+                        </button>
+                        <button class="view-btn" onclick="switchView('chart')" title="图表视图">
+                            <span>📊</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 问题展示区域 -->
+                <div id="contentArea">
+                    <!-- 默认显示网格视图 -->
+                    <div class="questions-grid" id="questionsGrid">
+                        <!-- 问题卡片将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 数据可视化 -->
+                <div class="visualization">
+                    <h3 class="card-title">
+                        <span>📊</span>
+                        <span>问题类型分布</span>
+                    </h3>
+                    <div class="chart-container" id="chartContainer">
+                        <!-- 图表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 批量操作浮动面板 -->
+    <div class="bulk-actions" id="bulkActions">
+        <span>已选择 <strong id="selectedCount">0</strong> 个问题</span>
+        <button class="btn btn-secondary" onclick="bulkUpdatePriority()">更新优先级</button>
+        <button class="btn btn-secondary" onclick="bulkAddTags()">批量标签</button>
+        <button class="btn btn-primary" onclick="bulkExport()">导出选中</button>
+    </div>
+
+    <!-- 导入模态框 -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 16px;">导入问题数据</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                请上传CSV文件，格式要求：type, question, tags, channels, priority
+            </p>
+            <textarea class="form-textarea" id="csvInput" rows="10" 
+                placeholder="或直接粘贴CSV内容到这里..."></textarea>
+            <div class="btn-group" style="justify-content: flex-end; margin-top: 16px;">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="processImport()">导入</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 核心数据结构：问题地图是整个GEO系统的基石
+        let questionsDatabase = [];
+        let selectedQuestions = new Set();
+        let currentView = 'grid';
+        let tags = new Set();
+
+        // 初始化：加载示例数据，展示系统能力
+        function initializeApp() {
+            // 加载示例问题，这些都是高价值的用户意图
+            const sampleQuestions = [
+                {
+                    id: generateId(),
+                    type: 'how',
+                    text: 'How to reduce pet dander at home effectively?',
+                    tags: ['pet-care', 'allergies', 'home-improvement'],
+                    channels: ['reddit', 'quora', 'youtube'],
+                    priority: 'high',
+                    aiCitation: 0.28,
+                    created: new Date().toISOString()
+                },
+                {
+                    id: generateId(),
+                    type: 'compare',
+                    text: 'HEPA filter vs UV air purifier for allergies?',
+                    tags: ['comparison', 'air-quality', 'health'],
+                    channels: ['reddit', 'medium', 'stackexchange'],
+                    priority: 'high',
+                    aiCitation: 0.35,
+                    created: new Date().toISOString()
+                },
+                {
+                    id: generateId(),
+                    type: 'what',
+                    text: 'What is the best air purifier for large rooms?',
+                    tags: ['product-research', 'buying-guide'],
+                    channels: ['quora', 'youtube', 'medium'],
+                    priority: 'medium',
+                    aiCitation: 0.42,
+                    created: new Date().toISOString()
+                },
+                {
+                    id: generateId(),
+                    type: 'why',
+                    text: 'Why do HEPA filters need regular replacement?',
+                    tags: ['maintenance', 'technical', 'cost'],
+                    channels: ['reddit', 'quora'],
+                    priority: 'medium',
+                    aiCitation: 0.15,
+                    created: new Date().toISOString()
+                },
+                {
+                    id: generateId(),
+                    type: 'best',
+                    text: 'Best practices for indoor air quality management?',
+                    tags: ['health', 'guide', 'comprehensive'],
+                    channels: ['medium', 'youtube', 'quora'],
+                    priority: 'high',
+                    aiCitation: 0.31,
+                    created: new Date().toISOString()
+                }
+            ];
+
+            // 如果localStorage有数据则加载，否则使用示例数据
+            const savedData = localStorage.getItem('geoQuestions');
+            if (savedData) {
+                questionsDatabase = JSON.parse(savedData);
+            } else {
+                questionsDatabase = sampleQuestions;
+                saveToLocalStorage();
+            }
+
+            renderQuestions();
+            updateStatistics();
+            updateChart();
+        }
+
+        // 生成唯一ID：时间戳+随机数确保唯一性
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // 保存到本地存储：实现数据持久化
+        function saveToLocalStorage() {
+            localStorage.setItem('geoQuestions', JSON.stringify(questionsDatabase));
+        }
+
+        // 表单提交处理：将用户输入转化为结构化数据
+        document.getElementById('questionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('questionType').value;
+            const text = document.getElementById('questionText').value;
+            const priority = document.getElementById('priority').value;
+            
+            // 收集已选择的渠道
+            const channels = Array.from(document.querySelectorAll('input[name="channels"]:checked'))
+                .map(cb => cb.value);
+            
+            // 收集标签
+            const tagElements = document.querySelectorAll('#tagContainer .tag');
+            const questionTags = Array.from(tagElements).map(tag => 
+                tag.textContent.replace('×', '').trim()
+            );
+
+            // 创建新问题对象
+            const newQuestion = {
+                id: generateId(),
+                type: type,
+                text: text,
+                tags: questionTags,
+                channels: channels,
+                priority: priority,
+                aiCitation: Math.random() * 0.5, // 模拟AI引用率
+                created: new Date().toISOString()
+            };
+
+            // 添加到数据库
+            questionsDatabase.push(newQuestion);
+            saveToLocalStorage();
+            
+            // 更新UI
+            renderQuestions();
+            updateStatistics();
+            updateChart();
+            
+            // 重置表单
+            resetForm();
+            
+            // 成功提示
+            showNotification('问题添加成功！');
+        });
+
+        // 标签输入处理：实现Enter键添加标签
+        document.getElementById('tagInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const tagValue = this.value.trim();
+                if (tagValue && !tags.has(tagValue)) {
+                    addTag(tagValue);
+                    this.value = '';
+                }
+            }
+        });
+
+        // 添加标签到容器
+        function addTag(tagValue) {
+            tags.add(tagValue);
+            const tagElement = document.createElement('span');
+            tagElement.className = 'tag';
+            tagElement.innerHTML = `
+                ${tagValue}
+                <span class="tag-remove" onclick="removeTag(this, '${tagValue}')">×</span>
+            `;
+            
+            const tagInput = document.getElementById('tagInput');
+            tagInput.parentElement.insertBefore(tagElement, tagInput);
+        }
+
+        // 移除标签
+        function removeTag(element, tagValue) {
+            tags.delete(tagValue);
+            element.parentElement.remove();
+        }
+
+        // 渲染问题列表：根据当前视图模式显示
+        function renderQuestions(questions = questionsDatabase) {
+            const contentArea = document.getElementById('contentArea');
+            
+            if (questions.length === 0) {
+                contentArea.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">暂无问题数据</div>
+                        <div class="empty-hint">请在左侧添加新问题，或导入CSV数据</div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (currentView === 'grid') {
+                renderGridView(questions);
+            } else if (currentView === 'list') {
+                renderListView(questions);
+            } else if (currentView === 'chart') {
+                renderChartView(questions);
+            }
+        }
+
+        // 网格视图渲染
+        function renderGridView(questions) {
+            const html = questions.map(q => `
+                <div class="question-card" onclick="selectQuestion('${q.id}')" data-id="${q.id}">
+                    <span class="question-type type-${q.type}">
+                        ${q.type.toUpperCase()}
+                    </span>
+                    <div class="question-text">${q.text}</div>
+                    <div class="question-tags">
+                        ${q.tags.map(tag => `<span class="small-tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="question-meta">
+                        <span class="meta-item">
+                            <span>📍</span>
+                            <span>${q.priority}</span>
+                        </span>
+                        <span class="meta-item">
+                            <span>📊</span>
+                            <span>${(q.aiCitation * 100).toFixed(0)}%</span>
+                        </span>
+                        <span class="meta-item">
+                            <span>🔗</span>
+                            <span>${q.channels.length} 渠道</span>
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('contentArea').innerHTML = `
+                <div class="questions-grid">${html}</div>
+            `;
+        }
+
+        // 列表视图渲染（简化展示）
+        function renderListView(questions) {
+            const html = `
+                <div class="card">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--border-color);">
+                                <th style="padding: 12px; text-align: left;">问题</th>
+                                <th style="padding: 12px;">类型</th>
+                                <th style="padding: 12px;">优先级</th>
+                                <th style="padding: 12px;">AI引用率</th>
+                                <th style="padding: 12px;">渠道</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${questions.map(q => `
+                                <tr style="border-bottom: 1px solid var(--border-color);">
+                                    <td style="padding: 12px;">${q.text}</td>
+                                    <td style="padding: 12px; text-align: center;">
+                                        <span class="question-type type-${q.type}">${q.type}</span>
+                                    </td>
+                                    <td style="padding: 12px; text-align: center;">${q.priority}</td>
+                                    <td style="padding: 12px; text-align: center;">${(q.aiCitation * 100).toFixed(0)}%</td>
+                                    <td style="padding: 12px; text-align: center;">${q.channels.length}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        // 更新统计数据：实时展示关键指标
+        function updateStatistics() {
+            // 计算总问题数
+            document.getElementById('totalQuestions').textContent = questionsDatabase.length;
+            
+            // 计算意图覆盖率（基于标签多样性）
+            const allTags = new Set();
+            questionsDatabase.forEach(q => q.tags.forEach(tag => allTags.add(tag)));
+            const coverageRate = Math.min((allTags.size / 20) * 100, 100); // 假设20个标签为100%覆盖
+            document.getElementById('coverageRate').textContent = coverageRate.toFixed(0) + '%';
+            
+            // 计算平均AI引用率
+            if (questionsDatabase.length > 0) {
+                const avgCitation = questionsDatabase.reduce((sum, q) => sum + q.aiCitation, 0) / questionsDatabase.length;
+                document.getElementById('aiCitationRate').textContent = (avgCitation * 100).toFixed(0) + '%';
+            } else {
+                document.getElementById('aiCitationRate').textContent = '0%';
+            }
+        }
+
+        // 更新图表：可视化问题类型分布
+        function updateChart() {
+            const typeCount = {
+                what: 0,
+                why: 0,
+                how: 0,
+                best: 0,
+                compare: 0
+            };
+
+            questionsDatabase.forEach(q => {
+                if (typeCount.hasOwnProperty(q.type)) {
+                    typeCount[q.type]++;
+                }
+            });
+
+            const maxCount = Math.max(...Object.values(typeCount), 1);
+            const chartHTML = Object.entries(typeCount).map(([type, count]) => `
+                <div class="chart-bar" style="height: ${(count / maxCount) * 250}px;">
+                    <span class="chart-value">${count}</span>
+                    <span class="chart-label">${type.toUpperCase()}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('chartContainer').innerHTML = chartHTML;
+        }
+
+        // 搜索功能：实时搜索问题内容
+        function searchQuestions() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = questionsDatabase.filter(q => 
+                q.text.toLowerCase().includes(searchTerm) ||
+                q.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+            );
+            renderQuestions(filtered);
+        }
+
+        // 筛选功能：按类型和优先级筛选
+        function filterQuestions() {
+            const typeFilter = document.getElementById('filterType').value;
+            const priorityFilter = document.getElementById('filterPriority').value;
+            
+            let filtered = questionsDatabase;
+            
+            if (typeFilter) {
+                filtered = filtered.filter(q => q.type === typeFilter);
+            }
+            
+            if (priorityFilter) {
+                filtered = filtered.filter(q => q.priority === priorityFilter);
+            }
+            
+            renderQuestions(filtered);
+        }
+
+        // 切换视图模式
+        function switchView(view) {
+            currentView = view;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.view-btn').classList.add('active');
+            
+            renderQuestions();
+        }
+
+        // 导出功能：将问题地图导出为CSV
+        function exportQuestions() {
+            const csv = [
+                ['Type', 'Question', 'Tags', 'Channels', 'Priority', 'AI Citation'],
+                ...questionsDatabase.map(q => [
+                    q.type,
+                    q.text,
+                    q.tags.join(';'),
+                    q.channels.join(';'),
+                    q.priority,
+                    (q.aiCitation * 100).toFixed(0) + '%'
+                ])
+            ].map(row => row.join(',')).join('\n');
+
+            // 创建下载链接
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `geo-questions-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            showNotification('数据导出成功！');
+        }
+
+        // 导入功能
+        function importQuestions() {
+            document.getElementById('importModal').classList.add('show');
+        }
+
+        // 处理导入
+        function processImport() {
+            const csvInput = document.getElementById('csvInput').value;
+            // 这里简化处理，实际应该解析CSV
+            showNotification('导入功能演示');
+            closeModal();
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('importModal').classList.remove('show');
+        }
+
+        // 重置表单
+        function resetForm() {
+            document.getElementById('questionForm').reset();
+            document.querySelectorAll('#tagContainer .tag').forEach(tag => tag.remove());
+            tags.clear();
+        }
+
+        // 显示通知：提供用户反馈
+        function showNotification(message) {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--success-color);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 4px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 2000;
+                animation: slideIn 0.3s;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 初始化应用
+        initializeApp();
+    </script>
+</body>
+</html>

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的内容 - GEO内容市场</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #5e35b1;
+      --primary-dark: #4527a0;
+      --primary-light: #7e57c2;
+      --secondary: #00897b;
+      --success: #43a047;
+      --warning: #fb8c00;
+      --danger: #e53935;
+      --info: #1e88e5;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --border: #e0e0e0;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --hover: #f5f5f5;
+      --shadow: 0 2px 4px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* 主容器 */
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* 用户信息头部 */
+    .user-header {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .user-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 500;
+    }
+
+    .user-details {
+      flex: 1;
+    }
+
+    .user-name {
+      font-size: 28px;
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+
+    .user-role {
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+
+    .user-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      background: var(--hover);
+      border-radius: 8px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* 内容管理标签 */
+    .content-tabs {
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover {
+      background: var(--hover);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .tab-badge {
+      padding: 2px 8px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    /* 工具栏 */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .toolbar-left {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-box {
+      position: relative;
+      width: 300px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+    }
+
+    .filter-select {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      font-size: 14px;
+    }
+
+    /* 内容列表 */
+    .content-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .content-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .content-card:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .content-title {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .content-title:hover {
+      text-decoration: underline;
+    }
+
+    .content-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .content-status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-published {
+      background: #e8f5e9;
+      color: var(--success);
+    }
+
+    .status-draft {
+      background: #fff3e0;
+      color: var(--warning);
+    }
+
+    .status-review {
+      background: #e3f2fd;
+      color: var(--info);
+    }
+
+    .status-rejected {
+      background: #ffebee;
+      color: var(--danger);
+    }
+
+    .content-preview {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .content-stats {
+      display: flex;
+      gap: 24px;
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .content-stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .stat-icon {
+      color: var(--primary);
+    }
+
+    .content-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--hover);
+      border-color: var(--primary);
+    }
+
+    .btn-danger {
+      background: var(--surface);
+      color: var(--danger);
+      border: 1px solid var(--border);
+    }
+
+    .btn-danger:hover {
+      background: #ffebee;
+      border-color: var(--danger);
+    }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: 12px;
+    }
+
+    .empty-description {
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    /* 快速创建按钮 */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s;
+    }
+
+    .fab:hover {
+      transform: scale(1.1);
+      background: var(--primary-dark);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .user-info {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .toolbar {
+        flex-direction: column;
+      }
+      
+      .toolbar-left {
+        width: 100%;
+        flex-direction: column;
+      }
+      
+      .search-box {
+        width: 100%;
+      }
+      
+      .content-tabs {
+        overflow-x: auto;
+      }
+      
+      .tab-btn {
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- 用户信息头部 -->
+    <div class="user-header">
+      <div class="user-info">
+        <div class="user-avatar">ZS</div>
+        <div class="user-details">
+          <h1 class="user-name">张三</h1>
+          <p class="user-role">高级内容创作者 • 加入于2023年1月</p>
+        </div>
+      </div>
+      
+      <div class="user-stats">
+        <div class="stat-item">
+          <div class="stat-value">156</div>
+          <div class="stat-label">发布内容</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">4.85</div>
+          <div class="stat-label">平均评分</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">45.2K</div>
+          <div class="stat-label">总浏览量</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">3.2K</div>
+          <div class="stat-label">收藏数</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">89%</div>
+          <div class="stat-label">通过率</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 内容管理标签 -->
+    <div class="content-tabs">
+      <button class="tab-btn active" onclick="switchTab(this, 'all')">
+        <span>全部内容</span>
+        <span class="tab-badge">189</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab(this, 'published')">
+        <span>已发布</span>
+        <span class="tab-badge">156</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab(this, 'draft')">
+        <span>草稿</span>
+        <span class="tab-badge">12</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab(this, 'review')">
+        <span>审核中</span>
+        <span class="tab-badge">8</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab(this, 'rejected')">
+        <span>已拒绝</span>
+        <span class="tab-badge">3</span>
+      </button>
+    </div>
+
+    <!-- 工具栏 -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" placeholder="搜索我的内容...">
+        </div>
+        <select class="filter-select">
+          <option>全部类型</option>
+          <option>FAQ</option>
+          <option>操作指南</option>
+          <option>最佳实践</option>
+          <option>对比分析</option>
+        </select>
+        <select class="filter-select">
+          <option>发布时间排序</option>
+          <option>浏览量排序</option>
+          <option>评分排序</option>
+          <option>更新时间排序</option>
+        </select>
+      </div>
+      <button class="btn btn-primary">
+        <span>➕</span>
+        <span>创建内容</span>
+      </button>
+    </div>
+
+    <!-- 内容列表 -->
+    <div class="content-list">
+      <!-- 内容卡片1 -->
+      <div class="content-card">
+        <div class="content-header">
+          <div>
+            <a href="#" class="content-title">智能家居设备选购完全指南</a>
+            <div class="content-meta">
+              <span class="meta-item">
+                <span>📁</span>
+                <span>购买指南</span>
+              </span>
+              <span class="meta-item">
+                <span>📅</span>
+                <span>2024-11-15 发布</span>
+              </span>
+              <span class="meta-item">
+                <span>🔄</span>
+                <span>2024-11-18 更新</span>
+              </span>
+            </div>
+          </div>
+          <span class="content-status status-published">已发布</span>
+        </div>
+
+        <p class="content-preview">
+          本指南全面介绍了智能家居设备的选购要点，包括智能音箱、智能灯具、智能插座、智能门锁等主流产品的功能对比、品牌推荐和安装使用建议...
+        </p>
+
+        <div class="content-stats">
+          <div class="content-stat">
+            <span class="stat-icon">👁️</span>
+            <span>8,234 浏览</span>
+          </div>
+          <div class="content-stat">
+            <span class="stat-icon">⭐</span>
+            <span>4.9 评分</span>
+          </div>
+          <div class="content-stat">
+            <span class="stat-icon">💬</span>
+            <span>156 评论</span>
+          </div>
+          <div class="content-stat">
+            <span class="stat-icon">❤️</span>
+            <span>423 收藏</span>
+          </div>
+        </div>
+
+        <div class="content-actions">
+          <button class="btn btn-primary">
+            <span>✏️</span>
+            <span>编辑</span>
+          </button>
+          <button class="btn btn-secondary">
+            <span>📊</span>
+            <span>查看统计</span>
+          </button>
+          <button class="btn btn-secondary">
+            <span>🔗</span>
+            <span>分享</span>
+          </button>
+          <button class="btn btn-danger">
+            <span>🗑️</span>
+            <span>删除</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 内容卡片2 -->
+      <div class="content-card">
+        <div class="content-header">
+          <div>
+            <a href="#" class="content-title">空气净化器维护保养FAQ</a>
+            <div class="content-meta">
+              <span class="meta-item">
+                <span>📁</span>
+                <span>FAQ</span>
+              </span>
+              <span class="meta-item">
+                <span>📅</span>
+                <span>2024-11-10 发布</span>
+              </span>
+              <span class="meta-item">
+                <span>🔄</span>
+                <span>2024-11-10 更新</span>
+              </span>
+            </div>
+          </div>
+          <span class="content-status status-published">已发布</span>
+        </div>
+
+        <p class="content-preview">
+          详细解答了空气净化器日常维护、滤网更换、故障排除等常见问题，帮助用户正确保养设备，延长使用寿命...
+        </p>
+
+        <div class="content-stats">
+          <div class="content-stat">
+            <span class="stat-icon">👁️</span>
+            <span>5,621 浏览</span>
+          </div>
+          <div class="content-stat">
+            <span class="stat-icon">⭐</span>
+            <span>4.8 评分</span>
+          </div>
+          <div class="content-stat">
+            <span class="stat-icon">💬</span>
+            <span>89 评论</span>
+          </div>
+          <div class="content-stat">
+            <span class="stat-icon">❤️</span>
+            <span>312 收藏</span>
+          </div>
+        </div>
+
+        <div class="content-actions">
+          <button class="btn btn-primary">
+            <span>✏️</span>
+            <span>编辑</span>
+          </button>
+          <button class="btn btn-secondary">
+            <span>📊</span>
+            <span>查看统计</span>
+          </button>
+          <button class="btn btn-secondary">
+            <span>🔗</span>
+            <span>分享</span>
+          </button>
+          <button class="btn btn-danger">
+            <span>🗑️</span>
+            <span>删除</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 内容卡片3 - 草稿 -->
+      <div class="content-card">
+        <div class="content-header">
+          <div>
+            <a href="#" class="content-title">扫地机器人品牌对比评测（草稿）</a>
+            <div class="content-meta">
+              <span class="meta-item">
+                <span>📁</span>
+                <span>对比分析</span>
+              </span>
+              <span class="meta-item">
+                <span>📅</span>
+                <span>2024-11-20 创建</span>
+              </span>
+              <span class="meta-item">
+                <span>🔄</span>
+                <span>2024-11-22 保存</span>
+              </span>
+            </div>
+          </div>
+          <span class="content-status status-draft">草稿</span>
+        </div>
+
+        <p class="content-preview">
+          对比市面上主流扫地机器人品牌的功能、性能、价格等方面，帮助用户选择最适合的产品...
+        </p>
+
+        <div class="content-stats">
+          <div class="content-stat">
+            <span class="stat-icon">📝</span>
+            <span>完成度 65%</span>
+          </div>
+          <div class="content-stat">
+            <span class="stat-icon">⏱️</span>
+            <span>预计15分钟完成</span>
+          </div>
+        </div>
+
+        <div class="content-actions">
+          <button class="btn btn-primary">
+            <span>✏️</span>
+            <span>继续编辑</span>
+          </button>
+          <button class="btn btn-secondary">
+            <span>👁️</span>
+            <span>预览</span>
+          </button>
+          <button class="btn btn-secondary">
+            <span>📤</span>
+            <span>提交审核</span>
+          </button>
+          <button class="btn btn-danger">
+            <span>🗑️</span>
+            <span>删除</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 内容卡片4 - 审核中 -->
+      <div class="content-card">
+        <div class="content-header">
+          <div>
+            <a href="#" class="content-title">智能门锁安装与配置指南</a>
+            <div class="content-meta">
+              <span class="meta-item">
+                <span>📁</span>
+                <span>操作指南</span>
+              </span>
+              <span class="meta-item">
+                <span>📅</span>
+                <span>2024-11-23 提交</span>
+              </span>
+              <span class="meta-item">
+                <span>⏱️</span>
+                <span>预计24小时内审核</span>
+              </span>
+            </div>
+          </div>
+          <span class="content-status status-review">审核中</span>
+        </div>
+
+        <p class="content-preview">
+          详细介绍智能门锁的安装步骤、APP配置、用户管理等内容，包含视频教程和常见问题解答...
+        </p>
+
+        <div class="content-stats">
+          <div class="content-stat">
+            <span class="stat-icon">👤</span>
+            <span>审核员：李伟</span>
+          </div>
+          <div class="content-stat">
+            <span class="stat-icon">📊</span>
+            <span>审核进度 50%</span>
+          </div>
+        </div>
+
+        <div class="content-actions">
+          <button class="btn btn-secondary">
+            <span>👁️</span>
+            <span>预览</span>
+          </button>
+          <button class="btn btn-secondary">
+            <span>💬</span>
+            <span>查看反馈</span>
+          </button>
+          <button class="btn btn-danger">
+            <span>❌</span>
+            <span>撤回</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 空状态（当筛选结果为空时显示） -->
+    <!-- <div class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h2 class="empty-title">还没有内容</h2>
+      <p class="empty-description">开始创作您的第一篇内容，与社区分享您的知识和经验</p>
+      <button class="btn btn-primary">
+        <span>➕</span>
+        <span>创建内容</span>
+      </button>
+    </div> -->
+  </div>
+
+  <!-- 快速创建按钮 -->
+  <button class="fab" title="快速创建">➕</button>
+
+  <script>
+    // 切换标签
+    function switchTab(element, type) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      element.classList.add('active');
+      
+      console.log('切换到：', type);
+      // 这里可以根据类型筛选内容
+    }
+
+    // 创建内容
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+      if (btn.textContent.includes('创建')) {
+        btn.addEventListener('click', function() {
+          alert('打开内容创建器...');
+        });
+      }
+    });
+
+    // 编辑内容
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+      if (btn.textContent.includes('编辑') || btn.textContent.includes('继续编辑')) {
+        btn.addEventListener('click', function() {
+          const title = this.closest('.content-card').querySelector('.content-title').textContent;
+          alert(`编辑内容：${title}`);
+        });
+      }
+    });
+
+    // 查看统计
+    document.querySelectorAll('.btn-secondary').forEach(btn => {
+      if (btn.textContent.includes('查看统计')) {
+        btn.addEventListener('click', function() {
+          alert('打开详细统计页面...');
+        });
+      }
+    });
+
+    // 删除确认
+    document.querySelectorAll('.btn-danger').forEach(btn => {
+      if (btn.textContent.includes('删除')) {
+        btn.addEventListener('click', function() {
+          const title = this.closest('.content-card').querySelector('.content-title').textContent;
+          if (confirm(`确定要删除"${title}"吗？此操作不可恢复。`)) {
+            alert('内容已删除');
+            this.closest('.content-card').remove();
+          }
+        });
+      }
+    });
+
+    // FAB快速创建
+    document.querySelector('.fab').addEventListener('click', function() {
+      alert('选择创建类型：FAQ / 指南 / 最佳实践 / 对比分析');
+    });
+
+    // 搜索功能
+    document.querySelector('.search-input').addEventListener('input', function(e) {
+      console.log('搜索：', e.target.value);
+    });
+
+    // 筛选功能
+    document.querySelectorAll('.filter-select').forEach(select => {
+      select.addEventListener('change', function() {
+        console.log('筛选条件：', this.value);
+      });
+    });
+  </script>
+</body>
+</html>

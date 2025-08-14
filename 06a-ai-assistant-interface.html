@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能助手界面 - AI Assistant Interface</title>
+    <!-- 引入 ECharts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <style>
+        /* 全局设计系统 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 智能助手专属配色 - 传达智能和友好 */
+            --ai-primary: #6366F1;      /* 智慧紫蓝 */
+            --ai-secondary: #8B5CF6;    /* 辅助紫 */
+            --ai-accent: #0EA5E9;       /* 科技蓝 */
+            --ai-success: #10B981;      /* 成功绿 */
+            --ai-warning: #F59E0B;      /* 警告橙 */
+            --ai-danger: #EF4444;       /* 危险红 */
+            --ai-info: #06B6D4;         /* 信息青 */
+            
+            /* 中性色阶 */
+            --gray-900: #111827;
+            --gray-800: #1F2937;
+            --gray-700: #374151;
+            --gray-600: #4B5563;
+            --gray-500: #6B7280;
+            --gray-400: #9CA3AF;
+            --gray-300: #D1D5DB;
+            --gray-200: #E5E7EB;
+            --gray-100: #F3F4F6;
+            --gray-50: #F9FAFB;
+            --white: #FFFFFF;
+            
+            /* 智能渐变效果 */
+            --gradient-ai: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+        }
+
+        /* 主容器布局 */
+        .ai-container {
+            display: flex;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* 左侧聊天区域 */
+        .chat-section {
+            width: 400px;
+            background: white;
+            border-right: 1px solid var(--gray-200);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 聊天头部 */
+        .chat-header {
+            background: var(--gradient-ai);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ai-avatar {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-status {
+            flex: 1;
+        }
+
+        .ai-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .ai-state {
+            font-size: 12px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        /* 聊天消息区 */
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: var(--gray-50);
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            color: var(--gray-800);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .message.user .message-content {
+            background: var(--ai-primary);
+            color: white;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .message.ai .message-avatar {
+            background: var(--gradient-ai);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: var(--gray-200);
+        }
+
+        /* 快速操作建议 */
+        .quick-actions {
+            padding: 12px 20px;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .quick-action-title {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+        }
+
+        .quick-action-chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-chip {
+            padding: 6px 12px;
+            background: var(--gray-100);
+            border: 1px solid var(--gray-300);
+            border-radius: 16px;
+            font-size: 12px;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-chip:hover {
+            background: var(--ai-primary);
+            color: white;
+            border-color: var(--ai-primary);
+            transform: translateY(-1px);
+        }
+
+        /* 输入区域 */
+        .chat-input {
+            padding: 16px 20px;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-textarea {
+            width: 100%;
+            min-height: 40px;
+            max-height: 120px;
+            padding: 10px 40px 10px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 20px;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-textarea:focus {
+            border-color: var(--ai-primary);
+        }
+
+        .input-actions {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .input-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: var(--gray-400);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .input-btn:hover {
+            background: var(--gray-100);
+            color: var(--ai-primary);
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-ai);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 右侧主内容区 */
+        .main-section {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: var(--gray-50);
+        }
+
+        /* 顶部指标卡片 */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-ai);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .metric-title {
+            font-size: 14px;
+            color: var(--gray-600);
+        }
+
+        .metric-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .metric-change {
+            font-size: 12px;
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .metric-change.positive {
+            color: var(--ai-success);
+        }
+
+        .metric-change.negative {
+            color: var(--ai-danger);
+        }
+
+        /* 数据洞察区域 */
+        .insights-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--ai-primary);
+            color: white;
+            border-color: var(--ai-primary);
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        /* 洞察列表 */
+        .insights-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .insight-item {
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            border-left: 4px solid var(--ai-primary);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .insight-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-ai);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .insight-content {
+            flex: 1;
+        }
+
+        .insight-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .insight-desc {
+            font-size: 13px;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+
+        .insight-action {
+            padding: 6px 12px;
+            background: var(--ai-primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .insight-action:hover {
+            transform: translateY(-1px);
+        }
+
+        /* 优化建议网格 */
+        .suggestions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .suggestion-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s;
+        }
+
+        .suggestion-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .suggestion-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .suggestion-priority {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--ai-danger);
+        }
+
+        .priority-medium {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--ai-warning);
+        }
+
+        .priority-low {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--ai-success);
+        }
+
+        .suggestion-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .suggestion-desc {
+            font-size: 14px;
+            color: var(--gray-600);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .suggestion-impact {
+            display: flex;
+            gap: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .impact-item {
+            flex: 1;
+        }
+
+        .impact-label {
+            font-size: 11px;
+            color: var(--gray-500);
+            margin-bottom: 4px;
+        }
+
+        .impact-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        /* 工作流推荐 */
+        .workflow-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .workflow-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .workflow-item {
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .workflow-item:hover {
+            background: var(--ai-primary);
+            color: white;
+        }
+
+        .workflow-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .workflow-info {
+            flex: 1;
+        }
+
+        .workflow-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .workflow-desc {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .workflow-arrow {
+            color: var(--gray-400);
+        }
+
+        .workflow-item:hover .workflow-arrow {
+            color: white;
+        }
+
+        /* 异常诊断面板 */
+        .diagnostic-panel {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 320px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            transform: translateY(calc(100% + 24px));
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .diagnostic-panel.show {
+            transform: translateY(0);
+        }
+
+        .diagnostic-header {
+            padding: 16px 20px;
+            background: var(--gradient-ai);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .diagnostic-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .diagnostic-close {
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diagnostic-content {
+            padding: 16px 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .diagnostic-item {
+            padding: 12px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .diagnostic-level {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .level-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--ai-danger);
+        }
+
+        .level-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--ai-warning);
+        }
+
+        .diagnostic-message {
+            font-size: 13px;
+            color: var(--gray-700);
+            margin-bottom: 4px;
+        }
+
+        .diagnostic-solution {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        /* 浮动助手按钮 */
+        .floating-assistant {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-ai);
+            border-radius: 50%;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            transition: transform 0.3s;
+            z-index: 999;
+        }
+
+        .floating-assistant:hover {
+            transform: scale(1.1);
+        }
+
+        .floating-assistant.active {
+            background: var(--ai-danger);
+            animation: shake 0.5s;
+        }
+
+        /* 动画效果 */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .chat-section {
+                position: fixed;
+                left: -400px;
+                z-index: 1001;
+                height: 100vh;
+                transition: left 0.3s;
+            }
+            
+            .chat-section.open {
+                left: 0;
+            }
+            
+            .main-section {
+                padding: 16px;
+            }
+            
+            .suggestions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ai-container">
+        <!-- 左侧聊天界面 -->
+        <div class="chat-section" id="chatSection">
+            <!-- 聊天头部 -->
+            <div class="chat-header">
+                <div class="ai-avatar">🤖</div>
+                <div class="ai-status">
+                    <div class="ai-name">GEO智能助手</div>
+                    <div class="ai-state">
+                        <span class="status-dot"></span>
+                        <span>在线 • 随时为您服务</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聊天消息区 -->
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        你好！我是GEO智能助手，我可以帮助您：
+                        <br><br>
+                        📊 分析数据洞察<br>
+                        🚀 优化内容策略<br>
+                        🔧 诊断系统问题<br>
+                        📝 执行批量任务<br>
+                        <br>
+                        请问有什么可以帮助您的吗？
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速操作建议 -->
+            <div class="quick-actions">
+                <div class="quick-action-title">快速操作</div>
+                <div class="quick-action-chips">
+                    <div class="action-chip" onclick="quickAction('查看今日数据')">查看今日数据</div>
+                    <div class="action-chip" onclick="quickAction('分析AI引用率')">分析AI引用率</div>
+                    <div class="action-chip" onclick="quickAction('优化建议')">优化建议</div>
+                    <div class="action-chip" onclick="quickAction('创建内容')">创建内容</div>
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="chat-input">
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea 
+                            class="chat-textarea" 
+                            id="chatInput" 
+                            placeholder="输入您的问题或指令..."
+                            onkeydown="handleKeyPress(event)"
+                        ></textarea>
+                        <div class="input-actions">
+                            <button class="input-btn" title="上传文件">📎</button>
+                            <button class="input-btn" title="语音输入">🎤</button>
+                        </div>
+                    </div>
+                    <button class="send-btn" onclick="sendMessage()">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧主内容区 -->
+        <div class="main-section">
+            <!-- 顶部指标卡片 -->
+            <div class="metrics-row">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">今日任务完成率</div>
+                        <div class="metric-icon" style="background: rgba(99, 102, 241, 0.1); color: var(--ai-primary);">📈</div>
+                    </div>
+                    <div class="metric-value">87.5%</div>
+                    <div class="metric-change positive">
+                        <span>↑</span>
+                        <span>比昨日提升 12.3%</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">AI引用率</div>
+                        <div class="metric-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--ai-secondary);">🎯</div>
+                    </div>
+                    <div class="metric-value">42.8%</div>
+                    <div class="metric-change positive">
+                        <span>↑</span>
+                        <span>高于行业平均 15%</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">内容转化率</div>
+                        <div class="metric-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--ai-success);">💎</div>
+                    </div>
+                    <div class="metric-value">3.24%</div>
+                    <div class="metric-change negative">
+                        <span>↓</span>
+                        <span>需要优化 Action Card</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">系统健康度</div>
+                        <div class="metric-icon" style="background: rgba(6, 182, 212, 0.1); color: var(--ai-info);">❤️</div>
+                    </div>
+                    <div class="metric-value">98.5%</div>
+                    <div class="metric-change positive">
+                        <span>✓</span>
+                        <span>所有服务正常运行</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据洞察区域 -->
+            <div class="insights-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>📊</span>
+                        <span>实时数据洞察</span>
+                    </div>
+                    <div class="section-actions">
+                        <button class="action-btn" onclick="refreshInsights()">刷新</button>
+                        <button class="action-btn" onclick="exportInsights()">导出</button>
+                    </div>
+                </div>
+
+                <!-- 图表容器 -->
+                <div class="chart-container" id="insightsChart"></div>
+
+                <!-- 洞察列表 -->
+                <div class="insights-list">
+                    <div class="insight-item">
+                        <div class="insight-icon">💡</div>
+                        <div class="insight-content">
+                            <div class="insight-title">Reddit渠道表现突出</div>
+                            <div class="insight-desc">过去7天，Reddit渠道的内容互动率提升了45%，建议增加该渠道的内容投放频率。</div>
+                        </div>
+                        <button class="insight-action" onclick="applyInsight('reddit')">立即优化</button>
+                    </div>
+
+                    <div class="insight-item">
+                        <div class="insight-icon">⚡</div>
+                        <div class="insight-content">
+                            <div class="insight-title">FAQ资产需要更新</div>
+                            <div class="insight-desc">检测到12个FAQ资产超过30天未更新，可能影响AI引擎的引用准确性。</div>
+                        </div>
+                        <button class="insight-action" onclick="applyInsight('faq')">查看详情</button>
+                    </div>
+
+                    <div class="insight-item">
+                        <div class="insight-icon">🎯</div>
+                        <div class="insight-content">
+                            <div class="insight-title">转化漏斗优化机会</div>
+                            <div class="insight-desc">分析发现从"点击"到"填写"的转化率仅为12%，低于预期，建议简化表单设计。</div>
+                        </div>
+                        <button class="insight-action" onclick="applyInsight('funnel')">开始优化</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 优化建议网格 -->
+            <div class="suggestions-grid">
+                <div class="suggestion-card">
+                    <div class="suggestion-header">
+                        <span class="suggestion-priority priority-high">高优先级</span>
+                    </div>
+                    <div class="suggestion-title">优化LinkedIn发布时间</div>
+                    <div class="suggestion-desc">
+                        基于过去30天的数据分析，将LinkedIn发布时间调整到周二至周四的上午10-11点，预计可提升25%的互动率。
+                    </div>
+                    <div class="suggestion-impact">
+                        <div class="impact-item">
+                            <div class="impact-label">预期提升</div>
+                            <div class="impact-value">+25%</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-label">实施难度</div>
+                            <div class="impact-value">简单</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-label">所需时间</div>
+                            <div class="impact-value">5分钟</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="suggestion-card">
+                    <div class="suggestion-header">
+                        <span class="suggestion-priority priority-medium">中优先级</span>
+                    </div>
+                    <div class="suggestion-title">增加视频内容比例</div>
+                    <div class="suggestion-desc">
+                        当前视频内容仅占15%，而视频内容的平均互动率是文字内容的3.2倍。建议将视频内容比例提升至30%。
+                    </div>
+                    <div class="suggestion-impact">
+                        <div class="impact-item">
+                            <div class="impact-label">预期提升</div>
+                            <div class="impact-value">+180%</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-label">实施难度</div>
+                            <div class="impact-value">中等</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-label">所需时间</div>
+                            <div class="impact-value">2-3天</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="suggestion-card">
+                    <div class="suggestion-header">
+                        <span class="suggestion-priority priority-low">低优先级</span>
+                    </div>
+                    <div class="suggestion-title">优化标签使用策略</div>
+                    <div class="suggestion-desc">
+                        部分内容的标签使用不够精准，建议使用AI自动标签推荐功能，提高内容的可发现性。
+                    </div>
+                    <div class="suggestion-impact">
+                        <div class="impact-item">
+                            <div class="impact-label">预期提升</div>
+                            <div class="impact-value">+8%</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-label">实施难度</div>
+                            <div class="impact-value">简单</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-label">所需时间</div>
+                            <div class="impact-value">30分钟</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 工作流推荐 -->
+            <div class="workflow-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span>🔄</span>
+                        <span>推荐工作流程</span>
+                    </div>
+                </div>
+
+                <div class="workflow-list">
+                    <div class="workflow-item" onclick="startWorkflow('content-optimization')">
+                        <div class="workflow-icon">📝</div>
+                        <div class="workflow-info">
+                            <div class="workflow-name">内容优化工作流</div>
+                            <div class="workflow-desc">分析现有内容表现，自动生成优化建议并执行</div>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                    </div>
+
+                    <div class="workflow-item" onclick="startWorkflow('ai-citation')">
+                        <div class="workflow-icon">🤖</div>
+                        <div class="workflow-info">
+                            <div class="workflow-name">AI引用率提升流程</div>
+                            <div class="workflow-desc">检测并优化内容以提高在AI引擎中的引用率</div>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                    </div>
+
+                    <div class="workflow-item" onclick="startWorkflow('channel-expansion')">
+                        <div class="workflow-icon">🚀</div>
+                        <div class="workflow-info">
+                            <div class="workflow-name">渠道扩展流程</div>
+                            <div class="workflow-desc">评估新渠道机会并自动配置发布策略</div>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                    </div>
+
+                    <div class="workflow-item" onclick="startWorkflow('weekly-report')">
+                        <div class="workflow-icon">📊</div>
+                        <div class="workflow-info">
+                            <div class="workflow-name">周报自动生成</div>
+                            <div class="workflow-desc">汇总本周数据并生成管理层报告</div>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 异常诊断面板 -->
+    <div class="diagnostic-panel" id="diagnosticPanel">
+        <div class="diagnostic-header">
+            <div class="diagnostic-title">
+                <span>🔍</span>
+                <span>系统诊断</span>
+            </div>
+            <button class="diagnostic-close" onclick="closeDiagnostic()">×</button>
+        </div>
+        <div class="diagnostic-content">
+            <div class="diagnostic-item">
+                <div class="diagnostic-level level-warning">警告</div>
+                <div class="diagnostic-message">LinkedIn API配额使用已达75%</div>
+                <div class="diagnostic-solution">建议：调整发布频率或申请更高配额</div>
+            </div>
+            <div class="diagnostic-item">
+                <div class="diagnostic-level level-error">错误</div>
+                <div class="diagnostic-message">3个Reddit帖子发布失败</div>
+                <div class="diagnostic-solution">建议：检查账号权限并重新发布</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮动助手按钮 -->
+    <div class="floating-assistant" id="floatingBtn" onclick="toggleDiagnostic()">
+        <span id="assistantIcon">💬</span>
+    </div>
+
+    <script>
+        // 初始化图表
+        let insightsChart;
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            initializeAssistant();
+            checkSystemStatus();
+        });
+
+        // 初始化数据洞察图表
+        function initializeCharts() {
+            const chartDom = document.getElementById('insightsChart');
+            insightsChart = echarts.init(chartDom);
+
+            const option = {
+                title: {
+                    text: '7日内容表现趋势',
+                    textStyle: {
+                        fontSize: 14,
+                        fontWeight: 'normal',
+                        color: '#374151'
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                legend: {
+                    data: ['AI引用率', '内容互动率', '转化率'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#E5E7EB'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#6B7280'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}%',
+                        color: '#6B7280'
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#E5E7EB'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#F3F4F6'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'AI引用率',
+                        type: 'line',
+                        smooth: true,
+                        data: [32, 35, 38, 41, 42, 40, 43],
+                        itemStyle: {
+                            color: '#6366F1'
+                        },
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0, color: 'rgba(99, 102, 241, 0.3)'
+                                }, {
+                                    offset: 1, color: 'rgba(99, 102, 241, 0.05)'
+                                }]
+                            }
+                        }
+                    },
+                    {
+                        name: '内容互动率',
+                        type: 'line',
+                        smooth: true,
+                        data: [28, 30, 33, 35, 34, 38, 41],
+                        itemStyle: {
+                            color: '#8B5CF6'
+                        },
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0, color: 'rgba(139, 92, 246, 0.3)'
+                                }, {
+                                    offset: 1, color: 'rgba(139, 92, 246, 0.05)'
+                                }]
+                            }
+                        }
+                    },
+                    {
+                        name: '转化率',
+                        type: 'line',
+                        smooth: true,
+                        data: [2.8, 3.0, 2.9, 3.1, 3.2, 3.0, 3.24],
+                        itemStyle: {
+                            color: '#10B981'
+                        },
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0, color: 'rgba(16, 185, 129, 0.3)'
+                                }, {
+                                    offset: 1, color: 'rgba(16, 185, 129, 0.05)'
+                                }]
+                            }
+                        }
+                    }
+                ]
+            };
+
+            insightsChart.setOption(option);
+
+            // 响应式调整
+            window.addEventListener('resize', function() {
+                insightsChart.resize();
+            });
+        }
+
+        // 初始化智能助手
+        function initializeAssistant() {
+            // 模拟助手初始化
+            console.log('AI Assistant initialized');
+            
+            // 定期检查是否有新的洞察
+            setInterval(checkForNewInsights, 30000);
+        }
+
+        // 检查系统状态
+        function checkSystemStatus() {
+            // 模拟系统状态检查
+            const hasIssues = Math.random() > 0.7;
+            
+            if (hasIssues) {
+                const floatingBtn = document.getElementById('floatingBtn');
+                const icon = document.getElementById('assistantIcon');
+                floatingBtn.classList.add('active');
+                icon.textContent = '⚠️';
+                
+                // 显示诊断面板
+                setTimeout(() => {
+                    showDiagnostic();
+                }, 2000);
+            }
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // 添加用户消息
+            addMessage(message, 'user');
+            
+            // 清空输入框
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // 模拟AI响应
+            setTimeout(() => {
+                const aiResponse = generateAIResponse(message);
+                addMessage(aiResponse, 'ai');
+            }, 1000);
+        }
+
+        // 添加消息到聊天窗口
+        function addMessage(content, type) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = type === 'ai' ? '🤖' : '👤';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.innerHTML = content;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // 生成AI响应
+        function generateAIResponse(message) {
+            const responses = {
+                '查看今日数据': '今日关键数据如下：<br><br>📊 内容发布：15篇<br>👥 新增互动：234次<br>🎯 转化用户：12人<br>📈 AI引用率：42.8%<br><br>整体表现良好，建议关注转化率优化。',
+                '分析AI引用率': '正在分析您的内容在AI引擎中的表现...<br><br>✅ ChatGPT引用率：45%<br>✅ Perplexity引用率：38%<br>⚠️ Google SGE引用率：28%<br><br>建议优化内容结构，增加数据支撑和专业术语使用。',
+                '优化建议': '基于当前数据分析，我为您准备了3条优化建议：<br><br>1. 🕐 调整发布时间到上午10-11点<br>2. 📹 增加视频内容比例至30%<br>3. 🏷️ 优化标签使用策略<br><br>预计可提升25%的整体效果。',
+                '创建内容': '我可以帮您创建内容。请告诉我：<br><br>1. 内容类型（FAQ/教程/对比等）<br>2. 目标渠道<br>3. 核心信息点<br><br>我会为您生成优化后的内容模板。'
+            };
+            
+            return responses[message] || `我正在分析您的请求："${message}"。<br><br>系统正在处理中，我会尽快为您提供详细的分析结果和操作建议。`;
+        }
+
+        // 快速操作
+        function quickAction(action) {
+            document.getElementById('chatInput').value = action;
+            sendMessage();
+        }
+
+        // 处理键盘事件
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // 刷新洞察
+        function refreshInsights() {
+            // 显示加载状态
+            const chartDom = document.getElementById('insightsChart');
+            chartDom.style.opacity = '0.5';
+            
+            setTimeout(() => {
+                // 更新图表数据
+                const newData = {
+                    ai: [33, 36, 39, 42, 43, 41, 44],
+                    engagement: [29, 31, 34, 36, 35, 39, 42],
+                    conversion: [2.9, 3.1, 3.0, 3.2, 3.3, 3.1, 3.35]
+                };
+                
+                insightsChart.setOption({
+                    series: [
+                        { data: newData.ai },
+                        { data: newData.engagement },
+                        { data: newData.conversion }
+                    ]
+                });
+                
+                chartDom.style.opacity = '1';
+                
+                // 显示通知
+                addMessage('数据已刷新！发现2个新的优化机会。', 'ai');
+            }, 1000);
+        }
+
+        // 导出洞察
+        function exportInsights() {
+            addMessage('正在生成洞察报告...报告将包含过去7天的完整数据分析。', 'ai');
+            
+            setTimeout(() => {
+                addMessage('报告已生成！<br><br>📄 文件名：GEO_Insights_Report_2025.pdf<br>📊 包含内容：数据趋势、优化建议、预测分析<br><br>报告已发送到您的邮箱。', 'ai');
+            }, 2000);
+        }
+
+        // 应用洞察建议
+        function applyInsight(type) {
+            const actions = {
+                'reddit': '正在为Reddit渠道调整发布策略...<br><br>✅ 发布频率：提升至每日3次<br>✅ 最佳时间：8-10 AM EST<br>✅ 内容类型：增加讨论类内容<br><br>预计下周生效。',
+                'faq': '正在扫描需要更新的FAQ资产...<br><br>发现12个过期FAQ：<br>• 产品定价（45天未更新）<br>• 功能说明（38天未更新）<br>• 使用教程（32天未更新）<br><br>是否立即批量更新？',
+                'funnel': '正在优化转化漏斗...<br><br>📝 简化表单字段：从8个减少到4个<br>🎯 优化CTA文案：使用更明确的行动指引<br>⚡ 提升加载速度：优化页面性能<br><br>优化方案已准备就绪。'
+            };
+            
+            addMessage(actions[type] || '正在处理您的优化请求...', 'ai');
+        }
+
+        // 开始工作流
+        function startWorkflow(workflow) {
+            const workflows = {
+                'content-optimization': '内容优化工作流已启动！<br><br>步骤1：扫描所有内容资产 ✅<br>步骤2：分析表现数据 🔄<br>步骤3：生成优化建议<br>步骤4：执行优化操作<br><br>预计完成时间：15分钟',
+                'ai-citation': 'AI引用率提升流程已启动！<br><br>🔍 正在分析内容结构...<br>📊 对比行业最佳实践...<br>✏️ 生成优化方案...<br><br>预计可提升引用率15-20%。',
+                'channel-expansion': '渠道扩展评估已开始！<br><br>发现3个潜力渠道：<br>• TikTok（预估ROI: 3.2x）<br>• Pinterest（预估ROI: 2.8x）<br>• Discord（预估ROI: 2.5x）<br><br>是否查看详细分析？',
+                'weekly-report': '周报生成任务已创建！<br><br>📊 数据收集范围：1月6日-1月12日<br>📈 包含维度：6个核心指标<br>👥 发送对象：管理层团队<br><br>报告将在10分钟内生成。'
+            };
+            
+            addMessage(workflows[workflow] || '工作流正在初始化...', 'ai');
+        }
+
+        // 显示/隐藏诊断面板
+        function toggleDiagnostic() {
+            const panel = document.getElementById('diagnosticPanel');
+            panel.classList.toggle('show');
+            
+            const floatingBtn = document.getElementById('floatingBtn');
+            const icon = document.getElementById('assistantIcon');
+            
+            if (panel.classList.contains('show')) {
+                floatingBtn.classList.remove('active');
+                icon.textContent = '💬';
+            }
+        }
+
+        function showDiagnostic() {
+            const panel = document.getElementById('diagnosticPanel');
+            panel.classList.add('show');
+        }
+
+        function closeDiagnostic() {
+            const panel = document.getElementById('diagnosticPanel');
+            panel.classList.remove('show');
+            
+            const floatingBtn = document.getElementById('floatingBtn');
+            const icon = document.getElementById('assistantIcon');
+            floatingBtn.classList.remove('active');
+            icon.textContent = '💬';
+        }
+
+        // 检查新的洞察
+        function checkForNewInsights() {
+            // 随机触发新洞察提醒
+            if (Math.random() > 0.8) {
+                const floatingBtn = document.getElementById('floatingBtn');
+                const icon = document.getElementById('assistantIcon');
+                
+                floatingBtn.classList.add('active');
+                icon.textContent = '💡';
+                
+                // 添加新消息
+                addMessage('🎯 发现新的优化机会！<br><br>刚刚检测到YouTube渠道的观看完成率提升了23%，这可能是due to最近优化的视频开头。建议将这个策略应用到其他视频内容中。', 'ai');
+                
+                setTimeout(() => {
+                    floatingBtn.classList.remove('active');
+                    icon.textContent = '💬';
+                }, 5000);
+            }
+        }
+
+        // 自动调整输入框高度
+        document.getElementById('chatInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工作流程 - GEO内容市场</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #5e35b1;
+      --primary-dark: #4527a0;
+      --primary-light: #7e57c2;
+      --secondary: #00897b;
+      --success: #43a047;
+      --warning: #fb8c00;
+      --danger: #e53935;
+      --info: #1e88e5;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --border: #e0e0e0;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --hover: #f5f5f5;
+      --shadow: 0 2px 4px rgba(0,0,0,0.1);
+      --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* 主容器 */
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* 页面头部 */
+    .page-header {
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--text-primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* 工作流程画布 */
+    .workflow-canvas {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+      min-height: 500px;
+      position: relative;
+      overflow: auto;
+    }
+
+    /* 流程节点 */
+    .workflow-node {
+      position: absolute;
+      background: var(--surface);
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 16px 20px;
+      min-width: 180px;
+      cursor: move;
+      transition: all 0.3s;
+      box-shadow: var(--shadow);
+    }
+
+    .workflow-node:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .workflow-node.start {
+      border-color: var(--success);
+      background: #e8f5e9;
+    }
+
+    .workflow-node.process {
+      border-color: var(--primary);
+    }
+
+    .workflow-node.decision {
+      border-color: var(--warning);
+      background: #fff3e0;
+      transform: rotate(45deg);
+      padding: 24px;
+    }
+
+    .workflow-node.decision .node-content {
+      transform: rotate(-45deg);
+    }
+
+    .workflow-node.end {
+      border-color: var(--danger);
+      background: #ffebee;
+    }
+
+    .node-header {
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .node-icon {
+      font-size: 20px;
+    }
+
+    .node-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* 连接线 */
+    .workflow-connection {
+      position: absolute;
+      background: var(--primary);
+      height: 2px;
+      transform-origin: left center;
+    }
+
+    .connection-arrow {
+      position: absolute;
+      right: -8px;
+      top: -4px;
+      width: 0;
+      height: 0;
+      border-left: 8px solid var(--primary);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+    }
+
+    /* 工作流程列表 */
+    .workflow-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .workflow-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .workflow-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .workflow-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .workflow-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .workflow-category {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--hover);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .workflow-status {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-active {
+      background: #e8f5e9;
+      color: var(--success);
+    }
+
+    .status-draft {
+      background: #fff3e0;
+      color: var(--warning);
+    }
+
+    .workflow-description {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* 流程步骤预览 */
+    .workflow-steps {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .step-badge {
+      padding: 6px 12px;
+      background: var(--hover);
+      border-radius: 16px;
+      font-size: 12px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .workflow-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .workflow-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* 工具栏 */
+    .workflow-toolbar {
+      background: var(--surface);
+      padding: 16px 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      background: var(--hover);
+    }
+
+    /* 属性面板 */
+    .properties-panel {
+      position: fixed;
+      right: -350px;
+      top: 0;
+      width: 350px;
+      height: 100vh;
+      background: var(--surface);
+      box-shadow: -4px 0 16px rgba(0,0,0,0.1);
+      transition: right 0.3s;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .properties-panel.open {
+      right: 0;
+    }
+
+    .panel-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .close-btn:hover {
+      background: var(--hover);
+    }
+
+    .panel-content {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    textarea.form-input {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* 模板选择器 */
+    .template-selector {
+      background: var(--surface);
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .template-item {
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .template-item:hover {
+      border-color: var(--primary);
+      background: var(--hover);
+    }
+
+    .template-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .template-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* 筛选标签 */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 8px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .filter-tab:hover {
+      border-color: var(--primary);
+    }
+
+    .filter-tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .workflow-list {
+        grid-template-columns: 1fr;
+      }
+      
+      .properties-panel {
+        width: 100%;
+        right: -100%;
+      }
+      
+      .template-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <h1 class="page-title">工作流程</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="importWorkflow()">
+          <span>📥</span>
+          <span>导入流程</span>
+        </button>
+        <button class="btn btn-primary" onclick="createWorkflow()">
+          <span>➕</span>
+          <span>创建流程</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 筛选标签 -->
+    <div class="filter-tabs">
+      <div class="filter-tab active" onclick="filterWorkflows(this, 'all')">全部流程</div>
+      <div class="filter-tab" onclick="filterWorkflows(this, 'content')">内容创作</div>
+      <div class="filter-tab" onclick="filterWorkflows(this, 'review')">审核发布</div>
+      <div class="filter-tab" onclick="filterWorkflows(this, 'optimization')">优化迭代</div>
+      <div class="filter-tab" onclick="filterWorkflows(this, 'analysis')">数据分析</div>
+      <div class="filter-tab" onclick="filterWorkflows(this, 'team')">团队协作</div>
+    </div>
+
+    <!-- 流程模板选择器 -->
+    <div class="template-selector">
+      <h3 style="margin-bottom: 16px;">快速开始：选择一个流程模板</h3>
+      <div class="template-grid">
+        <div class="template-item" onclick="useTemplate('content-creation')">
+          <div class="template-icon">✍️</div>
+          <div class="template-name">内容创作流程</div>
+        </div>
+        <div class="template-item" onclick="useTemplate('content-review')">
+          <div class="template-icon">✅</div>
+          <div class="template-name">内容审核流程</div>
+        </div>
+        <div class="template-item" onclick="useTemplate('multi-channel')">
+          <div class="template-icon">🔄</div>
+          <div class="template-name">多渠道分发</div>
+        </div>
+        <div class="template-item" onclick="useTemplate('optimization')">
+          <div class="template-icon">📈</div>
+          <div class="template-name">优化迭代流程</div>
+        </div>
+        <div class="template-item" onclick="useTemplate('custom')">
+          <div class="template-icon">⚙️</div>
+          <div class="template-name">自定义流程</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 我的工作流程 -->
+    <h2 style="margin-bottom: 24px; font-weight: 400;">我的工作流程</h2>
+    <div class="workflow-list">
+      <!-- 工作流程卡片1 -->
+      <div class="workflow-card" onclick="openWorkflow('1')">
+        <div class="workflow-header">
+          <div>
+            <h3 class="workflow-title">FAQ内容生产流程</h3>
+            <span class="workflow-category">内容创作</span>
+          </div>
+          <span class="workflow-status status-active">运行中</span>
+        </div>
+        <p class="workflow-description">
+          标准化的FAQ内容创作流程，从需求收集到发布上线的完整链路，确保内容质量和效率。
+        </p>
+        <div class="workflow-steps">
+          <span class="step-badge">
+            <span>1️⃣</span>
+            <span>需求收集</span>
+          </span>
+          <span class="step-badge">
+            <span>2️⃣</span>
+            <span>内容创作</span>
+          </span>
+          <span class="step-badge">
+            <span>3️⃣</span>
+            <span>质量审核</span>
+          </span>
+          <span class="step-badge">
+            <span>4️⃣</span>
+            <span>发布上线</span>
+          </span>
+          <span class="step-badge">
+            <span>5️⃣</span>
+            <span>效果追踪</span>
+          </span>
+        </div>
+        <div class="workflow-meta">
+          <div class="workflow-stats">
+            <span class="stat-item">
+              <span>⏱️</span>
+              <span>平均2天完成</span>
+            </span>
+            <span class="stat-item">
+              <span>👥</span>
+              <span>5人参与</span>
+            </span>
+            <span class="stat-item">
+              <span>📊</span>
+              <span>已运行156次</span>
+            </span>
+          </div>
+          <button class="btn btn-secondary" onclick="event.stopPropagation(); editWorkflow('1')">
+            编辑
+          </button>
+        </div>
+      </div>
+
+      <!-- 工作流程卡片2 -->
+      <div class="workflow-card" onclick="openWorkflow('2')">
+        <div class="workflow-header">
+          <div>
+            <h3 class="workflow-title">多渠道内容分发流程</h3>
+            <span class="workflow-category">内容分发</span>
+          </div>
+          <span class="workflow-status status-active">运行中</span>
+        </div>
+        <p class="workflow-description">
+          将核心内容适配并分发到多个平台，包括自动化格式转换、平台特性优化和发布时间安排。
+        </p>
+        <div class="workflow-steps">
+          <span class="step-badge">
+            <span>1️⃣</span>
+            <span>内容准备</span>
+          </span>
+          <span class="step-badge">
+            <span>2️⃣</span>
+            <span>渠道适配</span>
+          </span>
+          <span class="step-badge">
+            <span>3️⃣</span>
+            <span>批量发布</span>
+          </span>
+          <span class="step-badge">
+            <span>4️⃣</span>
+            <span>监测反馈</span>
+          </span>
+        </div>
+        <div class="workflow-meta">
+          <div class="workflow-stats">
+            <span class="stat-item">
+              <span>⏱️</span>
+              <span>平均1小时</span>
+            </span>
+            <span class="stat-item">
+              <span>👥</span>
+              <span>3人参与</span>
+            </span>
+            <span class="stat-item">
+              <span>📊</span>
+              <span>已运行89次</span>
+            </span>
+          </div>
+          <button class="btn btn-secondary" onclick="event.stopPropagation(); editWorkflow('2')">
+            编辑
+          </button>
+        </div>
+      </div>
+
+      <!-- 工作流程卡片3 -->
+      <div class="workflow-card" onclick="openWorkflow('3')">
+        <div class="workflow-header">
+          <div>
+            <h3 class="workflow-title">内容效果分析流程</h3>
+            <span class="workflow-category">数据分析</span>
+          </div>
+          <span class="workflow-status status-draft">草稿</span>
+        </div>
+        <p class="workflow-description">
+          定期分析内容表现数据，识别优化机会，制定改进策略，形成持续优化的闭环。
+        </p>
+        <div class="workflow-steps">
+          <span class="step-badge">
+            <span>1️⃣</span>
+            <span>数据收集</span>
+          </span>
+          <span class="step-badge">
+            <span>2️⃣</span>
+            <span>指标分析</span>
+          </span>
+          <span class="step-badge">
+            <span>3️⃣</span>
+            <span>洞察提取</span>
+          </span>
+          <span class="step-badge">
+            <span>4️⃣</span>
+            <span>策略制定</span>
+          </span>
+          <span class="step-badge">
+            <span>5️⃣</span>
+            <span>执行优化</span>
+          </span>
+        </div>
+        <div class="workflow-meta">
+          <div class="workflow-stats">
+            <span class="stat-item">
+              <span>⏱️</span>
+              <span>每周执行</span>
+            </span>
+            <span class="stat-item">
+              <span>👥</span>
+              <span>4人参与</span>
+            </span>
+            <span class="stat-item">
+              <span>📊</span>
+              <span>待发布</span>
+            </span>
+          </div>
+          <button class="btn btn-secondary" onclick="event.stopPropagation(); editWorkflow('3')">
+            编辑
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 团队共享流程 -->
+    <h2 style="margin-bottom: 24px; margin-top: 48px; font-weight: 400;">团队共享流程</h2>
+    <div class="workflow-list">
+      <!-- 共享流程卡片 -->
+      <div class="workflow-card" onclick="openWorkflow('4')">
+        <div class="workflow-header">
+          <div>
+            <h3 class="workflow-title">季度内容规划流程</h3>
+            <span class="workflow-category">团队协作</span>
+          </div>
+          <span class="workflow-status status-active">运行中</span>
+        </div>
+        <p class="workflow-description">
+          团队协作的季度内容规划流程，包括目标设定、主题规划、资源分配和进度管理。
+        </p>
+        <div class="workflow-steps">
+          <span class="step-badge">
+            <span>1️⃣</span>
+            <span>目标设定</span>
+          </span>
+          <span class="step-badge">
+            <span>2️⃣</span>
+            <span>主题规划</span>
+          </span>
+          <span class="step-badge">
+            <span>3️⃣</span>
+            <span>任务分配</span>
+          </span>
+          <span class="step-badge">
+            <span>4️⃣</span>
+            <span>进度跟踪</span>
+          </span>
+        </div>
+        <div class="workflow-meta">
+          <div class="workflow-stats">
+            <span class="stat-item">
+              <span>👤</span>
+              <span>张三 创建</span>
+            </span>
+            <span class="stat-item">
+              <span>👥</span>
+              <span>12人使用</span>
+            </span>
+            <span class="stat-item">
+              <span>⭐</span>
+              <span>4.8评分</span>
+            </span>
+          </div>
+          <button class="btn btn-primary" onclick="event.stopPropagation(); useWorkflow('4')">
+            使用流程
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 属性面板 -->
+  <div id="propertiesPanel" class="properties-panel">
+    <div class="panel-header">
+      <h3 class="panel-title">节点属性</h3>
+      <button class="close-btn" onclick="closePropertiesPanel()">×</button>
+    </div>
+    <div class="panel-content">
+      <div class="form-group">
+        <label class="form-label">节点名称</label>
+        <input type="text" class="form-input" id="nodeName" placeholder="输入节点名称">
+      </div>
+      <div class="form-group">
+        <label class="form-label">节点类型</label>
+        <select class="form-input">
+          <option>开始节点</option>
+          <option>处理节点</option>
+          <option>决策节点</option>
+          <option>结束节点</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">描述</label>
+        <textarea class="form-input" placeholder="节点描述"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">负责人</label>
+        <input type="text" class="form-input" placeholder="选择负责人">
+      </div>
+      <div class="form-group">
+        <label class="form-label">预计时长</label>
+        <input type="text" class="form-input" placeholder="例如：2小时">
+      </div>
+      <button class="btn btn-primary" style="width: 100%;">保存更改</button>
+    </div>
+  </div>
+
+  <script>
+    // 创建新流程
+    function createWorkflow() {
+      alert('打开流程设计器...');
+    }
+
+    // 导入流程
+    function importWorkflow() {
+      alert('选择要导入的流程文件...');
+    }
+
+    // 使用模板
+    function useTemplate(templateType) {
+      console.log('使用模板:', templateType);
+      alert(`创建基于"${templateType}"的新流程`);
+    }
+
+    // 筛选流程
+    function filterWorkflows(element, category) {
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      element.classList.add('active');
+      console.log('筛选类别:', category);
+    }
+
+    // 打开流程
+    function openWorkflow(id) {
+      console.log('打开流程:', id);
+      window.location.href = `workflow-editor.html?id=${id}`;
+    }
+
+    // 编辑流程
+    function editWorkflow(id) {
+      console.log('编辑流程:', id);
+      window.location.href = `workflow-editor.html?id=${id}&mode=edit`;
+    }
+
+    // 使用共享流程
+    function useWorkflow(id) {
+      alert(`复制流程${id}到我的流程`);
+    }
+
+    // 打开属性面板
+    function openPropertiesPanel() {
+      document.getElementById('propertiesPanel').classList.add('open');
+    }
+
+    // 关闭属性面板
+    function closePropertiesPanel() {
+      document.getElementById('propertiesPanel').classList.remove('open');
+    }
+
+    // 初始化拖拽功能
+    function initDragAndDrop() {
+      const nodes = document.querySelectorAll('.workflow-node');
+      nodes.forEach(node => {
+        node.addEventListener('dragstart', handleDragStart);
+        node.addEventListener('dragend', handleDragEnd);
+      });
+    }
+
+    function handleDragStart(e) {
+      e.target.style.opacity = '0.5';
+    }
+
+    function handleDragEnd(e) {
+      e.target.style.opacity = '';
+    }
+
+    // 页面加载完成后初始化
+    window.onload = function() {
+      initDragAndDrop();
+    };
+  </script>
+</body>
+</html>

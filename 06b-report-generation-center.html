@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报表生成中心 - Report Generation Center</title>
+    <style>
+        /* Global Design System - Creating a data-focused visual environment */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Color system emphasizing clarity and data hierarchy */
+            --primary: #4F46E5;      /* Indigo - trust and professionalism */
+            --secondary: #7C3AED;    /* Purple - innovation */
+            --success: #10B981;      /* Green - positive metrics */
+            --warning: #F59E0B;      /* Amber - attention needed */
+            --danger: #EF4444;       /* Red - critical alerts */
+            --info: #3B82F6;         /* Blue - informational */
+            
+            /* Extended neutrals for data visualization */
+            --gray-950: #030712;
+            --gray-900: #111827;
+            --gray-800: #1F2937;
+            --gray-700: #374151;
+            --gray-600: #4B5563;
+            --gray-500: #6B7280;
+            --gray-400: #9CA3AF;
+            --gray-300: #D1D5DB;
+            --gray-200: #E5E7EB;
+            --gray-100: #F3F4F6;
+            --gray-50: #F9FAFB;
+            --white: #FFFFFF;
+            
+            /* Chart colors for consistent data representation */
+            --chart-1: #4F46E5;
+            --chart-2: #10B981;
+            --chart-3: #F59E0B;
+            --chart-4: #EF4444;
+            --chart-5: #8B5CF6;
+            --chart-6: #3B82F6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--gray-900);
+            min-height: 100vh;
+        }
+
+        /* Container structure for organized layout */
+        .report-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header section with global controls */
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Button system for consistent interactions */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+            border-color: var(--primary);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Tab navigation for different report sections */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--gray-200);
+            padding: 0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-600);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            margin-bottom: -2px;
+        }
+
+        .tab:hover {
+            color: var(--gray-800);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Main content grid for flexible layouts */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        /* Card component for content sections */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        /* Report template builder with drag-and-drop zones */
+        .template-builder {
+            min-height: 500px;
+            background: var(--gray-50);
+            border: 2px dashed var(--gray-300);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .template-section {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            cursor: move;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .template-section:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-section.dragging {
+            opacity: 0.5;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-weight: 500;
+            color: var(--gray-800);
+        }
+
+        .section-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: none;
+            background: var(--gray-100);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .control-btn:hover {
+            background: var(--gray-200);
+        }
+
+        /* Component palette for template building */
+        .component-palette {
+            display: grid;
+            gap: 12px;
+        }
+
+        .component-item {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .component-item:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .component-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gray-100);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .component-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        /* Chart preview area for data visualization */
+        .chart-preview {
+            height: 300px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder {
+            text-align: center;
+            color: var(--gray-400);
+        }
+
+        /* Data table for tabular reports */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .data-table th {
+            background: var(--gray-50);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-600);
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--gray-100);
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: var(--gray-50);
+        }
+
+        /* Schedule configuration for automated reports */
+        .schedule-config {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .schedule-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .schedule-radio {
+            width: 20px;
+            height: 20px;
+        }
+
+        .schedule-label {
+            font-size: 14px;
+            color: var(--gray-700);
+            flex: 1;
+        }
+
+        /* Form inputs for configuration */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Executive summary section with AI generation */
+        .executive-summary {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .summary-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .summary-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--gray-700);
+        }
+
+        .key-insight {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .insight-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .insight-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+
+        /* Share and permission management */
+        .share-panel {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .share-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .permission-select {
+            padding: 6px 10px;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        /* Export options panel */
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .export-option {
+            padding: 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .export-option:hover {
+            border-color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .export-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .export-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        /* Metric cards for KPI display */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .metric-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .metric-change {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .metric-change.positive {
+            color: var(--success);
+        }
+
+        .metric-change.negative {
+            color: var(--danger);
+        }
+
+        /* Filter panel for data analysis */
+        .filter-panel {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .filter-item {
+            flex: 1;
+        }
+
+        /* Responsive design for various screen sizes */
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                padding: 16px;
+            }
+        }
+
+        /* Loading state animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animated chart bars for visual appeal */
+        .chart-bar {
+            background: var(--primary);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+        }
+
+        .chart-bar::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-700);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .chart-bar:hover::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <!-- Header Section with main controls -->
+        <header class="header">
+            <div class="header-top">
+                <h1 class="header-title">
+                    <span style="font-size: 32px;">📊</span>
+                    报表生成中心
+                </h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="scheduleReport()">
+                        <span>⏰</span> 定时设置
+                    </button>
+                    <button class="btn btn-secondary" onclick="shareReport()">
+                        <span>🔗</span> 分享
+                    </button>
+                    <button class="btn btn-primary" onclick="generateReport()">
+                        <span>✨</span> 生成报表
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab navigation for different report functions -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('template')">模板设计</button>
+                <button class="tab" onclick="switchTab('data')">数据分析</button>
+                <button class="tab" onclick="switchTab('schedule')">自动化</button>
+                <button class="tab" onclick="switchTab('history')">历史报表</button>
+                <button class="tab" onclick="switchTab('settings')">设置</button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="content-grid">
+            <!-- Left Panel - Template Builder -->
+            <div class="main-panel">
+                <!-- Executive Summary Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">执行摘要</h3>
+                        <button class="btn btn-secondary" onclick="generateSummary()">
+                            <span>🤖</span> AI生成
+                        </button>
+                    </div>
+                    
+                    <div class="executive-summary">
+                        <div class="summary-header">
+                            <span class="summary-title">关键洞察</span>
+                            <span style="font-size: 12px; color: var(--gray-500);">基于最新数据生成</span>
+                        </div>
+                        
+                        <div class="key-insight">
+                            <div class="insight-icon">1</div>
+                            <div class="insight-text">
+                                本季度内容营销ROI达到320%，超出预期目标20%，主要得益于AI驱动的内容优化策略
+                            </div>
+                        </div>
+                        
+                        <div class="key-insight">
+                            <div class="insight-icon">2</div>
+                            <div class="insight-text">
+                                LinkedIn渠道表现最佳，贡献了45%的高质量线索，建议增加该渠道的内容投入
+                            </div>
+                        </div>
+                        
+                        <div class="key-insight">
+                            <div class="insight-icon">3</div>
+                            <div class="insight-text">
+                                视频内容的参与度提升了78%，表明用户偏好正在向视觉内容转移
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Metrics Overview -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">核心指标</h3>
+                        <select class="form-select" style="width: 120px;">
+                            <option>本月</option>
+                            <option>本季度</option>
+                            <option>本年</option>
+                        </select>
+                    </div>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">总访问量</div>
+                            <div class="metric-value">1.2M</div>
+                            <div class="metric-change positive">
+                                <span>↑</span> 23.5%
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">转化率</div>
+                            <div class="metric-value">4.8%</div>
+                            <div class="metric-change positive">
+                                <span>↑</span> 0.6%
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">平均互动时长</div>
+                            <div class="metric-value">3:45</div>
+                            <div class="metric-change negative">
+                                <span>↓</span> 12秒
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">ROI</div>
+                            <div class="metric-value">320%</div>
+                            <div class="metric-change positive">
+                                <span>↑</span> 45%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Template Builder -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">报表模板设计器</h3>
+                        <button class="btn btn-secondary" onclick="saveTemplate()">
+                            <span>💾</span> 保存模板
+                        </button>
+                    </div>
+                    
+                    <div class="template-builder" ondrop="dropComponent(event)" ondragover="allowDrop(event)">
+                        <!-- Template Section 1: Chart -->
+                        <div class="template-section" draggable="true" ondragstart="dragSection(event)">
+                            <div class="section-header">
+                                <span class="section-title">📈 趋势图表</span>
+                                <div class="section-controls">
+                                    <button class="control-btn" onclick="configureSection()">⚙️</button>
+                                    <button class="control-btn" onclick="removeSection()">✕</button>
+                                </div>
+                            </div>
+                            <div class="chart-preview">
+                                <div class="chart-placeholder">
+                                    <div style="display: flex; align-items: flex-end; gap: 8px; height: 150px;">
+                                        <div class="chart-bar" style="height: 60%; width: 30px;" data-value="65%"></div>
+                                        <div class="chart-bar" style="height: 80%; width: 30px;" data-value="80%"></div>
+                                        <div class="chart-bar" style="height: 45%; width: 30px;" data-value="45%"></div>
+                                        <div class="chart-bar" style="height: 90%; width: 30px;" data-value="90%"></div>
+                                        <div class="chart-bar" style="height: 70%; width: 30px;" data-value="70%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Template Section 2: Data Table -->
+                        <div class="template-section" draggable="true" ondragstart="dragSection(event)">
+                            <div class="section-header">
+                                <span class="section-title">📋 数据表格</span>
+                                <div class="section-controls">
+                                    <button class="control-btn" onclick="configureSection()">⚙️</button>
+                                    <button class="control-btn" onclick="removeSection()">✕</button>
+                                </div>
+                            </div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>渠道</th>
+                                        <th>访问量</th>
+                                        <th>转化率</th>
+                                        <th>收入</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>LinkedIn</td>
+                                        <td>234,567</td>
+                                        <td>5.2%</td>
+                                        <td>$45,230</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Twitter</td>
+                                        <td>189,234</td>
+                                        <td>3.8%</td>
+                                        <td>$32,450</td>
+                                    </tr>
+                                    <tr>
+                                        <td>YouTube</td>
+                                        <td>456,789</td>
+                                        <td>4.5%</td>
+                                        <td>$67,890</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Controls and Settings -->
+            <div class="side-panel">
+                <!-- Component Palette -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">组件库</h3>
+                    </div>
+                    
+                    <div class="component-palette">
+                        <div class="component-item" draggable="true" ondragstart="dragComponent(event)" data-component="chart">
+                            <div class="component-icon">📊</div>
+                            <div class="component-label">图表</div>
+                        </div>
+                        <div class="component-item" draggable="true" ondragstart="dragComponent(event)" data-component="table">
+                            <div class="component-icon">📋</div>
+                            <div class="component-label">表格</div>
+                        </div>
+                        <div class="component-item" draggable="true" ondragstart="dragComponent(event)" data-component="summary">
+                            <div class="component-icon">📝</div>
+                            <div class="component-label">摘要</div>
+                        </div>
+                        <div class="component-item" draggable="true" ondragstart="dragComponent(event)" data-component="metrics">
+                            <div class="component-icon">🎯</div>
+                            <div class="component-label">指标卡</div>
+                        </div>
+                        <div class="component-item" draggable="true" ondragstart="dragComponent(event)" data-component="timeline">
+                            <div class="component-icon">📅</div>
+                            <div class="component-label">时间线</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule Configuration -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">定时发送</h3>
+                    </div>
+                    
+                    <div class="schedule-config">
+                        <div class="schedule-option">
+                            <input type="radio" name="schedule" class="schedule-radio" id="daily">
+                            <label for="daily" class="schedule-label">每日</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="radio" name="schedule" class="schedule-radio" id="weekly" checked>
+                            <label for="weekly" class="schedule-label">每周</label>
+                        </div>
+                        <div class="schedule-option">
+                            <input type="radio" name="schedule" class="schedule-radio" id="monthly">
+                            <label for="monthly" class="schedule-label">每月</label>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 16px;">
+                            <label class="form-label">发送时间</label>
+                            <input type="time" class="form-input" value="09:00">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">收件人</label>
+                            <input type="email" class="form-input" placeholder="email@example.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Options -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">导出选项</h3>
+                    </div>
+                    
+                    <div class="export-options">
+                        <div class="export-option" onclick="exportReport('pdf')">
+                            <div class="export-icon">📄</div>
+                            <div class="export-label">PDF</div>
+                        </div>
+                        <div class="export-option" onclick="exportReport('excel')">
+                            <div class="export-icon">📊</div>
+                            <div class="export-label">Excel</div>
+                        </div>
+                        <div class="export-option" onclick="exportReport('ppt')">
+                            <div class="export-icon">📽️</div>
+                            <div class="export-label">PPT</div>
+                        </div>
+                        <div class="export-option" onclick="exportReport('csv')">
+                            <div class="export-icon">📋</div>
+                            <div class="export-label">CSV</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Share and Permissions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">分享权限</h3>
+                    </div>
+                    
+                    <div class="share-panel">
+                        <div class="share-user">
+                            <div class="user-avatar">JD</div>
+                            <div class="user-info">
+                                <div class="user-name">John Doe</div>
+                                <div class="user-role">所有者</div>
+                            </div>
+                            <select class="permission-select" disabled>
+                                <option>完全控制</option>
+                            </select>
+                        </div>
+                        
+                        <div class="share-user">
+                            <div class="user-avatar" style="background: var(--success);">AS</div>
+                            <div class="user-info">
+                                <div class="user-name">Alice Smith</div>
+                                <div class="user-role">编辑者</div>
+                            </div>
+                            <select class="permission-select">
+                                <option>可编辑</option>
+                                <option>只读</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-secondary" style="width: 100%; margin-top: 12px;">
+                            <span>➕</span> 添加用户
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state management for the report center
+        // This object maintains all the configuration and data for report generation
+        const reportState = {
+            currentTab: 'template',
+            template: {
+                sections: [],
+                settings: {}
+            },
+            data: {
+                timeRange: 'monthly',
+                filters: {},
+                metrics: {}
+            },
+            schedule: {
+                frequency: 'weekly',
+                time: '09:00',
+                recipients: []
+            }
+        };
+
+        // Drag and Drop functionality for template building
+        // These functions enable intuitive report composition through visual manipulation
+        let draggedElement = null;
+        let draggedComponent = null;
+
+        function dragSection(event) {
+            // Store the section being dragged for repositioning
+            draggedElement = event.target;
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function dragComponent(event) {
+            // Store component type for creation
+            draggedComponent = event.target.dataset.component;
+            event.dataTransfer.effectAllowed = 'copy';
+        }
+
+        function allowDrop(event) {
+            // Allow dropping in template builder
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+        }
+
+        function dropComponent(event) {
+            event.preventDefault();
+            
+            if (draggedElement) {
+                // Reordering existing sections
+                if (event.target.classList.contains('template-builder')) {
+                    event.target.appendChild(draggedElement);
+                }
+                draggedElement.classList.remove('dragging');
+                draggedElement = null;
+            } else if (draggedComponent) {
+                // Adding new component from palette
+                createNewSection(draggedComponent);
+                draggedComponent = null;
+            }
+        }
+
+        // Create new report section based on component type
+        function createNewSection(componentType) {
+            const templates = {
+                chart: {
+                    icon: '📊',
+                    title: '图表',
+                    content: '<div class="chart-preview"><div class="chart-placeholder">图表将在这里显示</div></div>'
+                },
+                table: {
+                    icon: '📋',
+                    title: '数据表格',
+                    content: '<table class="data-table"><thead><tr><th>列1</th><th>列2</th></tr></thead><tbody><tr><td>数据</td><td>数据</td></tr></tbody></table>'
+                },
+                summary: {
+                    icon: '📝',
+                    title: '文本摘要',
+                    content: '<div style="padding: 12px; background: var(--gray-50); border-radius: 4px;">摘要内容将显示在这里</div>'
+                },
+                metrics: {
+                    icon: '🎯',
+                    title: '关键指标',
+                    content: '<div class="metrics-grid"><div class="metric-card"><div class="metric-label">指标</div><div class="metric-value">0</div></div></div>'
+                },
+                timeline: {
+                    icon: '📅',
+                    title: '时间线',
+                    content: '<div style="padding: 12px;">时间线视图</div>'
+                }
+            };
+
+            const template = templates[componentType];
+            if (!template) return;
+
+            const section = document.createElement('div');
+            section.className = 'template-section';
+            section.draggable = true;
+            section.ondragstart = dragSection;
+            section.innerHTML = `
+                <div class="section-header">
+                    <span class="section-title">${template.icon} ${template.title}</span>
+                    <div class="section-controls">
+                        <button class="control-btn" onclick="configureSection()">⚙️</button>
+                        <button class="control-btn" onclick="removeSection(this)">✕</button>
+                    </div>
+                </div>
+                ${template.content}
+            `;
+
+            document.querySelector('.template-builder').appendChild(section);
+            
+            // Log the action for tracking
+            console.log(`Added new section: ${template.title}`);
+        }
+
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Update visual state of tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            reportState.currentTab = tabName;
+            console.log(`Switched to tab: ${tabName}`);
+            
+            // In a real application, this would load different content
+            // based on the selected tab
+        }
+
+        // Generate executive summary using AI
+        function generateSummary() {
+            const button = event.target;
+            const originalContent = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '<span class="loading"></span> 生成中...';
+            button.disabled = true;
+            
+            // Simulate AI generation
+            setTimeout(() => {
+                // Update summary content
+                const insights = [
+                    "内容营销效率提升35%，主要归功于自动化工具的应用",
+                    "用户参与度在移动端显著提高，建议优化移动体验",
+                    "视频内容的ROI是文字内容的2.3倍"
+                ];
+                
+                // In real application, this would call an AI API
+                console.log('Executive summary generated');
+                
+                // Restore button
+                button.innerHTML = originalContent;
+                button.disabled = false;
+                
+                alert('执行摘要已更新！');
+            }, 2000);
+        }
+
+        // Generate complete report
+        function generateReport() {
+            console.log('Generating report with current configuration...');
+            
+            // Collect all template sections
+            const sections = document.querySelectorAll('.template-section');
+            const reportConfig = {
+                sections: Array.from(sections).map(section => ({
+                    type: section.querySelector('.section-title').textContent,
+                    order: Array.from(section.parentNode.children).indexOf(section)
+                })),
+                filters: reportState.data.filters,
+                timeRange: reportState.data.timeRange
+            };
+            
+            console.log('Report configuration:', reportConfig);
+            
+            // In a real application, this would trigger report generation
+            // and potentially open a preview
+            alert('报表生成中... 这将需要几秒钟。');
+        }
+
+        // Export report in different formats
+        function exportReport(format) {
+            console.log(`Exporting report as ${format}`);
+            
+            const exportHandlers = {
+                pdf: () => console.log('Generating PDF...'),
+                excel: () => console.log('Creating Excel file...'),
+                ppt: () => console.log('Building PowerPoint presentation...'),
+                csv: () => console.log('Exporting CSV data...')
+            };
+            
+            const handler = exportHandlers[format];
+            if (handler) {
+                handler();
+                
+                // Show progress
+                setTimeout(() => {
+                    alert(`报表已导出为 ${format.toUpperCase()} 格式`);
+                }, 1500);
+            }
+        }
+
+        // Save template configuration
+        function saveTemplate() {
+            const templateName = prompt('请输入模板名称:');
+            if (templateName) {
+                // Serialize current template configuration
+                const sections = document.querySelectorAll('.template-section');
+                reportState.template.sections = Array.from(sections).map(section => ({
+                    type: section.querySelector('.section-title').textContent,
+                    configuration: {} // Would include detailed config in real app
+                }));
+                
+                // Save to storage (localStorage for demo)
+                localStorage.setItem(`template_${templateName}`, JSON.stringify(reportState.template));
+                
+                console.log(`Template saved: ${templateName}`);
+                alert(`模板 "${templateName}" 已保存`);
+            }
+        }
+
+        // Configure report scheduling
+        function scheduleReport() {
+            console.log('Opening schedule configuration...');
+            // In a real app, this would open a modal with detailed scheduling options
+            alert('定时发送配置已打开');
+        }
+
+        // Share report with team members
+        function shareReport() {
+            console.log('Opening share dialog...');
+            const shareLink = `https://report-center.example.com/report/${Date.now()}`;
+            
+            // Copy to clipboard functionality
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareLink).then(() => {
+                    alert('分享链接已复制到剪贴板');
+                });
+            }
+        }
+
+        // Remove a section from the template
+        function removeSection(button) {
+            const section = button.closest('.template-section');
+            if (confirm('确定要删除这个部分吗？')) {
+                section.remove();
+                console.log('Section removed');
+            }
+        }
+
+        // Configure section settings
+        function configureSection() {
+            console.log('Opening section configuration...');
+            // In a real app, this would open a modal with section-specific settings
+            alert('部分配置面板');
+        }
+
+        // Initialize the report center
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Report Generation Center initialized');
+            
+            // Set up periodic data refresh
+            setInterval(() => {
+                // In a real application, this would fetch fresh data
+                updateMetrics();
+            }, 30000); // Update every 30 seconds
+            
+            // Initialize chart animations
+            setTimeout(() => {
+                const bars = document.querySelectorAll('.chart-bar');
+                bars.forEach((bar, index) => {
+                    setTimeout(() => {
+                        bar.style.transform = 'scaleY(1)';
+                    }, index * 100);
+                });
+            }, 500);
+        });
+
+        // Update metrics with fresh data
+        function updateMetrics() {
+            // Simulate metric updates
+            const metrics = document.querySelectorAll('.metric-value');
+            metrics.forEach(metric => {
+                // Add subtle animation to indicate update
+                metric.style.opacity = '0.5';
+                setTimeout(() => {
+                    metric.style.opacity = '1';
+                }, 300);
+            });
+            
+            console.log('Metrics updated');
+        }
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', function() {
+            // Save current state
+            localStorage.setItem('reportState', JSON.stringify(reportState));
+        });
+    </script>
+</body>
+</html>

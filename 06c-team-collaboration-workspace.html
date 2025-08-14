@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团队协作工作台 - Team Collaboration Workspace</title>
+    <style>
+        /* 全局设计系统 - 创建一个促进协作的视觉环境 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 色彩系统 - 使用温暖、友好的色调促进团队合作氛围 */
+            --primary: #6366F1;      /* 主色：靛蓝，传达专业和信任 */
+            --secondary: #8B5CF6;    /* 次色：紫色，创造力和创新 */
+            --success: #10B981;      /* 成功：绿色，完成和进展 */
+            --warning: #F59E0B;      /* 警告：橙色，需要注意 */
+            --danger: #EF4444;       /* 危险：红色，紧急事项 */
+            --info: #3B82F6;         /* 信息：蓝色，通知和提示 */
+            
+            /* 扩展的中性色阶 - 提供丰富的层次感 */
+            --gray-950: #030712;
+            --gray-900: #111827;
+            --gray-800: #1F2937;
+            --gray-700: #374151;
+            --gray-600: #4B5563;
+            --gray-500: #6B7280;
+            --gray-400: #9CA3AF;
+            --gray-300: #D1D5DB;
+            --gray-200: #E5E7EB;
+            --gray-100: #F3F4F6;
+            --gray-50: #F9FAFB;
+            --white: #FFFFFF;
+            
+            /* 渐变系统 - 创造视觉层次和焦点 */
+            --gradient-primary: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            --gradient-warm: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+            --gradient-cool: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #F0F9FF 0%, #E0F2FE 100%);
+            color: var(--gray-900);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* 应用容器 - 创建一个包含所有功能的工作空间 */
+        .workspace-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 顶部导航栏 - 提供全局操作和用户信息 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .workspace-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 用户头像系统 - 创建可识别的团队成员标识 */
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .avatar-group {
+            display: flex;
+            margin-left: -8px;
+        }
+
+        .avatar-group .user-avatar {
+            margin-left: -8px;
+            border: 2px solid white;
+        }
+
+        /* 侧边栏 - 主要导航和工具面板 */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--gray-200);
+            padding: 80px 16px 16px 16px;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-500);
+            margin-bottom: 12px;
+            padding: 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: var(--gray-50);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* 主工作区 - 显示主要内容和功能 */
+        .main-workspace {
+            flex: 1;
+            padding: 80px 24px 24px 24px;
+            overflow-y: auto;
+        }
+
+        /* 页面头部 - 提供上下文和主要操作 */
+        .workspace-header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 按钮系统 - 提供一致的交互元素 */
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* 任务卡片系统 - 可视化任务状态和信息 */
+        .task-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .task-column {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        .column-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-count {
+            background: var(--gray-100);
+            color: var(--gray-600);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .task-card {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: move;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .task-card.dragging {
+            opacity: 0.5;
+        }
+
+        .task-priority {
+            display: inline-block;
+            width: 4px;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            border-radius: 8px 0 0 8px;
+        }
+
+        .priority-high {
+            background: var(--danger);
+        }
+
+        .priority-medium {
+            background: var(--warning);
+        }
+
+        .priority-low {
+            background: var(--success);
+        }
+
+        .task-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .task-assignees {
+            display: flex;
+            margin-left: -4px;
+        }
+
+        .task-assignee {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-left: -4px;
+            border: 2px solid white;
+            font-size: 10px;
+        }
+
+        .task-due-date {
+            font-size: 12px;
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 内容审核面板 - 提供协作审核功能 */
+        .review-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .review-content {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .review-annotation {
+            background: var(--warning);
+            color: white;
+            padding: 2px 4px;
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .annotation-popup {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            margin-bottom: 8px;
+            display: none;
+        }
+
+        .annotation-popup.show {
+            display: block;
+        }
+
+        .comment-section {
+            border-top: 1px solid var(--gray-200);
+            padding-top: 20px;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .comment-content {
+            flex: 1;
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .comment-author {
+            font-weight: 500;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: var(--gray-700);
+            line-height: 1.5;
+        }
+
+        .comment-time {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+
+        /* 工作流程可视化 - 展示流程和依赖关系 */
+        .workflow-canvas {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            min-height: 400px;
+            position: relative;
+            overflow: auto;
+        }
+
+        .workflow-node {
+            position: absolute;
+            background: white;
+            border: 2px solid var(--gray-300);
+            border-radius: 8px;
+            padding: 12px;
+            min-width: 150px;
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+
+        .workflow-node:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .workflow-node.active {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .node-title {
+            font-weight: 500;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .node-status {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .workflow-connection {
+            position: absolute;
+            height: 2px;
+            background: var(--gray-300);
+            transform-origin: left center;
+        }
+
+        /* 团队绩效仪表板 - 展示贡献度和统计 */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .metric-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .metric-change {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .metric-change.positive {
+            color: var(--success);
+        }
+
+        .metric-change.negative {
+            color: var(--danger);
+        }
+
+        /* 活动时间线 - 显示协作历史 */
+        .activity-timeline {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gray-200);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -28px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid var(--primary);
+        }
+
+        .timeline-content {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .timeline-user {
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .timeline-action {
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+
+        /* 权限管理矩阵 - 清晰展示团队权限 */
+        .permission-matrix {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            overflow-x: auto;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .matrix-table th {
+            background: var(--gray-50);
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .permission-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* 响应式设计 - 适应不同屏幕尺寸 */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                height: 100vh;
+                z-index: 999;
+                transition: left 0.3s ease;
+            }
+            
+            .sidebar.open {
+                left: 0;
+            }
+            
+            .main-workspace {
+                margin-left: 0;
+            }
+            
+            .task-board {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .top-nav {
+                padding: 0 16px;
+            }
+            
+            .workspace-header {
+                padding: 16px;
+            }
+        }
+
+        /* 动画和过渡效果 - 创造流畅的交互体验 */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-card {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* 进度条组件 - 可视化任务进度 */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--gray-200);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* 标签系统 - 分类和组织内容 */
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 4px;
+        }
+
+        .tag-blue {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .tag-green {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .tag-yellow {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+    </style>
+</head>
+<body>
+    <div class="workspace-container">
+        <!-- 顶部导航栏 - 全局控制和用户信息 -->
+        <nav class="top-nav">
+            <div class="nav-left">
+                <div class="workspace-title">
+                    <span style="font-size: 28px;">👥</span>
+                    <span>团队协作工作台</span>
+                </div>
+            </div>
+            <div class="nav-right">
+                <!-- 通知按钮 -->
+                <button class="btn btn-secondary" style="position: relative;">
+                    <span>🔔</span>
+                    <span style="position: absolute; top: -4px; right: -4px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%;"></span>
+                </button>
+                <!-- 当前用户头像 -->
+                <div class="user-avatar" style="background: var(--gradient-primary);">
+                    JD
+                </div>
+            </div>
+        </nav>
+
+        <!-- 侧边栏导航 - 功能模块入口 -->
+        <aside class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作空间</div>
+                <div class="nav-item active" onclick="switchView('tasks')">
+                    <span class="nav-icon">📋</span>
+                    <span>任务看板</span>
+                </div>
+                <div class="nav-item" onclick="switchView('review')">
+                    <span class="nav-icon">✏️</span>
+                    <span>内容审核</span>
+                </div>
+                <div class="nav-item" onclick="switchView('workflow')">
+                    <span class="nav-icon">🔄</span>
+                    <span>工作流程</span>
+                </div>
+                <div class="nav-item" onclick="switchView('performance')">
+                    <span class="nav-icon">📊</span>
+                    <span>团队绩效</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">管理</div>
+                <div class="nav-item" onclick="switchView('permissions')">
+                    <span class="nav-icon">🔐</span>
+                    <span>权限管理</span>
+                </div>
+                <div class="nav-item" onclick="switchView('logs')">
+                    <span class="nav-icon">📝</span>
+                    <span>操作日志</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">团队成员</div>
+                <!-- 在线团队成员列表 -->
+                <div style="padding: 0 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <div class="user-avatar" style="background: var(--gradient-primary); width: 28px; height: 28px; font-size: 12px;">JD</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; font-weight: 500;">John Doe</div>
+                            <div style="font-size: 12px; color: var(--success);">● 在线</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <div class="user-avatar" style="background: var(--success); width: 28px; height: 28px; font-size: 12px;">AS</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; font-weight: 500;">Alice Smith</div>
+                            <div style="font-size: 12px; color: var(--success);">● 在线</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <div class="user-avatar" style="background: var(--warning); width: 28px; height: 28px; font-size: 12px;">BJ</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; font-weight: 500;">Bob Johnson</div>
+                            <div style="font-size: 12px; color: var(--gray-500);">● 离开</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主工作区 - 动态内容展示 -->
+        <main class="main-workspace">
+            <!-- 任务看板视图 -->
+            <div id="tasksView" class="view-panel">
+                <div class="workspace-header">
+                    <div class="header-top">
+                        <h1 class="page-title">任务管理</h1>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" onclick="filterTasks()">
+                                <span>🔍</span> 筛选
+                            </button>
+                            <button class="btn btn-primary" onclick="createTask()">
+                                <span>➕</span> 新建任务
+                            </button>
+                        </div>
+                    </div>
+                    <!-- 任务统计概览 -->
+                    <div style="display: flex; gap: 24px; margin-top: 16px;">
+                        <div>
+                            <span style="font-size: 12px; color: var(--gray-500);">待处理</span>
+                            <div style="font-size: 24px; font-weight: 600; color: var(--gray-900);">12</div>
+                        </div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--gray-500);">进行中</span>
+                            <div style="font-size: 24px; font-weight: 600; color: var(--primary);">8</div>
+                        </div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--gray-500);">待审核</span>
+                            <div style="font-size: 24px; font-weight: 600; color: var(--warning);">5</div>
+                        </div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--gray-500);">已完成</span>
+                            <div style="font-size: 24px; font-weight: 600; color: var(--success);">23</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 看板列 - 拖拽式任务管理 -->
+                <div class="task-board">
+                    <!-- 待处理列 -->
+                    <div class="task-column" data-status="todo">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span>📝</span>
+                                <span>待处理</span>
+                                <span class="task-count">3</span>
+                            </div>
+                        </div>
+                        <div class="task-list" ondrop="dropTask(event)" ondragover="allowDrop(event)">
+                            <div class="task-card" draggable="true" ondragstart="dragTask(event)" data-task-id="1">
+                                <div class="task-priority priority-high" style="position: absolute;"></div>
+                                <div style="padding-left: 8px;">
+                                    <div class="task-title">撰写LinkedIn营销文案</div>
+                                    <div class="tag tag-blue">内容创作</div>
+                                    <div class="task-meta">
+                                        <div class="task-assignees">
+                                            <div class="user-avatar task-assignee" style="background: var(--gradient-primary);">JD</div>
+                                        </div>
+                                        <div class="task-due-date">
+                                            <span>📅</span>
+                                            <span>明天到期</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="task-card" draggable="true" ondragstart="dragTask(event)" data-task-id="2">
+                                <div class="task-priority priority-medium" style="position: absolute;"></div>
+                                <div style="padding-left: 8px;">
+                                    <div class="task-title">更新产品FAQ文档</div>
+                                    <div class="tag tag-green">文档</div>
+                                    <div class="task-meta">
+                                        <div class="task-assignees">
+                                            <div class="user-avatar task-assignee" style="background: var(--success);">AS</div>
+                                        </div>
+                                        <div class="task-due-date">
+                                            <span>📅</span>
+                                            <span>3天后</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 进行中列 -->
+                    <div class="task-column" data-status="progress">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span>⚡</span>
+                                <span>进行中</span>
+                                <span class="task-count">2</span>
+                            </div>
+                        </div>
+                        <div class="task-list" ondrop="dropTask(event)" ondragover="allowDrop(event)">
+                            <div class="task-card" draggable="true" ondragstart="dragTask(event)" data-task-id="3">
+                                <div class="task-priority priority-high" style="position: absolute;"></div>
+                                <div style="padding-left: 8px;">
+                                    <div class="task-title">Q1营销策略制定</div>
+                                    <div class="tag tag-yellow">策略</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 65%;"></div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <div class="task-assignees">
+                                            <div class="user-avatar task-assignee" style="background: var(--gradient-primary);">JD</div>
+                                            <div class="user-avatar task-assignee" style="background: var(--success);">AS</div>
+                                        </div>
+                                        <div class="task-due-date">
+                                            <span>📅</span>
+                                            <span>今天</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 审核中列 -->
+                    <div class="task-column" data-status="review">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span>👁️</span>
+                                <span>审核中</span>
+                                <span class="task-count">1</span>
+                            </div>
+                        </div>
+                        <div class="task-list" ondrop="dropTask(event)" ondragover="allowDrop(event)">
+                            <div class="task-card" draggable="true" ondragstart="dragTask(event)" data-task-id="4">
+                                <div class="task-priority priority-medium" style="position: absolute;"></div>
+                                <div style="padding-left: 8px;">
+                                    <div class="task-title">博客文章最终审核</div>
+                                    <div class="tag tag-blue">内容</div>
+                                    <div style="font-size: 12px; color: var(--gray-500); margin: 8px 0;">
+                                        等待主管批准...
+                                    </div>
+                                    <div class="task-meta">
+                                        <div class="task-assignees">
+                                            <div class="user-avatar task-assignee" style="background: var(--warning);">BJ</div>
+                                        </div>
+                                        <div class="task-due-date">
+                                            <span>📅</span>
+                                            <span>2小时前</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 已完成列 -->
+                    <div class="task-column" data-status="done">
+                        <div class="column-header">
+                            <div class="column-title">
+                                <span>✅</span>
+                                <span>已完成</span>
+                                <span class="task-count">2</span>
+                            </div>
+                        </div>
+                        <div class="task-list" ondrop="dropTask(event)" ondragover="allowDrop(event)">
+                            <div class="task-card" draggable="true" ondragstart="dragTask(event)" data-task-id="5" style="opacity: 0.7;">
+                                <div class="task-priority priority-low" style="position: absolute;"></div>
+                                <div style="padding-left: 8px;">
+                                    <div class="task-title" style="text-decoration: line-through;">社交媒体内容发布</div>
+                                    <div class="tag tag-green">已发布</div>
+                                    <div class="task-meta">
+                                        <div class="task-assignees">
+                                            <div class="user-avatar task-assignee" style="background: var(--success);">AS</div>
+                                        </div>
+                                        <div class="task-due-date">
+                                            <span>✅</span>
+                                            <span>昨天完成</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 内容审核视图 -->
+            <div id="reviewView" class="view-panel" style="display: none;">
+                <div class="workspace-header">
+                    <div class="header-top">
+                        <h1 class="page-title">内容审核</h1>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary">
+                                <span>📥</span> 导出报告
+                            </button>
+                            <button class="btn btn-primary">
+                                <span>✅</span> 批准发布
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-panel">
+                    <h3 style="margin-bottom: 16px;">待审核内容</h3>
+                    <div class="review-content">
+                        <h4 style="margin-bottom: 12px;">博客文章：AI在内容营销中的应用</h4>
+                        <p style="line-height: 1.6; color: var(--gray-700);">
+                            在当今数字化时代，<span class="review-annotation" onclick="showAnnotation(event)">人工智能技术</span>
+                            正在彻底改变内容营销的方式。通过智能算法和机器学习，
+                            营销团队能够更精准地理解用户需求，创造更有价值的内容...
+                        </p>
+                        <div class="annotation-popup">
+                            <div style="font-weight: 500; margin-bottom: 4px;">建议修改</div>
+                            <div style="font-size: 14px; color: var(--gray-600);">
+                                可以加入更具体的AI技术案例
+                            </div>
+                            <div style="font-size: 12px; color: var(--gray-500); margin-top: 8px;">
+                                - Alice Smith, 2小时前
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="comment-section">
+                        <h4 style="margin-bottom: 16px;">审核意见</h4>
+                        <div class="comment-item">
+                            <div class="user-avatar" style="background: var(--success);">AS</div>
+                            <div class="comment-content">
+                                <div class="comment-author">Alice Smith</div>
+                                <div class="comment-text">
+                                    整体内容质量不错，但建议在第二段加入更多数据支撑，
+                                    可以引用最新的行业报告。
+                                </div>
+                                <div class="comment-time">2小时前</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 活动日志时间线 -->
+            <div class="activity-timeline">
+                <h3 style="margin-bottom: 20px;">最近活动</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-user">John Doe</span>
+                                <span class="timeline-time">5分钟前</span>
+                            </div>
+                            <div class="timeline-action">
+                                将任务 "撰写LinkedIn营销文案" 移动到进行中
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-user">Alice Smith</span>
+                                <span class="timeline-time">1小时前</span>
+                            </div>
+                            <div class="timeline-action">
+                                完成了任务 "社交媒体内容发布"
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-user">Bob Johnson</span>
+                                <span class="timeline-time">3小时前</span>
+                            </div>
+                            <div class="timeline-action">
+                                在 "博客文章最终审核" 中添加了评论
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ========== 全局状态管理 ==========
+        // 创建一个中央状态存储，跟踪所有协作活动和数据
+        // 这种模式让我们能够在团队成员之间同步状态
+        const workspaceState = {
+            currentView: 'tasks',
+            currentUser: {
+                id: 'user_001',
+                name: 'John Doe',
+                avatar: 'JD',
+                role: 'manager'
+            },
+            tasks: [
+                {
+                    id: 1,
+                    title: '撰写LinkedIn营销文案',
+                    status: 'todo',
+                    priority: 'high',
+                    assignees: ['JD'],
+                    dueDate: '明天到期',
+                    tags: ['内容创作']
+                },
+                {
+                    id: 2,
+                    title: '更新产品FAQ文档',
+                    status: 'todo',
+                    priority: 'medium',
+                    assignees: ['AS'],
+                    dueDate: '3天后',
+                    tags: ['文档']
+                }
+            ],
+            activities: []
+        };
+
+        // ========== 任务管理功能 ==========
+        // 拖拽功能让任务状态更新变得直观
+        // 用户可以通过简单的拖放来改变任务状态
+        let draggedTask = null;
+
+        function dragTask(event) {
+            // 保存被拖拽的任务元素
+            draggedTask = event.target;
+            event.target.classList.add('dragging');
+            
+            // 存储任务ID以便后续处理
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/html', event.target.innerHTML);
+        }
+
+        function allowDrop(event) {
+            // 允许在任务列上放置
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+        }
+
+        function dropTask(event) {
+            event.preventDefault();
+            
+            if (draggedTask && event.target.classList.contains('task-list')) {
+                // 将任务移动到新的列
+                event.target.appendChild(draggedTask);
+                draggedTask.classList.remove('dragging');
+                
+                // 更新任务数量
+                updateTaskCounts();
+                
+                // 记录活动
+                const taskTitle = draggedTask.querySelector('.task-title').textContent;
+                const newStatus = event.target.parentElement.dataset.status;
+                logActivity(`移动任务 "${taskTitle}" 到 ${getStatusName(newStatus)}`);
+                
+                draggedTask = null;
+            }
+        }
+
+        // ========== 视图切换逻辑 ==========
+        // 不同的视图展示协作的不同方面
+        // 这种分离让用户能够专注于当前任务
+        function switchView(viewName) {
+            // 更新导航状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // 隐藏所有视图
+            document.querySelectorAll('.view-panel').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            
+            // 显示选中的视图
+            const viewId = viewName + 'View';
+            const viewPanel = document.getElementById(viewId);
+            if (viewPanel) {
+                viewPanel.style.display = 'block';
+            }
+            
+            workspaceState.currentView = viewName;
+            console.log(`切换到视图: ${viewName}`);
+        }
+
+        // ========== 协作功能 ==========
+        // 实时协作需要即时反馈和清晰的状态指示
+        function showAnnotation(event) {
+            // 显示或隐藏批注弹窗
+            const popup = event.target.nextElementSibling;
+            if (popup && popup.classList.contains('annotation-popup')) {
+                popup.classList.toggle('show');
+            }
+        }
+
+        // 记录团队活动
+        function logActivity(action) {
+            const activity = {
+                user: workspaceState.currentUser.name,
+                action: action,
+                timestamp: new Date()
+            };
+            
+            workspaceState.activities.unshift(activity);
+            
+            // 更新活动时间线UI
+            updateActivityTimeline();
+        }
+
+        // 更新活动时间线显示
+        function updateActivityTimeline() {
+            // 这里会更新DOM显示最新的活动
+            console.log('活动已记录:', workspaceState.activities[0]);
+        }
+
+        // ========== 任务统计功能 ==========
+        // 实时更新任务数量，让团队了解整体进度
+        function updateTaskCounts() {
+            document.querySelectorAll('.task-column').forEach(column => {
+                const taskList = column.querySelector('.task-list');
+                const taskCount = taskList.querySelectorAll('.task-card').length;
+                const countBadge = column.querySelector('.task-count');
+                if (countBadge) {
+                    countBadge.textContent = taskCount;
+                }
+            });
+        }
+
+        // 获取状态的中文名称
+        function getStatusName(status) {
+            const statusNames = {
+                'todo': '待处理',
+                'progress': '进行中',
+                'review': '审核中',
+                'done': '已完成'
+            };
+            return statusNames[status] || status;
+        }
+
+        // ========== 创建新任务 ==========
+        // 提供快速创建任务的能力
+        function createTask() {
+            // 在实际应用中，这里会打开一个模态框或表单
+            const taskTitle = prompt('请输入任务标题:');
+            if (taskTitle) {
+                // 创建新任务并添加到待处理列
+                const newTask = {
+                    id: Date.now(),
+                    title: taskTitle,
+                    status: 'todo',
+                    priority: 'medium',
+                    assignees: [workspaceState.currentUser.avatar],
+                    dueDate: '待定',
+                    tags: ['新任务']
+                };
+                
+                // 添加到状态
+                workspaceState.tasks.push(newTask);
+                
+                // 记录活动
+                logActivity(`创建了新任务 "${taskTitle}"`);
+                
+                alert('任务创建成功！');
+                
+                // 在实际应用中，这里会更新DOM
+                location.reload();
+            }
+        }
+
+        // ========== 筛选任务功能 ==========
+        function filterTasks() {
+            // 在实际应用中，这里会显示筛选选项
+            console.log('打开任务筛选器');
+        }
+
+        // ========== 初始化工作区 ==========
+        // 设置初始状态和事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('团队协作工作台初始化完成');
+            
+            // 初始化任务计数
+            updateTaskCounts();
+            
+            // 模拟实时更新
+            setInterval(() => {
+                // 在实际应用中，这里会通过WebSocket接收实时更新
+                // 现在我们只是模拟一些活动
+                const randomActivities = [
+                    '更新了任务进度',
+                    '添加了新评论',
+                    '上传了文件',
+                    '完成了审核'
+                ];
+                
+                if (Math.random() < 0.1) { // 10%的概率生成新活动
+                    const randomAction = randomActivities[Math.floor(Math.random() * randomActivities.length)];
+                    // 不自动记录，避免干扰用户
+                }
+            }, 5000);
+            
+            // 为所有任务卡片添加点击事件
+            document.querySelectorAll('.task-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // 避免拖拽时触发点击
+                    if (!e.target.classList.contains('dragging')) {
+                        console.log('打开任务详情:', this.dataset.taskId);
+                    }
+                });
+            });
+        });
+
+        // ========== 防止内存泄漏 ==========
+        // 清理事件监听器和定时器
+        window.addEventListener('beforeunload', function() {
+            // 保存当前状态到本地存储
+            localStorage.setItem('workspaceState', JSON.stringify(workspaceState));
+        });
+    </script>
+</body>
+</html>
