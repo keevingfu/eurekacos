@@ -340,7 +340,7 @@
                     <div class="nav-group">
                         <div class="nav-group-title">建库</div>
                         <div class="nav-dropdown">
-                            <div class="nav-item active" data-page="01a-question-collector.html">问题采集</div>
+                            <div class="nav-item" data-page="01a-question-collector.html">问题采集</div>
                             <div class="nav-item" data-page="01b-question-map.html">问题地图</div>
                             <div class="nav-item" data-page="01c-decision-dashboard.html">决策仪表板</div>
                             <div class="nav-item" data-page="01d-asset-library-management.html">资产库管理</div>
@@ -397,6 +397,9 @@
                     
                     <!-- 系统设置 -->
                     <div class="nav-single" data-page="07-system-settings-console.html">系统设置</div>
+                    
+                    <!-- 平台说明 -->
+                    <div class="nav-single active" data-page="eureka-geo-dam.html">平台说明</div>
                 </nav>
                 
                 <div class="user-area">
@@ -410,7 +413,7 @@
             <div class="loading-overlay" id="loadingOverlay">
                 <div class="loading-spinner"></div>
             </div>
-            <iframe id="contentFrame" src="01a-question-collector.html"></iframe>
+            <iframe id="contentFrame" src="eureka-geo-dam.html"></iframe>
         </div>
     </div>
 
@@ -535,7 +538,7 @@
             }
         });
         
-        // 初始化：打开包含激活项的菜单
+        // 初始化：如果有激活的菜单项，打开对应的菜单组
         const activeItem = document.querySelector('.nav-item.active');
         if (activeItem) {
             const parentGroup = activeItem.closest('.nav-group');
