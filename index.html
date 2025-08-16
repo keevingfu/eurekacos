@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GEO资产库内容操作系统 - 门户</title>
+    <script>
+        // 检查登录状态
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -232,8 +238,21 @@
             align-items: center;
             gap: 16px;
             margin-left: 24px;
+            position: relative;
         }
 
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+        .user-info:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
         .user-avatar {
             width: 32px;
             height: 32px;
@@ -244,6 +263,48 @@
             justify-content: center;
             font-size: 14px;
             font-weight: 500;
+            text-transform: uppercase;
+        }
+        .username {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 160px;
+            display: none;
+            z-index: 1000;
+        }
+        .user-dropdown.show {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 10px 16px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+        .dropdown-item:hover {
+            background-color: var(--background);
+        }
+        .dropdown-item:first-child {
+            border-radius: 6px 6px 0 0;
+        }
+        .dropdown-item:last-child {
+            border-radius: 0 0 6px 6px;
+            border-top: 1px solid var(--border);
+            color: var(--error);
         }
 
         /* iframe容器 */
@@ -403,7 +464,15 @@
                 </nav>
                 
                 <div class="user-area">
-                    <div class="user-avatar">U</div>
+                    <div class="user-info" id="userInfo">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <span class="username" id="username">用户</span>
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-item" id="profileBtn">个人资料</div>
+                        <div class="dropdown-item" id="settingsBtn">账号设置</div>
+                        <div class="dropdown-item" id="logoutBtn">退出登录</div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -562,6 +631,55 @@
         // 调试：输出所有下拉菜单状态
         console.log('下拉菜单元素:', document.querySelectorAll('.nav-dropdown'));
         console.log('菜单组:', document.querySelectorAll('.nav-group'));
+        
+        // 用户管理功能
+        const userInfo = document.getElementById('userInfo');
+        const userDropdown = document.getElementById('userDropdown');
+        const userAvatar = document.getElementById('userAvatar');
+        const usernameElement = document.getElementById('username');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const profileBtn = document.getElementById('profileBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
+        
+        // 获取并显示用户名
+        const username = localStorage.getItem('username') || 'user';
+        usernameElement.textContent = username;
+        userAvatar.textContent = username.charAt(0).toUpperCase();
+        
+        // 点击用户信息显示/隐藏下拉菜单
+        userInfo.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+        
+        // 点击页面其他地方关闭下拉菜单
+        document.addEventListener('click', function() {
+            userDropdown.classList.remove('show');
+        });
+        
+        // 阻止下拉菜单内的点击事件冒泡
+        userDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // 退出登录
+        logoutBtn.addEventListener('click', function() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+        });
+        
+        // 个人资料按钮
+        profileBtn.addEventListener('click', function() {
+            alert('个人资料功能开发中...');
+            userDropdown.classList.remove('show');
+        });
+        
+        // 账号设置按钮
+        settingsBtn.addEventListener('click', function() {
+            alert('账号设置功能开发中...');
+            userDropdown.classList.remove('show');
+        });
     </script>
 </body>
 </html>

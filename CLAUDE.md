@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**GEO资产库内容操作系统** (GEO Asset Library Content Operating System) is a comprehensive content management and distribution platform designed for multi-channel content operations. The system enables businesses to create standardized content assets, automate distribution across multiple channels, and optimize content performance through data-driven insights.
+**GEO资产库内容操作系统 (EurekaCOS)** is a comprehensive content management and distribution platform designed for multi-channel content operations. The system enables businesses to create standardized content assets, automate distribution across multiple channels, and optimize content performance through data-driven insights using AI-powered GEO (Generative Engine Optimization) techniques.
 
 ## Architecture
 
@@ -25,12 +25,21 @@ Since this is a static HTML project, no build or compilation is required:
 
 ```bash
 # To serve the files locally with a simple HTTP server:
-python -m http.server 8000
-# or
-npx http-server -p 8000
-# or
 python3 -m http.server 8000
+
+# Alternative with Node.js:
+npx http-server -p 8000
+
+# For auto-reload during development:
+npx browser-sync start --server --files "*.html"
 ```
+
+## Repository Information
+
+- **Git Repository**: Yes (main branch)
+- **Remote**: https://github.com/keevingfu/eurekacos.git
+- **Dependencies**: None - pure static HTML/CSS/JS project
+- **Build Process**: None required
 
 ## Key Technologies
 
@@ -51,8 +60,15 @@ Each HTML file represents a complete module interface:
 ## Module Navigation System
 
 The project includes two navigation entry points:
-- `index.html` - Main portal with comprehensive navigation menu
+- `login.html` - Login page (entry point)
+- `index.html` - Main portal with comprehensive navigation menu (requires authentication)
 - Individual module files - Direct access to specific functionality
+
+### Authentication Flow
+- Users must log in through `login.html` before accessing the system
+- Demo credentials: `admin/admin123` or `demo/demo123`
+- Session managed via localStorage
+- Logout functionality available in the user dropdown menu
 
 ### Navigation Updates
 
@@ -68,29 +84,13 @@ The `index.html` portal has been enhanced with:
    - `00b-eureka-geo-opportunity.html` - GEO市场机会分析
    - `00c-eureka-geo-strategy.html` - GEO优化策略
 
-2. **Eureka Case Study Pages**:
-   - `eureka-geo-dashboard.html` - Initial GEO opportunity analysis
-   - `eureka-geo-strategy-dashboard.html` - 3-step strategy overview
-   - `eureka-geo-implementation-guide.html` - Tactical execution guide
-   - `eureka-geo-optimization-strategy.html` - Methodology visualization
-   - `eureka-ai-channel-diagnostic.html` - Channel distribution analysis
-   - `eureka-geo-dam.html` - Advanced visualization with cosmic theme
-
-3. **AI Search Optimization Tools**:
-   - `ai-search-optimization-system.html` - Main AI search system
-   - `ai-search-content-editor.html` - Content editing for search
-   - `ai-search-schema-generator.html` - Schema generation tool
-   - `ai-geo-optimizer-app.html` - GEO optimization application
-
-4. **Marketplace Components**:
+2. **Marketplace Components**:
    - `marketplace-*.html` - Various marketplace features including templates, statistics, collaboration, and workflow management
    - `marketplace-home.html` - New marketplace homepage
    - `02b-content-marketplace.html` - Enhanced with iframe navigation for marketplace pages
 
-5. **Standalone Implementations**:
-   - `content-marketplace.html` - Alternative marketplace implementation
-   - `user-journey-tracker.html` - User tracking functionality
-   - `ai-optimization-analytics.html` - AI analytics dashboard
+3. **Special Purpose Pages**:
+   - `eureka-geo-dam.html` - Advanced visualization dashboard with cosmic theme
 
 ## Important Design Patterns
 
@@ -213,9 +213,6 @@ python3 -m http.server 8000 && open http://localhost:8000
 
 # Alternative with Node.js
 npx http-server -p 8000
-
-# For watching file changes during development
-npx browser-sync start --server --files "*.html"
 ```
 
 ## Common Customization Points
@@ -240,12 +237,7 @@ When extending the system:
 - Created `marketplace-home.html` as the default marketplace landing page
 
 ### Chart Visualizations
-The Eureka case study pages feature advanced ECharts visualizations:
-- Sunburst charts for hierarchical data
-- Force-directed graphs for relationship networks
-- Sankey diagrams for value flow analysis
-- 3D bar charts for multi-dimensional data
-- Heatmaps for performance metrics
+Some pages may include advanced ECharts visualizations for complex data representation. Most modules use native Canvas API for simpler charts.
 
 ## Project Status
 
