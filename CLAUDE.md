@@ -66,7 +66,7 @@ The project includes two navigation entry points:
 
 ### Authentication Flow
 - Users must log in through `login.html` before accessing the system
-- Demo credentials: `admin/admin123` or `demo/demo123`
+- Demo credentials: `admin/eurekacos@leap` or `demo/eurekacos@leap`
 - Session managed via localStorage
 - Logout functionality available in the user dropdown menu
 
